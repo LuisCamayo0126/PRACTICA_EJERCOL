@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="role-page">
+	<div class="role-panel">
+		<h1>Bienvenido — {{ user.username }}</h1>
+		<p>Esta es la página del soldado.</p>
+		<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link-logout">Cerrar sesión</button></form>
+	</div>
+</main>
+{% endblock %}
+

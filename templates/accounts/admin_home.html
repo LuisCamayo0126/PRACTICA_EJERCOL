@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}admin-page{% endblock %}
+{% block content %}
+<main class="role-page admin-page">
+  <!-- admin-header eliminado para evitar saludo duplicado; saludo se muestra en .admin-greeting -->
+  <!-- Cabecera: ahora el carrusel ocupa todo el ancho disponible -->
+  <!-- saludo y logout debajo de la linea dorada -->
+  <div class="admin-greeting">
+    <div class="greeting-text">Hola, {{ user.first_name|default:user.username }}.</div>
+  </div>
+
+  <section class="admin-carrusel-full">
+    <div class="admin-carrusel" aria-roledescription="carrusel">
+      <button class="carrusel-prev" aria-label="Anterior">‹</button>
+      <div class="carrusel-viewport">
+        <div class="carrusel-track">
+          {% for src in carousel_images %}
+            <div class="carrusel-slide">
+              <img src="{{ src }}" alt="Carrusel {{ forloop.counter }}" loading="eager">
+            </div>
+          {% empty %}
+            <div class="carrusel-slide empty">
+              <img src="{% static 'images/fondo_login.jpg' %}" alt="Sin imágenes" loading="eager">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carrusel-next" aria-label="Siguiente">›</button>
+    </div>
+  </section>
+
+  <!-- Título grande del boletín (debajo del carrusel) -->
+  <div class="admin-content">
+    <div class="admin-content-inner">
+      <h2 class="newsletter-title">BOLETÍN INFORMATIVO POR SEMESTRE</h2>
+      <h3 class="muted">Aquí puedes ver las últimas noticias y accesos rápidos.</h3>
+      <!-- Más contenido administrativo -->
+    </div>
+    <div class="admin-content-actions">
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+
+      </form>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const carousel = document.querySelector('.admin-carrusel');
+  if(!carousel) return;
+  const track = carousel.querySelector('.carrusel-track');
+  const slides = Array.from(carousel.querySelectorAll('.carrusel-slide'));
+  const prev = carousel.querySelector('.carrusel-prev');
+  const next = carousel.querySelector('.carrusel-next');
+  const viewport = carousel.querySelector('.carrusel-viewport');
+
+  let index = 0;
+  const slideWidth = 150;
+  let autoplayId = null;
+  const delay = 2000;
+
+  function imagesLoaded(cb){
+    const imgs = Array.from(track.querySelectorAll('img'));
+    let loaded = 0;
+    if(imgs.length === 0) return cb();
+    imgs.forEach(img => {
+      if(img.complete){ loaded++; }
+      else { img.addEventListener('load', ()=>{ loaded++; if(loaded===imgs.length) cb(); }); img.addEventListener('error', ()=>{ loaded++; if(loaded===imgs.length) cb(); }); }
+    });
+    if(loaded === imgs.length) cb();
+  }
+
+  function setSizes(){
+    slides.forEach(slide => { slide.style.width = slideWidth + 'px'; slide.style.height = slideWidth + 'px'; });
+    if(track) track.style.width = (slideWidth * slides.length) + 'px';
+    moveTo(index, false);
+  }
+
+  function moveTo(i, animate = true){
+    if(slides.length === 0) return;
+    index = (i + slides.length) % slides.length;
+    if(!animate) track.style.transition = 'none'; else track.style.transition = 'transform 600ms ease';
+    track.style.transform = 'translate3d(' + (-index * slideWidth) + 'px, 0, 0)';
+    slides.forEach((s, idx)=> s.classList.toggle('active', idx === index));
+    if(!animate){ requestAnimationFrame(()=>{ track.style.transition = 'transform 600ms ease'; }); }
+  }
+
+  function nextSlide(){ moveTo(index + 1); }
+  function prevSlide(){ moveTo(index - 1); }
+
+  if(next) next.addEventListener('click', ()=>{ stopAutoplay(); nextSlide(); startAutoplay(); });
+  if(prev) prev.addEventListener('click', ()=>{ stopAutoplay(); prevSlide(); startAutoplay(); });
+
+  window.addEventListener('resize', setSizes);
+
+  function startAutoplay(){ stopAutoplay(); autoplayId = setInterval(()=> nextSlide(), delay); }
+  function stopAutoplay(){ if(autoplayId) clearInterval(autoplayId); autoplayId = null; }
+
+  carousel.addEventListener('mouseenter', stopAutoplay);
+  carousel.addEventListener('mouseleave', startAutoplay);
+
+  imagesLoaded(function(){ setSizes(); if(slides.length <= 1) carousel.classList.add('hide-arrows'); if(slides.length > 1) startAutoplay(); });
+});
+</script>
+
+<script>
+// mostrar/ocultar logout al tocar el saludo (para móviles)
+document.addEventListener('DOMContentLoaded', function(){
+  const greeting = document.querySelector('.admin-greeting');
+  if(!greeting) return;
+  const text = greeting.querySelector('.greeting-text');
+  text.addEventListener('click', function(e){
+    greeting.classList.toggle('show-logout');
+  });
+});
+</script>
+
+{% endblock %}

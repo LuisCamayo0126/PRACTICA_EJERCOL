@@ -1,0 +1,257 @@
+/* ===== Login (scoped) ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body.login-page { margin: 0; font-family: system-ui, Arial, sans-serif; background: #fafafa; }
+
+/* Contenedor de dos columnas */
+.login-wrapper{
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 520px;    /* Izquierda flexible | Derecha fija */
+  align-items: center;                 /* centra verticalmente */
+  gap: 56px;
+  padding: 30px 32px;
+}
+
+/* Izquierda: título + logo */
+.login-left{
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  row-gap: 16px;
+}
+.welcome{
+  margin: 0 0 8px 0;
+  text-align: center;
+  justify-self: center;    /* centra el elemento dentro de la columna */
+}
+.logo-img{
+  width: clamp(180px, 34vw, 200px);    /* límite para que el logo NO empuje el layout */
+  height: auto;
+  display: block;
+  
+}
+
+/* Derecha: tarjeta de formulario */
+.login-right{
+  width: 100%;
+  background: #fff;
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.08);
+}
+
+/* Campos */
+.field{ margin-bottom: 14px; }
+.login-form input,
+.login-form select{
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #2c2250;           /* borde morado (como referencia) */
+  border-radius: 10px;
+  background: #f5f3f7;
+  font-size: 15px;
+  outline: none;
+}
+.login-form input::placeholder{ color:#6f6a80; }
+
+/* Recordar + botón a la derecha */
+.actions{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px;
+  margin-top: 8px;
+}
+.remember{
+  font-size: 14px;
+  color: #222;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Botón rojo */
+.btn-login{
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: #c62828;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #2c2250 inset;
+}
+.btn-login:hover{ background: #a61c1c; }
+
+/* Responsive */
+@media (max-width: 980px){
+  .login-wrapper{
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 20px;
+  }
+  .login-left{ justify-items: center; text-align: center; }
+  .logo-img{ width: clamp(160px, 45vw, 300px); }
+  .login-right{ max-width: 560px; margin: 0 auto; }
+}
+
+/* Centrar el bloque de la izquierda verticalmente */
+.login-left{
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: 16px;
+  align-content: center;     /* centra verticalmente todo el bloque en su columna */
+  justify-items: start;      /* por defecto alinea a la izquierda */
+}
+
+/* Centrar SOLO el logo horizontalmente */
+.logo-wrap{
+  justify-self: center;      /* centra el logo en la columna */
+}
+
+/* (opcional) si quieres que el título también quede centrado, descomenta: */
+/* .welcome{ text-align: center; justify-self: center; } */
+
+/* ===== Admin carrusel & admin page ===== */
+.role-page{ padding: 36px 20px; min-height: 60vh; }
+.admin-header{ text-align: left; margin-bottom: 10px; padding: 0 20px; }
+.welcome-small{ font-size: 18px; color: #222; font-weight: 700; }
+.newsletter-title{ margin: 18px 0; font-size: 36px; color: #c62828; letter-spacing: 1px; text-transform: uppercase; font-weight: 900; text-align: center; text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000; }
+
+.admin-carrusel-wrap{ display:flex; justify-content:center; align-items:center; gap:16px; margin-bottom: 18px; }
+.admin-carrusel{ position: relative; display: inline-block; max-width: 1200px; width: 100%; }
+.carrusel-viewport{ overflow: hidden; width: 100%; border-radius: 0; }
+.carrusel-track{ display:flex; transition: transform 600ms ease; will-change: transform; }
+/* Carrusel como tarjetas de miniaturas (mostrando 1 por vez) */
+.carrusel-slide{ flex: 0 0 auto; width: 150px; height: 150px; display:flex; justify-content:center; align-items:center; background: transparent; margin: 0; }
+.carrusel-slide img{ display:block; width:150px; height:150px; object-fit: contain; background: #fff; border-radius:6px; }
+
+.carrusel-prev, .carrusel-next{
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #222; border: none; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.carrusel-prev{ left: 12px; }
+.carrusel-next{ right: 12px; }
+.carrusel-prev:hover, .carrusel-next:hover{ transform: translateY(-50%) scale(1.04); }
+
+@media (max-width: 980px){
+  .carrusel-slide img{ height: 220px; }
+  .admin-carrusel{ max-width: 520px; }
+}
+@media (max-width: 640px){
+  .carrusel-slide img{ height: 160px; }
+  .admin-carrusel{ max-width: 360px; }
+}
+
+/* Site header and background/veil */
+.site-wrap{ max-width: 1280px; margin: 0 auto; position: relative; }
+body.login-page, body.admin-page { background-image: url('../images/fondo_login.jpg'); background-size: cover; background-position: center; }
+/* Velo blanco sobre toda la página */
+body.login-page::before, body.admin-page::before { content: ''; position: fixed; inset: 0; background: rgba(255,255,255,0.78); pointer-events: none; }
+.site-header{ position: relative; z-index: 40; }
+.header-inner{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding: 6px 20px 2px 20px; }
+.header-left{ display:flex; align-items:center; gap:10px; }
+.header-logo{ width:46px; height:46px; border-radius:6px; }
+.header-title{ font-weight:800; color:#222; margin:0; font-size:18px; }
+.header-line{ height:4px; background:#b8862b; margin-top:4px; border-radius:4px; }
+.header-nav .nav-items{ display:flex; gap:12px; list-style:none; margin:0; padding:0; }
+.header-nav .nav-items a{ display:inline-block; padding:8px 12px; border-radius:999px; color:#222; text-decoration:none; }
+.header-nav .nav-items a{ font-weight: 800; }
+.header-nav .nav-items a:hover, .header-nav .nav-items a:focus{ background:#c62828; color:white; transform: translateY(-2px); }
+
+/* Inline logout button next to FORMULARIOS */
+.nav-formularios{ display:flex; align-items:center; gap:10px; }
+.logout-inline{ display:inline-block; margin:0; }
+.nav-formularios .logout-button-modern{ padding:8px 12px; border-radius:10px; font-size:14px; box-shadow: 0 6px 18px rgba(183,28,28,0.16); }
+.nav-formularios .logout-button-modern svg{ width:16px; height:16px; margin-right:8px; }
+.nav-formularios .logout-button-modern:hover{ transform: translateY(-3px); }
+
+/* Ocultar el nav solo en la página de login */
+/* Ocultar el nav solo en la página de login */
+body.login-page .header-nav{ display: none !important; }
+
+/* Ocultar saludo mini-user en el header cuando estamos en la admin-page (evita duplicados) */
+body.admin-page .mini-user{ display: none; }
+/* Ocultar cualquier botón-icono de logout en el header cuando estamos en admin-page (dejamos el botón moderno debajo de la línea) */
+body.admin-page .logout-button{ display: none; }
+
+/* Animated logo in card */
+.animated-logo{ animation: logo-float 6s ease-in-out infinite; }
+@keyframes logo-float{ 0%{ transform: translateY(0) scale(1); } 50%{ transform: translateY(-4px) scale(1.02); } 100%{ transform: translateY(0) scale(1); } }
+
+/* Card overlay: use same fondo inside card with veil */
+.login-right{ background-image: linear-gradient(rgba(43,57,31,0.78), rgba(43,57,31,0.78)), url('../images/fondo_login.jpg'); background-size: cover; background-position: center; color: #fff; }
+.login-right .field-label, .card-title{ color: #fff; }
+
+/* Adjust login-right to be visually consistent */
+.login-right{ backdrop-filter: blur(6px); }
+
+/* Centrar título del card */
+.card-title{ text-align: center; font-size: 20px; margin: 0 0 18px 0; }
+
+/* Registrar en blanco y link olvidado neutro */
+.form-links{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+.form-links .link-register{ color: #fff; font-weight:700; text-decoration:none; }
+.form-links .link-forgot{ color: rgba(255,255,255,0.9); text-decoration:underline; }
+
+/* Selector y checkbox en la misma línea */
+.select-row{ margin-bottom: 8px; }
+.remember-row{ margin-bottom: 12px; }
+.remember{ color: #fff; display:inline-flex; align-items:center; gap:8px; font-weight:600; }
+.remember input{ width:16px; height:16px; }
+
+/* Botón iniciar sesión: efecto moderno al hacer hover */
+.btn-login{ padding: 12px 24px; border: none; border-radius: 12px; background: linear-gradient(90deg,#ff5a5a,#c62828); color: #fff; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(198,40,40,0.28); transform: translateZ(0); transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.btn-login:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(198,40,40,0.28); filter: contrast(1.05) saturate(1.05); }
+
+/* Admin carousel: usar full-width hero-like header */
+.admin-carrusel-full{ width: 100%; display:block; }
+.admin-carrusel-full .admin-carrusel{ max-width: 100%; width: 100%; display:flex; justify-content:center; }
+.admin-carrusel-full .carrusel-viewport{ border-radius: 0; width:150px; height:150px; overflow:hidden; }
+.admin-carrusel-full .carrusel-slide img{ width: 150px; height: 150px; object-fit: cover; transition: transform 450ms ease, opacity 450ms ease; opacity:0.85; }
+.admin-header{ display:block; }
+
+.admin-carrusel{ display:flex; align-items:center; }
+.admin-carrusel{ position:relative; display:flex; align-items:center; justify-content:center; }
+.admin-carrusel .carrusel-viewport{ width:150px; height:150px; overflow:hidden; }
+.admin-carrusel .carrusel-track{ display:flex; gap:0; will-change: transform; }
+.admin-carrusel .carrusel-slide{ flex: 0 0 150px; height:150px; display:flex; align-items:center; justify-content:center; margin:0; }
+.admin-carrusel .carrusel-slide img{ width:150px; height:150px; object-fit:cover; display:block; }
+.admin-carrusel .carrusel-slide.active img{ transform: scale(1.04); opacity:1; }
+
+/* Position arrows over the carousel without affecting layout */
+.admin-carrusel .carrusel-prev, .admin-carrusel .carrusel-next{ position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.9); border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,0.12); cursor:pointer; font-size:22px; }
+.admin-carrusel .carrusel-prev{ left: -18px; }
+.admin-carrusel .carrusel-next{ right: -18px; }
+
+/* If there are very few slides, hide arrows */
+.admin-carrusel.hide-arrows .carrusel-prev, .admin-carrusel.hide-arrows .carrusel-next{ display:none; }
+.newsletter-title{ margin: 18px auto; font-size: 36px; color: #c62828; letter-spacing: 1px; text-transform: uppercase; font-weight: 900; text-align: center; text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000; background: rgba(255,255,255,0.95); display: block; padding: 8px 14px; border-radius: 6px; position:relative; z-index:2; max-width: 920px; }
+
+/* Salud y logout bajo la línea dorada */
+.admin-greeting{ display:flex; align-items:center; justify-content:space-between; max-width:1280px; margin: 8px auto 18px auto; padding: 0 20px; }
+.admin-greeting .greeting-text{ font-size:26px; font-weight:800; color:#222; }
+.admin-greeting .logout-area{ display:flex; align-items:center; gap:12px; }
+.logout-button-modern{ display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background: linear-gradient(90deg,#ff2a2a,#b71c1c); border-radius:12px; border: none; box-shadow: 0 8px 20px rgba(183,28,28,0.28); color:#fff; text-decoration:none; font-weight:900; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.logout-button-modern svg{ width:18px; height:18px; }
+.logout-button-modern:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(183,28,28,0.28); filter: contrast(1.05) saturate(1.05); }
+
+/* Admin content layout: main + actions (logout) on the right */
+.admin-content{ max-width:1280px; margin: 12px auto 40px auto; padding: 0 20px; display:flex; align-items:flex-start; gap:20px; }
+.admin-content-inner{ flex:1 1 auto; }
+.admin-content-actions{ flex: 0 0 auto; display:flex; align-items:flex-start; }
+.admin-content-actions form{ display:flex; align-items:center; }
+
+@media (max-width: 760px){
+  .admin-content{ flex-direction:column; align-items:stretch; }
+  .admin-content-actions{ justify-content:flex-start; margin-top:12px; }
+}
+
+

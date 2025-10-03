@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Mi App{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block content %}
+<main class="login-wrapper">
+  <section class="login-left">
+    <h1 class="welcome">¡Bienvenido!</h1>
+    <div class="logo-wrap">
+      <img src="{% static 'images/logo_3div.png' %}" alt="Logo" class="logo-img animated-logo">
+    </div>
+  </section>
+
+  <section class="login-right">
+    <form method="post" class="login-form" autocomplete="off">
+      {% csrf_token %}
+      <h2 class="card-title">Iniciar sesión</h2>
+      <div class="field">
+        <label for="id_username" class="field-label">Nombre de usuario o correo electrónico</label>
+        <input id="id_username" type="text" name="username" required>
+      </div>
+      <div class="field">
+        <label for="id_password" class="field-label">Contraseña</label>
+        <input id="id_password" type="password" name="password" required>
+      </div>
+      <div class="field select-row">
+        <div class="select-wrap">
+          <label for="id_role" class="field-label">Selecciona tu rol</label>
+          <select id="id_role" name="role" required>
+            <option value="" disabled selected>Escoge tu rol</option>
+            <option value="admin">Administrador</option>
+            <option value="instructor">Instructor</option>
+            <option value="soldado">Soldado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field remember-row">
+        <label class="remember" for="id_remember"><input id="id_remember" type="checkbox" name="remember"> Recordar contraseña</label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-login">Iniciar sesión</button>
+      </div>
+
+      <div class="form-links">
+        <a href="{% url 'register' %}" class="link-register">Registrarse</a>
+        <a href="{% url 'password_reset' %}" class="link-forgot">Recuperar contraseña</a>
+      </div>
+    </form>
+  </section>
+</main>
+{% endblock %}
+</body>
+</html>
