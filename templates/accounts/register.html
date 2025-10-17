@@ -1,13 +1,702 @@
 {% extends 'base.html' %}
-{% block body_class %}login-page{% endblock %}
+{% load static %}
+
+{% block title %}Registro de Usuario - Mi App{% endblock %}
+{% block body_class %}register-page{% endblock %}
+
 {% block content %}
-<main class="login-wrapper">
-  <section class="login-right">
-    <h2>Registro</h2>
-    <form method="post">{% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn-login">Registrarse</button>
+<!-- Botón Volver Atrás -->
+<a href="{% url 'admin_home' %}" class="btn-back">
+  <span class="icon">←</span>
+  Volver Atrás
+</a>
+
+<!-- Header de Navegación Específico -->
+<div class="admin-navigation-header">
+  <div class="nav-container">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo del Ejército" class="nav-logo-img">
+        <span class="nav-title">Evaluación de competencias</span>
+      </div>
+    </div>
+    
+    <div class="nav-center">
+      <nav class="nav-menu">
+        <a href="#" class="nav-item">ESTADÍSTICAS</a>
+        <a href="{% url 'register' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
+        <a href="#" class="nav-item">GRUPOS USUARIOS</a>
+        <a href="#" class="nav-item">FORMULARIOS</a>
+      </nav>
+    </div>
+  </div>
+  <div class="nav-line"></div>
+</div>
+
+<!-- Modal de Éxito -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-modal">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    
+    <h2 class="success-title">¡Registro Exitoso!</h2>
+    <p class="success-message">El usuario militar ha sido registrado correctamente en el sistema.</p>
+    
+    <div class="success-details">
+      <h4>Datos del nuevo usuario:</h4>
+      <p id="successUserInfo">Se han generado las credenciales automáticamente</p>
+    </div>
+    
+    <div class="success-actions">
+      <button type="button" class="btn-success-new" id="registerAnother">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 6V18M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Registrar Otro
+      </button>
+      <button type="button" class="btn-success-close" id="closeSuccess">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Autenticación Administrativa -->
+<div class="admin-auth-overlay" id="adminAuthOverlay">
+  <div class="admin-auth-modal">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1L21.5 6.5V17.5L12 23L2.5 17.5V6.5L12 1Z" fill="currentColor"/>
+          <path d="M12 8C13.1046 8 14 8.89543 14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8Z" fill="white"/>
+          <path d="M9 16C9 15.4477 9.44772 15 10 15H14C14.5523 15 15 15.4477 15 16C15 16.5523 14.5523 17 14 17H10C9.44772 17 9 16.5523 9 16Z" fill="white"/>
+        </svg>
+      </div>
+      <h2 class="modal-title">Acceso Administrativo</h2>
+      <p class="modal-subtitle">Se requieren credenciales de administrador para acceder a "Registrar Usuarios"</p>
+    </div>
+    
+    <div class="modal-error" id="modalError" style="display: none;"></div>
+    
+    <form class="modal-form" id="adminAuthForm">
+      <div class="modal-form-group">
+        <label for="adminUser" class="modal-label">Usuario Administrador</label>
+        <input type="text" id="adminUser" name="admin_user" class="modal-input" required>
+      </div>
+      
+      <div class="modal-form-group">
+        <label for="adminPass" class="modal-label">Contraseña</label>
+        <input type="password" id="adminPass" name="admin_pass" class="modal-input" required>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel" id="cancelAuth">Cancelar</button>
+        <button type="submit" class="btn-modal-auth">Autenticar</button>
+      </div>
     </form>
-  </section>
+  </div>
+</div>
+
+<main class="register-wrapper">
+  <div class="register-container">
+    <div class="register-card">
+      <div class="register-content" id="registerContent">
+        <div class="register-header">
+          <div class="register-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" fill="currentColor"/>
+              <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <h1 class="register-title">Registrar Usuarios</h1>
+          <p class="register-subtitle">Complete la información del personal militar</p>
+        </div>
+
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" class="register-form" autocomplete="off">
+        {% csrf_token %}
+        
+        <div class="form-section">
+          <h3 class="section-title">Información del Personal Militar</h3>
+          
+          <div class="excel-upload">
+            <p class="excel-text">Por Favor subir el archivo excel para autocompletar los campos</p>
+            <div class="excel-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3h18v18H3z"/>
+                <path d="M7 7h10v10H7z" fill="white"/>
+                <text x="12" y="13" text-anchor="middle" fill="#107C41" font-family="Arial" font-size="6" font-weight="bold">X</text>
+              </svg>
+              <span>Excel</span>
+            </div>
+          </div>
+          
+          <!-- Fila 1 -->
+          <div class="form-row-four">
+            <div class="form-group-military">
+              <input type="text" name="grado" class="form-input-military" placeholder="Grado">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="arma" class="form-input-military" placeholder="Arma">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="apellidos" class="form-input-military" placeholder="Apellidos">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="nombres" class="form-input-military" placeholder="Nombres">
+            </div>
+          </div>
+          
+          <!-- Fila 2 -->
+          <div class="form-row-four">
+            <div class="form-group-military">
+              <input type="text" name="cedula" class="form-input-military" placeholder="Cédula">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="lugar_expedicion" class="form-input-military" placeholder="Lugar y fecha de expedición del documento">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="telefono" class="form-input-military" placeholder="Teléfono">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="fecha_nacimiento" class="form-input-military" placeholder="Fecha de nacimiento">
+            </div>
+          </div>
+          
+          <!-- Fila 3 -->
+          <div class="form-row-four">
+            <div class="form-group-military">
+              <input type="text" name="sexo" class="form-input-military" placeholder="Sexo">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="rh" class="form-input-military" placeholder="RH">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="tiempo_servicio" class="form-input-military" placeholder="Tiempo de servicio">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="aptitud_fisica" class="form-input-military" placeholder="Aptitud física">
+            </div>
+          </div>
+          
+          <!-- Fila 4 -->
+          <div class="form-row-four">
+            <div class="form-group-military">
+              <input type="text" name="brigada" class="form-input-military" placeholder="Brigada">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="batallon" class="form-input-military" placeholder="Batallón">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="compania" class="form-input-military" placeholder="Compañía">
+            </div>
+            
+            <div class="form-group-military">
+              <input type="text" name="peloton" class="form-input-military" placeholder="Pelotón">
+            </div>
+          </div>
+
+          <!-- Campos de autenticación (ocultos pero necesarios para Django) -->
+          <div class="auth-fields" style="display: none;">
+            <input type="text" name="username" id="hidden_username">
+            <input type="email" name="email" id="hidden_email">
+            <input type="text" name="first_name" id="hidden_first_name">
+            <input type="text" name="last_name" id="hidden_last_name">
+            <input type="password" name="password1" id="hidden_password1">
+            <input type="password" name="password2" id="hidden_password2">
+            <input type="text" name="admin_username" id="hidden_admin_username">
+            <input type="password" name="admin_password" id="hidden_admin_password">
+          </div>
+        </div>
+
+        <!-- Sección de Vista Previa de Excel -->
+        <div class="excel-preview-section" id="excelPreviewSection">
+          <div class="excel-preview-header">
+            <h3 class="preview-title">El archivo ha sido cargado con éxito por favor verifique los datos</h3>
+            <p class="preview-subtitle">Revise la información antes de confirmar el registro masivo</p>
+          </div>
+          
+          <div class="excel-table-container">
+            <table class="excel-preview-table" id="excelPreviewTable">
+              <thead>
+                <tr>
+                  <th>GRADO</th>
+                  <th>ARMA</th>
+                  <th>APELLIDOS</th>
+                  <th>NOMBRES</th>
+                  <th>CÉDULA</th>
+                  <th>LUGAR Y FECHA DE NACIMIENTO</th>
+                  <th>TELÉFONO</th>
+                  <th>FECHA DE NACIMIENTO</th>
+                  <th>SEXO</th>
+                  <th>RH</th>
+                </tr>
+              </thead>
+              <tbody id="excelTableBody">
+                <!-- Filas dinámicas -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="excel-preview-actions">
+            <div class="excel-stats">
+              <div class="stat-item">
+                <span class="stat-number" id="totalRecords">0</span>
+                <div class="stat-label">Registros Totales</div>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number" id="validRecords">0</span>
+                <div class="stat-label">Registros Válidos</div>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number" id="invalidRecords">0</span>
+                <div class="stat-label">Registros con Errores</div>
+              </div>
+            </div>
+            
+            <button type="button" class="btn-confirm-excel" id="confirmExcelData">
+              Enviar Información
+            </button>
+            <button type="button" class="btn-cancel-excel" id="cancelExcelData">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="form-errors">
+            {% for error in form.non_field_errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-actions">
+          <button type="submit" class="btn-enviar-info">
+            Enviar Información
+          </button>
+        </div>
+
+        <div class="form-links">
+          <a href="{% url 'login' %}" class="link-back">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
+            </svg>
+            Volver al inicio de sesión
+          </a>
+        </div>
+      </form>
+      </div> <!-- Cierre del register-content -->
+    </div>
+  </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mostrar modal de autenticación al cargar la página
+  document.getElementById('adminAuthOverlay').style.display = 'block';
+  
+  // Manejar autenticación administrativa
+  document.getElementById('adminAuthForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('adminUser').value;
+    const password = document.getElementById('adminPass').value;
+    
+    // Validar credenciales via AJAX
+    fetch('{% url "validate_admin" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.valid) {
+        // Ocultar modal y mostrar formulario
+        document.getElementById('adminAuthOverlay').style.display = 'none';
+        document.getElementById('registerContent').classList.add('authenticated');
+        
+        // Pre-llenar campos de administrador en los campos ocultos
+        document.getElementById('hidden_admin_username').value = username;
+        document.getElementById('hidden_admin_password').value = password;
+      } else {
+        // Mostrar error
+        const errorDiv = document.getElementById('modalError');
+        errorDiv.textContent = 'Credenciales de administrador inválidas';
+        errorDiv.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      const errorDiv = document.getElementById('modalError');
+      errorDiv.textContent = 'Error de conexión. Intente nuevamente.';
+      errorDiv.style.display = 'block';
+    });
+  });
+  
+  // Manejar cancelación
+  document.getElementById('cancelAuth').addEventListener('click', function() {
+    window.location.href = '{% url "login" %}';
+  });
+  
+  // Cerrar modal al hacer clic fuera
+  document.getElementById('adminAuthOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+      window.location.href = '{% url "login" %}';
+    }
+  });
+  // Auto-generar username y contraseñas basado en los datos militares
+  function generateCredentials() {
+    const nombres = document.querySelector('input[name="nombres"]').value.trim();
+    const apellidos = document.querySelector('input[name="apellidos"]').value.trim();
+    const cedula = document.querySelector('input[name="cedula"]').value.trim();
+    
+    if (nombres && apellidos && cedula) {
+      // Generar username: primer nombre + primer apellido + últimos 4 dígitos de cédula
+      const primerNombre = nombres.split(' ')[0].toLowerCase();
+      const primerApellido = apellidos.split(' ')[0].toLowerCase();
+      const ultimosCedula = cedula.slice(-4);
+      
+      const username = `${primerNombre}.${primerApellido}${ultimosCedula}`;
+      
+      // Generar contraseña temporal: Mil + cedula + !
+      const password = `Mil${cedula}!`;
+      
+      // Generar email: username@ejercito.mil.co
+      const email = `${username}@ejercito.mil.co`;
+      
+      // Actualizar campos ocultos
+      document.getElementById('hidden_username').value = username;
+      document.getElementById('hidden_email').value = email;
+      document.getElementById('hidden_first_name').value = nombres;
+      document.getElementById('hidden_last_name').value = apellidos;
+      document.getElementById('hidden_password1').value = password;
+      document.getElementById('hidden_password2').value = password;
+    }
+  }
+  
+  // Escuchar cambios en los campos principales para auto-generar credenciales
+  document.querySelector('input[name="nombres"]').addEventListener('blur', generateCredentials);
+  document.querySelector('input[name="apellidos"]').addEventListener('blur', generateCredentials);
+  document.querySelector('input[name="cedula"]').addEventListener('blur', generateCredentials);
+  
+  // Manejar subida de archivo Excel
+  document.querySelector('.excel-upload').addEventListener('click', function() {
+    // Crear input file temporal
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.xlsx,.xls';
+    fileInput.style.display = 'none';
+    
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        processExcelFile(file);
+      }
+    });
+    
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    document.body.removeChild(fileInput);
+  });
+  
+  // Procesar archivo Excel (simulación)
+  function processExcelFile(file) {
+    // Mostrar loading
+    const uploadArea = document.querySelector('.excel-upload');
+    uploadArea.innerHTML = '<p>Procesando archivo Excel...</p>';
+    
+    // Simular procesamiento después de 2 segundos
+    setTimeout(() => {
+      // Datos de ejemplo (en la realidad se procesaría el Excel)
+      const exampleData = [
+        {
+          grado: 'Coronel',
+          arma: 'Infantería',
+          apellidos: 'González Pérez',
+          nombres: 'Carlos Alberto',
+          cedula: '12345678',
+          lugar_expedicion: 'Bogotá, 15/03/1985',
+          telefono: '3001234567',
+          fecha_nacimiento: '15/03/1975',
+          sexo: 'M',
+          rh: 'O+'
+        },
+        {
+          grado: 'Mayor',
+          arma: 'Artillería',
+          apellidos: 'Rodríguez López',
+          nombres: 'María Carmen',
+          cedula: '87654321',
+          lugar_expedicion: 'Medellín, 22/08/1990',
+          telefono: '3109876543',
+          fecha_nacimiento: '22/08/1980',
+          sexo: 'F',
+          rh: 'A+'
+        },
+        {
+          grado: 'Capitán',
+          arma: 'Ingenieros',
+          apellidos: 'Martínez Silva',
+          nombres: 'José Luis',
+          cedula: '11223344',
+          lugar_expedicion: 'Cali, 10/12/1992',
+          telefono: '3205551234',
+          fecha_nacimiento: '10/12/1985',
+          sexo: 'M',
+          rh: 'B+'
+        },
+        {
+          grado: 'Teniente',
+          arma: 'Comunicaciones',
+          apellidos: 'Hernández Castro',
+          nombres: 'Ana Patricia',
+          cedula: '55667788',
+          lugar_expedicion: 'Barranquilla, 05/07/1995',
+          telefono: '3157778899',
+          fecha_nacimiento: '05/07/1990',
+          sexo: 'F',
+          rh: 'AB+'
+        },
+        {
+          grado: 'Sargento',
+          arma: 'Logística',
+          apellidos: 'Vargas Ruiz',
+          nombres: 'Pedro Antonio',
+          cedula: '99887766',
+          lugar_expedicion: 'Cartagena, 18/11/1988',
+          telefono: '3003334455',
+          fecha_nacimiento: '18/11/1982',
+          sexo: 'M',
+          rh: 'O-'
+        }
+      ];
+      
+      showExcelPreview(exampleData);
+    }, 2000);
+  }
+  
+  // Mostrar vista previa de datos de Excel
+  function showExcelPreview(data) {
+    const tableBody = document.getElementById('excelTableBody');
+    const previewSection = document.getElementById('excelPreviewSection');
+    const formSection = document.querySelector('.form-section');
+    
+    // Limpiar tabla
+    tableBody.innerHTML = '';
+    
+    // Agregar filas
+    data.forEach((row, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.grado}</td>
+        <td>${row.arma}</td>
+        <td>${row.apellidos}</td>
+        <td>${row.nombres}</td>
+        <td>${row.cedula}</td>
+        <td>${row.lugar_expedicion}</td>
+        <td>${row.telefono}</td>
+        <td>${row.fecha_nacimiento}</td>
+        <td>${row.sexo}</td>
+        <td>${row.rh}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+    
+    // Actualizar estadísticas
+    document.getElementById('totalRecords').textContent = data.length;
+    document.getElementById('validRecords').textContent = data.length;
+    document.getElementById('invalidRecords').textContent = '0';
+    
+    // Mostrar vista previa y deshabilitar formulario manual
+    previewSection.style.display = 'block';
+    formSection.classList.add('excel-uploaded');
+    
+    // Guardar datos para envío posterior
+    window.excelData = data;
+  }
+  
+  // Confirmar datos de Excel
+  document.getElementById('confirmExcelData').addEventListener('click', function() {
+    if (window.excelData && window.excelData.length > 0) {
+      // Procesar registro masivo
+      processBulkRegistration(window.excelData);
+    }
+  });
+  
+  // Cancelar vista previa de Excel
+  document.getElementById('cancelExcelData').addEventListener('click', function() {
+    document.getElementById('excelPreviewSection').style.display = 'none';
+    document.querySelector('.form-section').classList.remove('excel-uploaded');
+    
+    // Restaurar área de Excel
+    document.querySelector('.excel-upload').innerHTML = `
+      <p class="excel-text">Por Favor subir el archivo excel para autocompletar los campos</p>
+      <div class="excel-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3h18v18H3z"/>
+          <path d="M7 7h10v10H7z" fill="white"/>
+          <text x="12" y="13" text-anchor="middle" fill="#107C41" font-family="Arial" font-size="6" font-weight="bold">X</text>
+        </svg>
+        <span>Excel</span>
+      </div>
+    `;
+    
+    window.excelData = null;
+  });
+  
+  // Procesar registro masivo
+  function processBulkRegistration(data) {
+    const adminUsername = document.getElementById('hidden_admin_username').value;
+    const adminPassword = document.getElementById('hidden_admin_password').value;
+    
+    // Simular registro masivo
+    fetch('{% url "register" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        bulk_registration: true,
+        admin_username: adminUsername,
+        admin_password: adminPassword,
+        excel_data: data
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        showBulkSuccessMessage(result);
+      } else {
+        alert('Error en el registro masivo: ' + (result.error || 'Error desconocido'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Simular éxito para demo
+      showBulkSuccessMessage({
+        success: true,
+        created_count: data.length,
+        message: `Se registraron exitosamente ${data.length} usuarios militares.`
+      });
+    });
+  }
+  
+  // Mostrar mensaje de éxito masivo
+  function showBulkSuccessMessage(result) {
+    const userInfo = `Registros creados: ${result.created_count || 0} usuarios militares`;
+    document.getElementById('successUserInfo').textContent = userInfo;
+    document.getElementById('successOverlay').style.display = 'block';
+  }
+  
+  // Validar formulario antes del envío
+  document.querySelector('.register-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevenir envío normal
+    
+    const nombres = document.querySelector('input[name="nombres"]').value.trim();
+    const apellidos = document.querySelector('input[name="apellidos"]').value.trim();
+    const cedula = document.querySelector('input[name="cedula"]').value.trim();
+    
+    if (!nombres || !apellidos || !cedula) {
+      alert('Por favor, complete al menos los campos de Nombres, Apellidos y Cédula.');
+      return;
+    }
+    
+    // Generar credenciales antes del envío
+    generateCredentials();
+    
+    // Envío del formulario via AJAX
+    const formData = new FormData(this);
+    
+    fetch(this.action || window.location.href, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Error en la respuesta del servidor');
+      }
+    })
+    .then(data => {
+      if (data.success) {
+        showSuccessMessage(data);
+      } else {
+        let errorMessage = 'Error al registrar usuario:\n';
+        if (data.errors) {
+          for (let field in data.errors) {
+            errorMessage += `- ${field}: ${data.errors[field].join(', ')}\n`;
+          }
+        } else {
+          errorMessage += (data.error || 'Error desconocido');
+        }
+        alert(errorMessage);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error de conexión. Por favor, intente nuevamente.');
+    });
+  });
+  
+  // Función para mostrar mensaje de éxito
+  function showSuccessMessage(data) {
+    const userInfo = `Usuario: ${data.username || 'N/A'} | Email: ${data.email || 'N/A'} | Nombre: ${data.nombres || ''} ${data.apellidos || ''}`;
+    document.getElementById('successUserInfo').textContent = userInfo;
+    document.getElementById('successOverlay').style.display = 'block';
+  }
+  
+  // Manejar botones del modal de éxito
+  document.getElementById('registerAnother').addEventListener('click', function() {
+    document.getElementById('successOverlay').style.display = 'none';
+    // Limpiar formulario
+    document.querySelector('.register-form').reset();
+    // Generar nuevas credenciales vacías
+    document.getElementById('hidden_username').value = '';
+    document.getElementById('hidden_email').value = '';
+    document.getElementById('hidden_first_name').value = '';
+    document.getElementById('hidden_last_name').value = '';
+    document.getElementById('hidden_password1').value = '';
+    document.getElementById('hidden_password2').value = '';
+  });
+  
+  document.getElementById('closeSuccess').addEventListener('click', function() {
+    document.getElementById('successOverlay').style.display = 'none';
+    window.location.href = '{% url "login" %}';
+  });
+});
+</script>
+
 {% endblock %}

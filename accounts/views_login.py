@@ -25,11 +25,6 @@ class RoleLoginView(LoginView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        role = self.request.session.get("role_selected")
-        if role == "admin":
-            # Siempre llevar al dashboard admin personalizado de la app (accounts)
-            # en lugar de al panel nativo /admin/.
-            return reverse('admin_home')
-        if role == "instructor":
-            return reverse('instructor_dashboard')
-        return reverse('soldado_home')
+        # Todos los roles van a la misma página principal (admin_home)
+        # El rol se mantiene en la sesión para otros usos pero todos ven la misma interfaz
+        return reverse('admin_home')

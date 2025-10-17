@@ -7,16 +7,16 @@
 {% block content %}
 <main class="login-wrapper">
   <section class="login-left">
-    <h1 class="welcome">¡Bienvenido!</h1>
+    <h1 class="welcome"></h1>
     <div class="logo-wrap">
-      <img src="{% static 'images/logo_3div.png' %}" alt="Logo" class="logo-img animated-logo">
+      <img src="{% static 'images/img-login.jpg' %}" alt="Logo" class="logo-img animated-logo">
     </div>
   </section>
 
   <section class="login-right">
     <form method="post" class="login-form" autocomplete="off">
       {% csrf_token %}
-      <h2 class="card-title">Iniciar sesión</h2>
+      <h2 class="card-title">¡BIENVENIDO!</h2>
       <div class="field">
         <label for="id_username" class="field-label">Nombre de usuario o correo electrónico</label>
         <input id="id_username" type="text" name="username" required>

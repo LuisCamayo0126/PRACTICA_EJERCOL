@@ -1,13 +1,120 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block body_class %}admin-page{% endblock %}
 {% block content %}
-<main class="role-page">
-	<div class="role-panel">
-		<h1>Bienvenido — {{ user.username }}</h1>
-		<p>Esta es la página del instructor.</p>
-		<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link-logout">Cerrar sesión</button></form>
-	</div>
+<!-- Botón Volver Atrás (oculto en página principal) -->
+<a href="javascript:history.back()" class="btn-back" style="display: none;">
+  <span class="icon">←</span>
+  Volver Atrás
+</a>
+
+<main class="role-page admin-page">
+  <!-- saludo debajo de la linea dorada -->
+
+
+  <section class="admin-carrusel-full">
+    <div class="admin-carrusel" aria-roledescription="carrusel">
+      <button class="carrusel-prev" aria-label="Anterior">‹</button>
+      <div class="carrusel-viewport">
+        <div class="carrusel-track">
+          {% for src in carousel_images %}
+            <div class="carrusel-slide">
+              <img src="{{ src }}" alt="Carrusel {{ forloop.counter }}" loading="eager">
+            </div>
+          {% empty %}
+            <div class="carrusel-slide empty">
+              <img src="{% static 'images/fondo_login.jpg' %}" alt="Sin imágenes" loading="eager">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carrusel-next" aria-label="Siguiente">›</button>
+    </div>
+  </section>
+
+  <!-- Título para instructor -->
+  <div class="admin-content">
+    <div class="admin-content-inner">
+      <h2 class="newsletter-title">PANEL DE INSTRUCTOR</h2>
+      <p class="muted">Gestiona estudiantes, cursos y evaluaciones desde aquí.</p>
+      <!-- Contenido específico del instructor -->
+      <div class="instructor-tools">
+        <div class="tool-card">
+          <h3>Crear Usuarios</h3>
+          <p>Registra nuevos estudiantes y gestiona perfiles.</p>
+        </div>
+        <div class="tool-card">
+          <h3>Gestionar Evaluaciones</h3>
+          <p>Crea y administra evaluaciones para tus estudiantes.</p>
+        </div>
+        <div class="tool-card">
+          <h3>Ver Estadísticas</h3>
+          <p>Revisa el rendimiento y progreso de los estudiantes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const carousel = document.querySelector('.admin-carrusel');
+  if(!carousel) return;
+  const track = carousel.querySelector('.carrusel-track');
+  const slides = Array.from(carousel.querySelectorAll('.carrusel-slide'));
+  const prev = carousel.querySelector('.carrusel-prev');
+  const next = carousel.querySelector('.carrusel-next');
+  const viewport = carousel.querySelector('.carrusel-viewport');
+
+  let index = 0;
+  const slideWidth = 150;
+  let autoplayId = null;
+  const delay = 2000;
+
+  function imagesLoaded(cb){
+    const imgs = Array.from(track.querySelectorAll('img'));
+    let loaded = 0;
+    if(imgs.length === 0) return cb();
+    imgs.forEach(img => {
+      if(img.complete){ loaded++; }
+      else { img.addEventListener('load', ()=>{ loaded++; if(loaded===imgs.length) cb(); }); img.addEventListener('error', ()=>{ loaded++; if(loaded===imgs.length) cb(); }); }
+    });
+    if(loaded === imgs.length) cb();
+  }
+
+  function setSizes(){
+    slides.forEach(slide => { slide.style.width = slideWidth + 'px'; slide.style.height = slideWidth + 'px'; });
+    if(track) track.style.width = (slideWidth * slides.length) + 'px';
+    moveTo(index, false);
+  }
+
+  function moveTo(i, animate = true){
+    if(slides.length === 0) return;
+    index = (i + slides.length) % slides.length;
+    if(!animate) track.style.transition = 'none'; else track.style.transition = 'transform 600ms ease';
+    track.style.transform = 'translate3d(' + (-index * slideWidth) + 'px, 0, 0)';
+    slides.forEach((s, idx)=> s.classList.toggle('active', idx === index));
+    if(!animate){ requestAnimationFrame(()=>{ track.style.transition = 'transform 600ms ease'; }); }
+  }
+
+  function nextSlide(){ moveTo(index + 1); }
+  function prevSlide(){ moveTo(index - 1); }
+
+  if(next) next.addEventListener('click', ()=>{ stopAutoplay(); nextSlide(); startAutoplay(); });
+  if(prev) prev.addEventListener('click', ()=>{ stopAutoplay(); prevSlide(); startAutoplay(); });
+
+  window.addEventListener('resize', setSizes);
+
+  function startAutoplay(){ stopAutoplay(); autoplayId = setInterval(()=> nextSlide(), delay); }
+  function stopAutoplay(){ if(autoplayId) clearInterval(autoplayId); autoplayId = null; }
+
+  carousel.addEventListener('mouseenter', stopAutoplay);
+  carousel.addEventListener('mouseleave', startAutoplay);
+
+  imagesLoaded(function(){ setSizes(); if(slides.length <= 1) carousel.classList.add('hide-arrows'); if(slides.length > 1) startAutoplay(); });
+});
+</script>
+
 {% endblock %}
 

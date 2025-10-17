@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>{% block title %}Mi App{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2024101601">
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
@@ -14,25 +14,28 @@
       <div class="header-inner">
         <div class="header-left">
           <a href="/" class="header-logo-link">
-            <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Logo" class="header-logo">
+            <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo" class="header-logo">
+          </a>
+          <a href="/" class="header-logo-link">
+            <img src="{% static 'images/logo_3div.png' %}" alt="Logo 3Div" class="header-logo header-logo-secondary">
           </a>
           <div class="header-text">
-            <div class="header-title">Evaluación Ejército</div>
+            <div class="header-title">Evaluación Por Competencias</div>
           </div>
         </div>
 
         <nav class="header-nav">
           <ul class="nav-items">
             <li><a href="{% url 'admin_home' %}">ESTADÍSTICAS</a></li>
-            <li><a href="{% url 'instructor_dashboard' %}">CREAR USUARIOS</a></li>
+            <li><a href="{% url 'crear_usuarios' %}">CREAR USUARIOS</a></li>
             <li><a href="{% url 'admin_home' %}">GRUPOS USUARIOS</a></li>
             <li class="nav-formularios">
               <a href="{% url 'soldado_home' %}">FORMULARIOS</a>
               {% if user.is_authenticated %}
                 <form method="post" action="{% url 'logout' %}" class="logout-inline">{% csrf_token %}
-                  <button type="submit" class="logout-button-modern" aria-label="Cerrar sesión">
+                  <button type="submit" class="logout-button-modern" aria-label="Salir">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 17L21 12L16 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 19H7A2 2 0 0 1 5 17V7A2 2 0 0 1 7 5H12" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Cerrar sesión
+                    Salir
                   </button>
                 </form>
               {% endif %}
@@ -44,7 +47,7 @@
           {% if user.is_authenticated %}
             <div class="mini-user">Hola, {{ user.username }}</div>
             <form method="post" action="{% url 'logout' %}" class="logout-form">{% csrf_token %}
-              <button type="submit" class="logout-button" aria-label="Cerrar sesión">
+              <button type="submit" class="logout-button" aria-label="Salir">
                 <!-- Icono moderno (SVG) -->
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M16 17L21 12L16 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -61,6 +64,40 @@
 
     {% block content %}{% endblock %}
   </div>
+
+  <!-- JavaScript para funcionalidad inteligente del botón "Volver Atrás" -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const backButton = document.querySelector('.btn-back');
+      if (backButton) {
+        // Función para manejar el click del botón
+        function handleBackClick(e) {
+          // Si el href es "javascript:history.back()" o similar
+          if (backButton.getAttribute('href').includes('history.back')) {
+            e.preventDefault();
+            
+            // Verificar si hay historial disponible
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              // Si no hay historial, redirigir a página principal
+              window.location.href = "{% url 'admin_home' %}";
+            }
+          }
+          // Si tiene una URL específica, permitir comportamiento normal
+        }
+        
+        backButton.addEventListener('click', handleBackClick);
+        
+        // Mostrar/ocultar botón según el contexto
+        // Si estamos en la página principal, ocultar el botón
+        const currentPath = window.location.pathname;
+        if (currentPath === '/accounts/admin/' || currentPath === '/accounts/' || currentPath === '/') {
+          backButton.style.display = 'none';
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>

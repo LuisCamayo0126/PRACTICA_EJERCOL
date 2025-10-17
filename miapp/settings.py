@@ -66,7 +66,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "/"  # por defecto
+# Configuraciones de autenticación
+# LOGIN_REDIRECT_URL se maneja con RoleLoginView.get_success_url()
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # Dominio permitido

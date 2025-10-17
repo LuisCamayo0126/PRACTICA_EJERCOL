@@ -2,6 +2,12 @@
 {% load static %}
 
 {% block content %}
+<!-- Botón Volver Atrás (oculto en página principal) -->
+<a href="javascript:history.back()" class="btn-back" style="display: none;">
+  <span class="icon">←</span>
+  Volver Atrás
+</a>
+
 <main class="role-page">
 	<div class="role-panel">
 		<h1>Bienvenido — {{ user.username }}</h1>
