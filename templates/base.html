@@ -26,8 +26,15 @@
 
         <nav class="header-nav">
           <ul class="nav-items">
-            <li><a href="{% url 'admin_home' %}">ESTADÍSTICAS</a></li>
-            <li><a href="{% url 'crear_usuarios' %}">CREAR USUARIOS</a></li>
+            <li><a href="{% url 'admin_home' %}">TERCERA DIVISIÓN</a></li>
+            {% if user.is_authenticated %}
+              {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
+                <!-- Solo Admin e Instructor pueden ver CREAR CURSOS -->
+                <li><a href="{% url 'crear_cursos' %}">CREAR CURSOS</a></li>
+                <!-- Solo Admin e Instructor pueden ver CREAR USUARIOS -->
+                <li><a href="{% url 'crear_usuarios' %}">CREAR USUARIOS</a></li>
+              {% endif %}
+            {% endif %}
             <li><a href="{% url 'admin_home' %}">GRUPOS USUARIOS</a></li>
             <li class="nav-formularios">
               <a href="{% url 'soldado_home' %}">FORMULARIOS</a>

@@ -1,3 +1,6 @@
+/* Importar fuente Montserrat de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
 /* ===== Login (scoped) ===== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -208,17 +211,40 @@ body.login-page::before { display: none !important; }
 @media (prefers-reduced-motion: reduce){
   .header-logo{ animation: none !important; }
 }
-.header-title{ font-weight:800; color:#222; margin:0; font-size:24px; }
+.header-title{ 
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; 
+  color: #222; 
+  margin: 0; 
+  font-size: 24px; 
+  letter-spacing: 0.5px;
+}
 .header-line{ height:6px; background:#b8862b; margin-top:6px; border-radius:6px; display: block !important; width: 100%; }
 .header-nav .nav-items{ display:flex; gap:18px; list-style:none; margin:0; padding:0; }
-.header-nav .nav-items a{ display:inline-block; padding:12px 18px; border-radius:999px; color:#222; text-decoration:none; font-size:16px; }
-.header-nav .nav-items a{ font-weight: 800; }
+.header-nav .nav-items a{ 
+  display: inline-block; 
+  padding: 12px 18px; 
+  border-radius: 999px; 
+  color: #222; 
+  text-decoration: none; 
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
 .header-nav .nav-items a:hover, .header-nav .nav-items a:focus{ background:#c62828; color:white; transform: translateY(-2px); }
 
 /* Inline logout button next to FORMULARIOS */
 .nav-formularios{ display:flex; align-items:center; gap:10px; }
 .logout-inline{ display:inline-block; margin:0; }
-.nav-formularios .logout-button-modern{ padding:8px 12px; border-radius:10px; font-size:14px; box-shadow: 0 6px 18px rgba(183,28,28,0.16); }
+.nav-formularios .logout-button-modern{ 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  font-size: 14px; 
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(183,28,28,0.16); 
+}
 .nav-formularios .logout-button-modern svg{ width:16px; height:16px; margin-right:8px; }
 .nav-formularios .logout-button-modern:hover{ transform: translateY(-3px); }
 
@@ -262,6 +288,7 @@ body.admin-page .logout-button{ display: none; }
 }
 
 .main-title-text {
+  font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 5vw, 3.5rem);
   font-weight: 900;
   color: #FF4444;
@@ -297,6 +324,7 @@ body.admin-page .logout-button{ display: none; }
 }
 
 .main-subtitle-text {
+  font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.3rem, 3.5vw, 2.5rem);
   font-weight: 700;
   color: #FF6666;
@@ -982,9 +1010,11 @@ body.register-page .site-header {
 }
 
 .nav-title {
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.2rem;
   font-weight: 600;
   color: #1a202c;
+  letter-spacing: 0.3px;
 }
 
 .nav-center {
@@ -1002,6 +1032,7 @@ body.register-page .site-header {
 .nav-item {
   text-decoration: none;
   color: #4a5568;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.75rem 1.5rem;
@@ -2029,6 +2060,148 @@ body.password-reset-page .btn-back {
 /* JavaScript para funcionalidad inteligente del botón */
 .btn-back.hidden {
   display: none;
+}
+
+/* ===== PÁGINA CREAR CURSOS ===== */
+.admin-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-welcome {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.admin-welcome h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  color: #E10000;
+  margin-bottom: 1rem;
+}
+
+.admin-welcome p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin: 0;
+}
+
+.admin-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+  border-color: #E10000;
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.admin-card h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.admin-card p {
+  font-family: 'Montserrat', sans-serif;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.card-button {
+  font-family: 'Montserrat', sans-serif;
+  background: #E10000;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-button:hover {
+  background: #C10000;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(225, 0, 0, 0.3);
+}
+
+.permissions-info {
+  margin-top: 2rem;
+}
+
+.info-box {
+  background: rgba(47, 79, 63, 0.1);
+  border: 2px solid #2F4F3F;
+  border-radius: 10px;
+  padding: 1.5rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.info-box strong {
+  color: #2F4F3F;
+  font-weight: 700;
+}
+
+.info-box p {
+  margin: 0.5rem 0;
+  color: #4a5568;
+}
+
+.role-badge {
+  background: #E10000;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 1rem;
+  }
+  
+  .admin-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .admin-welcome {
+    padding: 1.5rem;
+  }
+  
+  .admin-welcome h3 {
+    font-size: 1.5rem;
+  }
 }
 
 

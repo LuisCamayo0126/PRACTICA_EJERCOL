@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear Cursos - Mi App{% endblock %}
+{% block body_class %}register-page{% endblock %}
+
+{% block content %}
+<!-- Botón Volver Atrás -->
+<a href="{% url 'admin_home' %}" class="btn-back">
+  <span class="icon">←</span>
+  Volver Atrás
+</a>
+
+<!-- Header de Navegación Específico -->
+<div class="admin-navigation-header">
+  <div class="nav-container">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo del Ejército" class="nav-logo-img">
+        <span class="nav-title">Evaluación de competencias</span>
+      </div>
+    </div>
+    
+    <div class="nav-center">
+      <nav class="nav-menu">
+        <a href="#" class="nav-item">TERCERA DIVISIÓN</a>
+        {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
+            <a href="{% url 'crear_cursos' %}" class="nav-item nav-item-active">CREAR CURSOS</a>
+            <a href="{% url 'crear_usuarios' %}" class="nav-item">CREAR USUARIOS</a>
+          {% endif %}
+        {% endif %}
+        <a href="#" class="nav-item">GRUPOS USUARIOS</a>
+        <a href="#" class="nav-item">FORMULARIOS</a>
+      </nav>
+    </div>
+  </div>
+  <div class="nav-line"></div>
+</div>
+
+<main class="role-page admin-page">
+  <div class="admin-main-title">
+    <h1 class="main-title-text">CREAR CURSOS</h1>
+    <h2 class="main-subtitle-text">GESTIÓN DE CURSOS MILITARES</h2>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-welcome">
+      <h3>🎓 Gestión de Cursos</h3>
+      <p>Bienvenido {{ user.first_name|default:user.username }}, desde aquí puedes gestionar los cursos de formación militar.</p>
+    </div>
+
+    <div class="admin-cards">
+      <div class="admin-card">
+        <div class="card-icon">📚</div>
+        <h4>Crear Nuevo Curso</h4>
+        <p>Diseña y configura nuevos programas de formación militar.</p>
+        <button class="card-button" onclick="alert('Función en desarrollo')">Crear Curso</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-icon">📋</div>
+        <h4>Gestionar Cursos Existentes</h4>
+        <p>Edita, actualiza y administra los cursos ya creados.</p>
+        <button class="card-button" onclick="alert('Función en desarrollo')">Ver Cursos</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-icon">👥</div>
+        <h4>Asignar Instructores</h4>
+        <p>Asigna instructores calificados a los diferentes cursos.</p>
+        <button class="card-button" onclick="alert('Función en desarrollo')">Asignar</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-icon">📊</div>
+        <h4>Estadísticas de Cursos</h4>
+        <p>Revisa el rendimiento y estadísticas de los cursos impartidos.</p>
+        <button class="card-button" onclick="alert('Función en desarrollo')">Ver Estadísticas</button>
+      </div>
+    </div>
+
+    <div class="permissions-info">
+      <div class="info-box">
+        <strong>🔒 Permisos de Acceso:</strong>
+        <p>Esta sección está disponible solo para <strong>Administradores</strong> e <strong>Instructores</strong>.</p>
+        <p>Rol actual: <span class="role-badge">{{ user_role|capfirst }}</span></p>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

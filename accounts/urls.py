@@ -12,6 +12,7 @@ urlpatterns = [
     path("", views.soldado_home, name="soldado_home"),
     path("register/", views.register, name="register"),
     path("crear-usuarios/", views.crear_usuarios, name="crear_usuarios"),
+    path("crear-cursos/", views.crear_cursos, name="crear_cursos"),
     path("validate-admin/", views.validate_admin, name="validate_admin"),
     path("password-reset/", views.password_reset, name="password_reset"),
 ]

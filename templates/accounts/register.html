@@ -23,8 +23,13 @@
     
     <div class="nav-center">
       <nav class="nav-menu">
-        <a href="#" class="nav-item">ESTADÍSTICAS</a>
-        <a href="{% url 'register' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
+        <a href="#" class="nav-item">TERCERA DIVISIÓN</a>
+        {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
+            <a href="{% url 'crear_cursos' %}" class="nav-item">CREAR CURSOS</a>
+            <a href="{% url 'register' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
+          {% endif %}
+        {% endif %}
         <a href="#" class="nav-item">GRUPOS USUARIOS</a>
         <a href="#" class="nav-item">FORMULARIOS</a>
       </nav>

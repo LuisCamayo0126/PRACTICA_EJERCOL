@@ -51,6 +51,24 @@ def instructor_dashboard(request):
 
 
 @login_required
+def crear_cursos(request):
+	"""Vista para crear cursos - Solo Admin e Instructor"""
+	# Verificar permisos
+	role = request.session.get("role_selected", "soldado")
+	is_authorized = (request.user.is_staff or request.user.is_superuser or 
+					role in ['admin', 'instructor'])
+	
+	if not is_authorized:
+		messages.error(request, "No tienes permisos para acceder a esta sección.")
+		return redirect('admin_home')
+	
+	# Por ahora, mostrar una página simple - después se puede expandir
+	return render(request, 'accounts/crear_cursos.html', {
+		'user_role': role
+	})
+
+
+@login_required
 def soldado_home(request):
 	return render(request, 'accounts/soldado_home.html')
 
