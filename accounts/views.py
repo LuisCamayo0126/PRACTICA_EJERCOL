@@ -73,6 +73,54 @@ def soldado_home(request):
 	return render(request, 'accounts/soldado_home.html')
 
 
+class SimpleRegistrationForm(forms.Form):
+	"""Formulario simplificado para administradores ya autenticados"""
+	# Datos del nuevo usuario
+	username = forms.CharField(
+		max_length=150, 
+		label="Nombre de usuario",
+		widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Nombre de usuario'})
+	)
+	first_name = forms.CharField(
+		max_length=30, 
+		label="Nombre",
+		widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Nombre'})
+	)
+	last_name = forms.CharField(
+		max_length=30, 
+		label="Apellido",
+		widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Apellido'})
+	)
+	email = forms.EmailField(
+		label="Correo electrónico",
+		widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'correo@ejemplo.com'})
+	)
+	password1 = forms.CharField(
+		widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Contraseña'}),
+		label="Contraseña"
+	)
+	password2 = forms.CharField(
+		widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Confirmar contraseña'}),
+		label="Confirmar contraseña"
+	)
+
+	def clean(self):
+		cleaned_data = super().clean()
+		password1 = cleaned_data.get("password1")
+		password2 = cleaned_data.get("password2")
+
+		# Verificar que las contraseñas coincidan
+		if password1 and password2 and password1 != password2:
+			raise forms.ValidationError("Las contraseñas no coinciden.")
+		
+		# Verificar que el nombre de usuario no existe
+		username = cleaned_data.get("username")
+		if username and User.objects.filter(username=username).exists():
+			raise forms.ValidationError("Este nombre de usuario ya existe.")
+
+		return cleaned_data
+
+
 class AdminAuthorizedRegistrationForm(forms.Form):
 	# Datos del nuevo usuario
 	username = forms.CharField(
@@ -142,11 +190,21 @@ class AdminAuthorizedRegistrationForm(forms.Form):
 
 
 def register(request):
+	# Verificar si el usuario está autenticado y es administrador
+	user_is_admin = False
+	if request.user.is_authenticated:
+		user_is_admin = request.user.is_superuser or request.user.is_staff
+	
 	if request.method == 'POST':
 		# Verificar si es una request AJAX
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
 			try:
-				form = AdminAuthorizedRegistrationForm(request.POST)
+				# Si el usuario ya es admin autenticado, usar formulario simplificado
+				if user_is_admin:
+					form = SimpleRegistrationForm(request.POST)
+				else:
+					form = AdminAuthorizedRegistrationForm(request.POST)
+				
 				if form.is_valid():
 					# Crear el nuevo usuario
 					user = User.objects.create_user(
@@ -177,7 +235,11 @@ def register(request):
 				})
 		else:
 			# Procesamiento normal (no AJAX)
-			form = AdminAuthorizedRegistrationForm(request.POST)
+			if user_is_admin:
+				form = SimpleRegistrationForm(request.POST)
+			else:
+				form = AdminAuthorizedRegistrationForm(request.POST)
+			
 			if form.is_valid():
 				# Crear el nuevo usuario
 				user = User.objects.create_user(
@@ -190,8 +252,19 @@ def register(request):
 				messages.success(request, f'Usuario {user.username} creado exitosamente. Puede iniciar sesión ahora.')
 				return redirect('login')
 	else:
-		form = AdminAuthorizedRegistrationForm()
-	return render(request, 'accounts/register.html', {'form': form})
+		# Crear el formulario apropiado según el estado del usuario
+		if user_is_admin:
+			form = SimpleRegistrationForm()
+		else:
+			form = AdminAuthorizedRegistrationForm()
+	
+	# Pasar información del tipo de formulario al template
+	context = {
+		'form': form,
+		'user_is_admin': user_is_admin,
+		'show_admin_fields': not user_is_admin
+	}
+	return render(request, 'accounts/register.html', context)
 
 
 def password_reset(request):

@@ -1,0 +1,23 @@
+/* Crear Usuarios Styles - Extiende register.css */
+@import url('./register.css');
+
+/* Título específico para crear usuarios */
+.crear-usuarios .nav-item-active {
+  background: #28a745; /* Verde para diferenciarlo */
+  color: white !important;
+}
+
+/* Mensaje específico para instructores */
+.instructor-auth-message {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #856404;
+}
+
+.instructor-auth-message .icon {
+  color: #ffc107;
+  margin-right: 0.5rem;
+}

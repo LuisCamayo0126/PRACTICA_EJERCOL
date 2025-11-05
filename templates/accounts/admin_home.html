@@ -2,6 +2,15 @@
 {% load static %}
 
 {% block body_class %}admin-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_home.css' %}?v=2024110501">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_home.js' %}?v=2024110501"></script>
+{% endblock %}
+
 {% block content %}
 <!-- Botón Volver Atrás (oculto en página principal) -->
 <a href="javascript:history.back()" class="btn-back" style="display: none;">
@@ -31,17 +40,5 @@
       </form>
     </div>
   </div>
-
-<script>
-// mostrar/ocultar logout al tocar el saludo (para móviles)
-document.addEventListener('DOMContentLoaded', function(){
-  const greeting = document.querySelector('.admin-greeting');
-  if(!greeting) return;
-  const text = greeting.querySelector('.greeting-text');
-  text.addEventListener('click', function(e){
-    greeting.classList.toggle('show-logout');
-  });
-});
-</script>
-
+</main>
 {% endblock %}

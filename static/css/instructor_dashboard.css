@@ -1,0 +1,207 @@
+/* Instructor Dashboard Styles */
+
+/* Instructor specific styling */
+.instructor-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.tool-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tool-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tool-card h3 {
+  color: #c62828;
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tool-card p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Admin carousel específico para instructor */
+.admin-carrusel-full {
+  width: 100%;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.admin-carrusel {
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.carrusel-viewport {
+  border-radius: 0;
+  width: 250px;
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+}
+
+.carrusel-track {
+  display: flex;
+  transition: transform 600ms ease;
+  will-change: transform;
+}
+
+.carrusel-slide {
+  flex: 0 0 auto;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  margin: 0;
+}
+
+.carrusel-slide img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  transition: transform 450ms ease, opacity 450ms ease;
+  opacity: 0.85;
+  border-radius: 8px;
+}
+
+.carrusel-slide.active img {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.carrusel-prev,
+.carrusel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #222;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.carrusel-prev {
+  left: 12px;
+}
+
+.carrusel-next {
+  right: 12px;
+}
+
+.carrusel-prev:hover,
+.carrusel-next:hover {
+  transform: translateY(-50%) scale(1.04);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.admin-carrusel.hide-arrows .carrusel-prev,
+.admin-carrusel.hide-arrows .carrusel-next {
+  display: none;
+}
+
+/* Newsletter title específico para instructor */
+.newsletter-title {
+  margin: 18px 0;
+  font-size: 36px;
+  color: #c62828;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 900;
+  text-align: center;
+  text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000;
+}
+
+.muted {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+.admin-content-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Responsive design */
+@media (max-width: 980px) {
+  .carrusel-slide img {
+    height: 220px;
+    width: 220px;
+  }
+  
+  .carrusel-viewport {
+    width: 220px;
+    height: 220px;
+  }
+  
+  .carrusel-slide {
+    width: 220px;
+    height: 220px;
+  }
+  
+  .admin-carrusel {
+    max-width: 520px;
+  }
+  
+  .instructor-tools {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .carrusel-slide img {
+    height: 160px;
+    width: 160px;
+  }
+  
+  .carrusel-viewport {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .carrusel-slide {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .admin-carrusel {
+    max-width: 360px;
+  }
+  
+  .newsletter-title {
+    font-size: 24px;
+  }
+}

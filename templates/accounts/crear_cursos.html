@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Crear Cursos - Mi App{% endblock %}
-{% block body_class %}register-page{% endblock %}
+{% block title %}Gestión de Cursos - Mi App{% endblock %}
+{% block body_class %}crear-cursos-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/crear_cursos.css' %}?v=2024110530">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crear_cursos.js' %}?v=2024110510"></script>
+{% endblock %}
 
 {% block content %}
 <!-- Botón Volver Atrás -->
@@ -11,80 +19,172 @@
   Volver Atrás
 </a>
 
-<!-- Header de Navegación Específico -->
-<div class="admin-navigation-header">
-  <div class="nav-container">
-    <div class="nav-left">
-      <div class="nav-logo">
-        <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo del Ejército" class="nav-logo-img">
-        <span class="nav-title">Evaluación de competencias</span>
-      </div>
-    </div>
-    
-    <div class="nav-center">
-      <nav class="nav-menu">
-        <a href="#" class="nav-item">TERCERA DIVISIÓN</a>
-        {% if user.is_authenticated %}
-          {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
-            <a href="{% url 'crear_cursos' %}" class="nav-item nav-item-active">CREAR CURSOS</a>
-            <a href="{% url 'crear_usuarios' %}" class="nav-item">CREAR USUARIOS</a>
-          {% endif %}
-        {% endif %}
-        <a href="#" class="nav-item">GRUPOS USUARIOS</a>
-        <a href="#" class="nav-item">FORMULARIOS</a>
-      </nav>
-    </div>
-  </div>
-  <div class="nav-line"></div>
-</div>
-
-<main class="role-page admin-page">
+<main class="role-page crear-cursos-page">
   <div class="admin-main-title">
-    <h1 class="main-title-text">CREAR CURSOS</h1>
-    <h2 class="main-subtitle-text">GESTIÓN DE CURSOS MILITARES</h2>
+    <h1 class="main-title-text">GESTIÓN DE CURSOS</h1>
   </div>
 
   <div class="admin-content">
-    <div class="admin-welcome">
-      <h3>🎓 Gestión de Cursos</h3>
-      <p>Bienvenido {{ user.first_name|default:user.username }}, desde aquí puedes gestionar los cursos de formación militar.</p>
-    </div>
-
-    <div class="admin-cards">
-      <div class="admin-card">
-        <div class="card-icon">📚</div>
-        <h4>Crear Nuevo Curso</h4>
-        <p>Diseña y configura nuevos programas de formación militar.</p>
-        <button class="card-button" onclick="alert('Función en desarrollo')">Crear Curso</button>
-      </div>
-
-      <div class="admin-card">
-        <div class="card-icon">📋</div>
-        <h4>Gestionar Cursos Existentes</h4>
-        <p>Edita, actualiza y administra los cursos ya creados.</p>
-        <button class="card-button" onclick="alert('Función en desarrollo')">Ver Cursos</button>
-      </div>
-
-      <div class="admin-card">
-        <div class="card-icon">👥</div>
-        <h4>Asignar Instructores</h4>
-        <p>Asigna instructores calificados a los diferentes cursos.</p>
-        <button class="card-button" onclick="alert('Función en desarrollo')">Asignar</button>
-      </div>
-
-      <div class="admin-card">
-        <div class="card-icon">📊</div>
-        <h4>Estadísticas de Cursos</h4>
-        <p>Revisa el rendimiento y estadísticas de los cursos impartidos.</p>
-        <button class="card-button" onclick="alert('Función en desarrollo')">Ver Estadísticas</button>
+    <!-- Icono grande para agregar nuevo curso -->
+    <div class="add-course-section">
+      <div class="add-course-icon" id="addCourseIcon">
+        <div class="icon-container">
+          <span class="plus-icon">+</span>
+        </div>
+        <h3>AGREGAR NUEVO CURSO</h3>
       </div>
     </div>
 
-    <div class="permissions-info">
-      <div class="info-box">
-        <strong>🔒 Permisos de Acceso:</strong>
-        <p>Esta sección está disponible solo para <strong>Administradores</strong> e <strong>Instructores</strong>.</p>
-        <p>Rol actual: <span class="role-badge">{{ user_role|capfirst }}</span></p>
+    <!-- Tabla de cursos vigentes -->
+    <div class="courses-table-section">
+      <h2 class="section-title">CURSOS VIGENTES</h2>
+      <div class="table-container">
+        <table class="courses-table" id="coursesTable">
+          <thead>
+            <tr>
+              <th>NOMBRE DEL CURSO</th>
+              <th>CATEGORÍA</th>
+              <th>INSTRUCTOR</th>
+              <th>DURACIÓN</th>
+              <th>HORARIO</th>
+              <th>ESTADO</th>
+              <th>ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody id="coursesTableBody">
+            <!-- Los cursos se cargarán aquí via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal para agregar/editar curso -->
+    <div class="modal" id="courseModal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">NUEVO CURSO</h2>
+          <span class="close" id="closeModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form class="course-form" id="courseForm">
+            {% csrf_token %}
+            <input type="hidden" id="courseId" name="course_id">
+            
+            <div class="form-group">
+              <input type="text" id="nombreCurso" name="nombre_curso" placeholder="NOMBRE DEL CURSO" required>
+            </div>
+            
+            <div class="form-group">
+              <input type="text" id="horarioCurso" name="horario_curso" placeholder="HORARIO DEL CURSO" required>
+            </div>
+            
+            <div class="form-group">
+              <input type="text" id="duracionCurso" name="duracion_curso" placeholder="DURACIÓN DEL CURSO" required>
+            </div>
+            
+            <div class="form-group">
+              <select id="materiasCurso" name="materias_curso" multiple required>
+                <option value="">MATERIAS DEL CURSO (Mantener Ctrl para seleccionar múltiples)</option>
+                <option value="Educación Física">Educación Física</option>
+                <option value="Formación">Formación</option>
+                <option value="Ejercicios Militares">Ejercicios Militares</option>
+                <option value="Orden Cerrado">Orden Cerrado</option>
+                <option value="Disciplina Militar">Disciplina Militar</option>
+                <option value="Protocolo">Protocolo</option>
+                <option value="Armamento">Armamento</option>
+                <option value="Tiro de Combate">Tiro de Combate</option>
+                <option value="Seguridad en Armas">Seguridad en Armas</option>
+                <option value="Primeros Auxilios">Primeros Auxilios</option>
+                <option value="Medicina Táctica">Medicina Táctica</option>
+                <option value="Evacuación Médica">Evacuación Médica</option>
+                <option value="Táctica Individual">Táctica Individual</option>
+                <option value="Combate Urbano">Combate Urbano</option>
+                <option value="Supervivencia">Supervivencia</option>
+                <option value="Topografía">Topografía</option>
+                <option value="Orientación">Orientación</option>
+                <option value="Patrullaje">Patrullaje</option>
+                <option value="Reconocimiento">Reconocimiento</option>
+                <option value="Comunicaciones">Comunicaciones</option>
+                <option value="Operaciones Nocturnas">Operaciones Nocturnas</option>
+                <option value="Defensa Personal">Defensa Personal</option>
+                <option value="Explosivos">Explosivos</option>
+                <option value="Logística">Logística</option>
+                <option value="Inteligencia Militar">Inteligencia Militar</option>
+                <option value="Planificación Estratégica">Planificación Estratégica</option>
+                <option value="Análisis de Inteligencia">Análisis de Inteligencia</option>
+                <option value="Coordinación de Operaciones">Coordinación de Operaciones</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <select id="categoriaCurso" name="categoria_curso" required>
+                <option value="">CATEGORÍA DEL CURSO</option>
+                <option value="basico">Básico</option>
+                <option value="intermedio">Intermedio</option>
+                <option value="avanzado">Avanzado</option>
+                <option value="especializacion">Especialización</option>
+                <option value="comando">Comando</option>
+                <option value="estado_mayor">Estado Mayor</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <select id="instructorCurso" name="instructor_curso" required>
+                <option value="">INSTRUCTOR DEL CURSO</option>
+                <!-- Los instructores se cargarán dinámicamente desde JavaScript -->
+              </select>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="submit" class="btn-submit" id="submitBtn">GUARDAR CURSO</button>
+              <button type="button" class="btn-cancel" id="cancelBtn">CANCELAR</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver detalles del curso -->
+    <div class="modal" id="courseDetailsModal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="detailsModalTitle">DETALLES DEL CURSO</h2>
+          <span class="close" id="closeDetailsModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="course-details" id="courseDetails">
+            <!-- Los detalles se cargarán aquí -->
+          </div>
+          <div class="course-actions">
+            <button class="btn-action btn-edit" id="editCourseBtn">MODIFICAR</button>
+            <button class="btn-action btn-delete" id="deleteCourseBtn">ELIMINAR</button>
+            <button class="btn-action btn-materials" id="viewMaterialsBtn">VER MATERIAS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para nueva materia -->
+    <div class="modal" id="materiaModal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>NUEVA MATERIA</h2>
+          <span class="close" id="closeMateriaModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form class="materia-form" id="materiaForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+              <input type="text" name="nombre_materia" placeholder="NOMBRE MATERIA" required>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="submit" class="btn-submit">AGREGAR MATERIA</button>
+              <button type="button" class="btn-cancel" id="cancelMateriaBtn">CANCELAR</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

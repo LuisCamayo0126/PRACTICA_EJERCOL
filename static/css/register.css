@@ -1,0 +1,359 @@
+/* Register Page Styles */
+
+/* Register page specific styling */
+.register-page {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Navigation header específico para register */
+.admin-navigation-header {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-logo-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.nav-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-item {
+  color: #2c3e50;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background: #e9ecef;
+  color: #007bff;
+}
+
+.nav-item-active {
+  background: #007bff;
+  color: white !important;
+}
+
+.nav-line {
+  height: 3px;
+  background: linear-gradient(90deg, #ffd700, #ffed4e);
+  width: 100%;
+}
+
+/* Modal styles - Use auth.css styles instead */
+.admin-auth-overlay.show-on-load {
+  display: block;
+}
+
+/* Success modal specific (only) */
+.success-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  color: #28a745;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-title {
+  text-align: center;
+  color: #28a745;
+  margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+.success-message {
+  text-align: center;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.success-details {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.success-details h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.success-details p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-success-new,
+.btn-success-close {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-success-new {
+  background: #007bff;
+  color: white;
+}
+
+.btn-success-new:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-success-close {
+  background: #1B4D3E;
+  color: white;
+}
+
+.btn-success-close:hover {
+  background: #14352A;
+}
+
+/* Form styling */
+.register-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-section.excel-uploaded {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Excel upload area */
+.excel-upload {
+  border: 2px dashed #007bff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.excel-upload:hover {
+  border-color: #0056b3;
+  background: #f8f9fa;
+}
+
+.excel-text {
+  color: #6c757d;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.excel-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.excel-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: #107C41;
+}
+
+/* Excel preview section */
+.excel-preview-section {
+  display: none;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.preview-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.preview-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  min-width: 80px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 0.85rem;
+}
+
+.preview-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: end;
+}
+
+.btn-preview-confirm,
+.btn-preview-cancel {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-preview-confirm {
+  background: #28a745;
+  color: white;
+}
+
+.btn-preview-confirm:hover {
+  background: #218838;
+}
+
+.btn-preview-cancel {
+  background: #1B4D3E;
+  color: white;
+}
+
+.btn-preview-cancel:hover {
+  background: #14352A;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .modal-actions,
+  .success-actions {
+    flex-direction: column;
+  }
+  
+  .preview-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .preview-table {
+    font-size: 0.75rem;
+  }
+  
+  .preview-actions {
+    flex-direction: column;
+  }
+}

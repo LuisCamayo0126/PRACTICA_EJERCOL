@@ -1,6 +1,9 @@
 /* Importar fuente Montserrat de Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
+/* NOTA: Los estilos específicos de login han sido movidos a login.css */
+/* Este archivo contiene estilos generales para otras páginas de autenticación */
+
 /* ===== Login (scoped) ===== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -216,8 +219,9 @@ body.login-page::before { display: none !important; }
   font-weight: 800; 
   color: #222; 
   margin: 0; 
-  font-size: 24px; 
-  letter-spacing: 0.5px;
+  font-size: 18px; 
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 .header-line{ height:6px; background:#b8862b; margin-top:6px; border-radius:6px; display: block !important; width: 100%; }
 .header-nav .nav-items{ display:flex; gap:18px; list-style:none; margin:0; padding:0; }
@@ -1000,7 +1004,7 @@ body.register-page .site-header {
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .nav-logo-img {
@@ -1011,10 +1015,11 @@ body.register-page .site-header {
 
 .nav-title {
   font-family: 'Montserrat', sans-serif;
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #1a202c;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 .nav-center {
@@ -1126,9 +1131,26 @@ body.register-page .site-header {
 .register-subtitle {
   font-size: 1rem;
   color: #64748b;
-  margin: 0;
+  margin: 0 0 1rem 0;
   line-height: 1.5;
   font-weight: 400;
+}
+
+.admin-status {
+  margin-bottom: 1rem;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #1B4D3E;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(27, 77, 62, 0.2);
 }
 
 .register-form {
@@ -1554,7 +1576,7 @@ body.register-page .site-header {
 
 .btn-success-close {
   padding: 1rem 2rem;
-  background: #6b7280;
+  background: #1B4D3E;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1696,7 +1718,7 @@ body.register-page .site-header {
 }
 
 .btn-cancel-excel {
-  background: #6b7280;
+  background: #1B4D3E;
   color: white;
   border: none;
   border-radius: 25px;
@@ -1708,7 +1730,7 @@ body.register-page .site-header {
 }
 
 .btn-cancel-excel:hover {
-  background: #4b5563;
+  background: #14352A;
   transform: translateY(-2px);
 }
 
@@ -1869,7 +1891,7 @@ body.register-page .site-header {
 .btn-modal-cancel {
   flex: 1;
   padding: 1rem;
-  background: #6b7280;
+  background: #1B4D3E;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1880,7 +1902,7 @@ body.register-page .site-header {
 }
 
 .btn-modal-cancel:hover {
-  background: #4b5563;
+  background: #14352A;
   transform: translateY(-1px);
 }
 
