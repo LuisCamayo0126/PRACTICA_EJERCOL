@@ -13,10 +13,7 @@
 
 {% block content %}
 <!-- Botón Volver Atrás (oculto en página principal) -->
-<a href="javascript:history.back()" class="btn-back" style="display: none;">
-  <span class="icon">←</span>
-  Volver Atrás
-</a>
+{% include 'includes/back_button.html' with style='display: none;' %}
 
 <main class="role-page admin-page">
   <!-- saludo debajo de la linea dorada -->

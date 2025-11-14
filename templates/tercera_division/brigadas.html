@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boletín de Rendimiento - Tercera División{% endblock %}
+{% block body_class %}brigadas-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tercera_division/brigadas.css' %}">
+<link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}">
+<style>
+  /* Fondo blanco como en la imagen original */
+  body.brigadas-page {
+    background: #f5f5f5 !important;
+    background-image: none !important;
+    min-height: 100vh !important;
+  }
+  body.brigadas-page .site-wrap {
+    background: transparent !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="tercedivi-layout">
+    <aside class="resultados-sidebar">
+      {% include 'tercera_division/resultados.html' %}
+    </aside>
+    <main class="dashboard-main">
+<!-- Header del Boletín -->
+<div class="boletin-header">
+  <h1 class="boletin-title">BOLETÍN DE RENDIMIENTO</h1>
+</div>
+
+<!-- Grid de Brigadas -->
+<div class="brigadas-container">
+  <div class="brigadas-grid card-grid">
+    
+    <!-- Tercera Brigada (tarjeta clicable, estructura maqueta) -->
+    <a href="{% url 'accounts:batallones' %}?brigada=tercera" class="brigada-card card" data-brigada="tercera">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/1.jpg' %}" alt="Palestina" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">VALLE DEL CAUCA</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/tercera_brigada.png' %}" alt="Emblema Tercera Brigada" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>Tercera Brigada</h3>
+      </div>
+    </a>
+
+    <!-- Vigésima Novena Brigada -->
+    <a href="{% url 'accounts:batallones' %}?brigada=veintinueve" class="brigada-card card" data-brigada="veintinueve">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/2.jpg' %}" alt="Cauca" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">CAUCA</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/vigesima_novena_brigada.gif' %}" alt="Emblema Vigésima Novena Brigada" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>Vigésima Novena Brigada</h3>
+      </div>
+    </a>
+
+    <!-- FUDRA 4 -->
+    <a href="{% url 'accounts:batallones' %}?brigada=fudra4" class="brigada-card card" data-brigada="fudra4">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/3.jpg' %}" alt="Cauca" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">CAUCA</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/FUDRA_4.png' %}" alt="Emblema FUDRA 4" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>FUDRA 4</h3>
+      </div>
+    </a>
+
+    <!-- Segunda Fila -->
+    
+    <!-- Brigada 23 -->
+    <a href="{% url 'accounts:batallones' %}?brigada=veintitres" class="brigada-card card" data-brigada="veintitres">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/4.jpg' %}" alt="Nariño" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">VALLE DEL CAUCA</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/vigesima_tercera_brigada.png' %}" alt="Emblema Brigada 23" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>Vigésima Tercera Brigada</h3>
+      </div>
+    </a>
+
+    <!-- FUDRA 2 -->
+    <a href="{% url 'accounts:batallones' %}?brigada=fudra2" class="brigada-card card" data-brigada="fudra2">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/5.webp' %}" alt="Nariño" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">NARIÑO</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/FUDRA_2.png' %}" alt="Emblema FUDRA 2" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>FUDRA 2</h3>
+      </div>
+    </a>
+
+    <!-- Brigada Contra el Narcotráfico -->
+    <a href="{% url 'accounts:batallones' %}?brigada=narcotrafico" class="brigada-card card" data-brigada="narcotrafico">
+      <div class="card-top">
+          <img src="{% static 'images/tercedivi/CARD_BRIGADAS/6.jpg' %}" alt="Nariño" onerror="this.style.display='none'; this.parentElement.classList.add('bg-fallback');">
+        <div class="region">NARIÑO</div>
+      </div>
+      <div class="card-bottom">
+        <div class="logo-wrapper">
+          <img src="{% static 'images/tercedivi/ICONOS_BRIGADAS/fuerza_de_tarea_hercules.png' %}" alt="Emblema Brigada Contra Narcotráfico" class="logo-brigada" onerror="this.style.display='none'">
+        </div>
+        <h3>FUERZA DE TAREA HÉRCULES</h3>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+{% url 'accounts:brigadas' as brigadas_url %}
+{% include 'includes/back_button.html' with href=brigadas_url label='Volver Atrás' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tercera_division/brigadas.js' %}"></script>
+<script src="{% static 'js/tercera_division/resultados.js' %}"></script>
+{% endblock %}

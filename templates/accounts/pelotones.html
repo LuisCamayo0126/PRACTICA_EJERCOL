@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pelotones - {{ batallon|default:'Selecciona un batallón' }}{% endblock %}
+{% block body_class %}tercedivi-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tercera_division/companias.css' %}?v=20251111">
+<link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}?v=20251111">
+<style>
+  .pelotones-wrap{ max-width:1200px; margin:24px auto; padding:0 16px 48px; }
+  .pelotones-title{ text-align:center; font-family:'Montserrat',sans-serif; font-weight:900; font-size: clamp(1.8rem,4vw,3rem); letter-spacing:2px; margin: 18px 0 16px; color:#FF4444; text-shadow: 4px 4px 8px #D4CDB0, -2px -2px 0 #D4CDB0, 2px -2px 0 #D4CDB0, -2px 2px 0 #D4CDB0, 2px 2px 0 #D4CDB0, 0 0 10px rgba(255,68,68,1), 0 0 20px rgba(255,68,68,.8), 0 0 30px rgba(255,68,68,.6); }
+  .pelotones-sub{ text-align:center; font-weight:700; color:#222; margin-bottom: 24px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="tercedivi-layout" id="pelotonesPage" data-brigada="{{ brigada|default:'' }}" data-batallon="{{ batallon|default:'' }}">
+    <aside class="resultados-sidebar">
+      {% include 'tercera_division/resultados.html' %}
+    </aside>
+    <main class="dashboard-main">
+      <div class="pelotones-wrap">
+        <h1 class="pelotones-title">PELOTONES</h1>
+        <div class="pelotones-sub">Brigada: <strong id="brigadaNombre">{{ brigada|default:'---' }}</strong> • Batallón: <strong id="batallonNombre">{{ batallon|default:'---' }}</strong></div>
+        <p style="text-align:center;color:#444;">Página placeholder. Aquí listaremos compañías/pelotones según el batallón seleccionado.</p>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.__batallonesUrl = "{% url 'accounts:batallones' %}";
+</script>
+<script src="{% static 'js/tercera_division/resultados.js' %}?v=20251111"></script>
+{% endblock %}

@@ -1,0 +1,225 @@
+/* Compañías Styles */
+.companias-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #4a3d2c, #6b5a47);
+    min-height: 100vh;
+}
+
+.companias-header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.companias-header h1 {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.companias-header .battalion-info {
+    font-size: 1em;
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.companias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.compania-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.compania-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-color: #6b5a47;
+}
+
+.compania-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.compania-icon {
+    font-size: 2em;
+    margin-right: 12px;
+    color: #4a3d2c;
+}
+
+.compania-title {
+    flex: 1;
+}
+
+.compania-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4a3d2c;
+    margin: 0;
+}
+
+.compania-designation {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 3px;
+}
+
+.compania-info {
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    font-size: 0.9em;
+}
+
+.compania-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(74, 61, 44, 0.1);
+    border-radius: 8px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #4a3d2c;
+}
+
+.stat-label {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 2px;
+}
+
+.compania-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    flex: 1;
+    background: linear-gradient(45deg, #4a3d2c, #6b5a47);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 0.85em;
+}
+
+.action-button:hover {
+    background: linear-gradient(45deg, #3d322a, #4a3d2c);
+    color: white;
+    text-decoration: none;
+    transform: scale(1.02);
+}
+
+.action-button.secondary {
+    background: rgba(74, 61, 44, 0.2);
+    color: #4a3d2c;
+    border: 2px solid #4a3d2c;
+}
+
+.action-button.secondary:hover {
+    background: #4a3d2c;
+    color: white;
+}
+
+.breadcrumb {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px 18px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.breadcrumb a {
+    color: #4a3d2c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #666;
+    margin: 0 8px;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 40px;
+    color: #4a3d2c;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-size: 0.9em;
+}
+
+.back-button:hover {
+    background: white;
+    color: #4a3d2c;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .companias-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+    }
+    
+    .companias-header h1 {
+        font-size: 1.7em;
+    }
+    
+    .compania-card {
+        padding: 15px;
+    }
+    
+    .compania-actions {
+        flex-direction: column;
+    }
+    
+    .compania-stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}

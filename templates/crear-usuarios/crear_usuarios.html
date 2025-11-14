@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear Usuarios{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/crear_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:900px;margin:36px auto;padding:24px;background:#fff;border-radius:8px;">
+  <h1>Crear Usuarios</h1>
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if require_auth and not form %}
+    <p>Se requiere autenticación administrativa para crear usuarios. Por favor autorízate con un administrador.</p>
+    <p>Si ya tienes credenciales administrativas puedes validarlas desde la pantalla de registro.</p>
+  {% else %}
+    {% if form %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <fieldset>
+          {{ form.as_p }}
+        </fieldset>
+        <div style="margin-top:12px;">
+          <button type="submit" class="btn">Crear usuario</button>
+          <a href="{% url 'accounts:admin_home' %}" class="btn" style="margin-left:8px;">Cancelar</a>
+        </div>
+      </form>
+    {% else %}
+      <p>No hay formulario disponible. Si crees que es un error, contacta con un administrador.</p>
+    {% endif %}
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// pequeño ajuste: si existe algún campo con clase admin-field, enfocarlo opcionalmente
+document.addEventListener('DOMContentLoaded', function(){
+  var f = document.querySelector('form'); if (!f) return; var el = f.querySelector('.admin-field'); if(el) el.focus();
+});
+</script>
+{% endblock %}

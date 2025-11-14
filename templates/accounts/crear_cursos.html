@@ -14,10 +14,8 @@
 
 {% block content %}
 <!-- Botón Volver Atrás -->
-<a href="{% url 'admin_home' %}" class="btn-back">
-  <span class="icon">←</span>
-  Volver Atrás
-</a>
+{% url 'accounts:admin_home' as admin_home_url %}
+{% include 'includes/back_button.html' with href=admin_home_url label='Volver Atrás' %}
 
 <main class="role-page crear-cursos-page">
   <div class="admin-main-title">

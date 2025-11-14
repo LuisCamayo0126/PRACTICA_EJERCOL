@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Batallones - {{ brigada|default:'Selecciona una brigada' }}{% endblock %}
+{% block body_class %}tercedivi-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tercera_division/companias.css' %}?v=20251111">
+<link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}?v=20251111">
+<style>
+  .batallones-wrap{ max-width:1200px; margin:24px auto; padding:0 16px 48px; }
+  .batallones-title{ text-align:center; font-family:'Montserrat',sans-serif; font-weight:900; font-size: clamp(1.8rem,4vw,3rem); letter-spacing:2px; margin: 18px 0 16px; color:#FF4444; text-shadow: 4px 4px 8px #D4CDB0, -2px -2px 0 #D4CDB0, 2px -2px 0 #D4CDB0, -2px 2px 0 #D4CDB0, 2px 2px 0 #D4CDB0, 0 0 10px rgba(255,68,68,1), 0 0 20px rgba(255,68,68,.8), 0 0 30px rgba(255,68,68,.6); }
+  .batallones-sub{ text-align:center; font-weight:700; color:#222; margin-bottom: 24px; }
+  .batallones-grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px; }
+  .batallon-card{ background:#fff; border-radius: 14px; box-shadow: 0 10px 22px rgba(0,0,0,.15); padding: 16px; cursor:pointer; transition: transform .15s ease, box-shadow .15s ease; }
+  .batallon-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 34px rgba(0,0,0,.28); }
+  .batallon-card h3{ margin:0 0 8px; font-size: 1.1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="tercedivi-layout" id="batallonesPage" data-brigada="{{ brigada|default:'' }}">
+    <aside class="resultados-sidebar">
+      {% include 'tercera_division/resultados.html' %}
+    </aside>
+    <main class="dashboard-main">
+      <div class="batallones-wrap">
+        <h1 class="batallones-title">BATALLONES</h1>
+        <div class="batallones-sub">Brigada seleccionada: <span id="brigadaNombre">{{ brigada|default:'---' }}</span></div>
+
+        <div class="batallones-grid" id="batallonesGrid">
+          <!-- Placeholder de tarjetas de batallones; integrar datos reales después -->
+          <div class="batallon-card battalion-card-boletin" data-batallon="Batallón A"><h3>Batallón A</h3><p>Contenido de ejemplo…</p></div>
+          <div class="batallon-card battalion-card-boletin" data-batallon="Batallón B"><h3>Batallón B</h3><p>Contenido de ejemplo…</p></div>
+          <div class="batallon-card battalion-card-boletin" data-batallon="Batallón C"><h3>Batallón C</h3><p>Contenido de ejemplo…</p></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Exponer URLs para navegación
+  window.__batallonesUrl = "{% url 'accounts:batallones' %}";
+  window.__pelotonesUrl = "{% url 'accounts:pelotones' %}";
+  // Asegurar que el nombre de brigada se muestre aunque no se haya pasado por contexto
+  (function(){
+    var span = document.getElementById('brigadaNombre');
+    if (!span) return;
+    var v = span.textContent && span.textContent.trim();
+    if (!v || v === '---'){
+      var qs = new URLSearchParams(location.search);
+      var b = qs.get('brigada');
+      if (b){ span.textContent = b; document.getElementById('batallonesPage')?.setAttribute('data-brigada', b); }
+    }
+  })();
+</script>
+<script src="{% static 'js/tercera_division/batallones.js' %}?v=20251111"></script>
+<script src="{% static 'js/tercera_division/resultados.js' %}?v=20251111"></script>
+{% endblock %}

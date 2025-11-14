@@ -1,0 +1,45 @@
+{% load static %}
+
+<!-- Sidebar de resultados con íconos circulares -->
+<nav class="resultados-nav" aria-label="Resultados">
+	<div class="resultados-nav__label" title="Resultados">RESULTADOS</div>
+		<ul class="resultados-nav__list">
+		<!-- Tercera Brigada -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=Tercera Brigada" data-brigada="TERCERA BRIGADA" title="Tercera Brigada">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/tercera_brigada.png' %}" alt="Tercera Brigada"/>
+			</a>
+		</li>
+		<!-- Vigésima Novena Brigada -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=Vigésima Novena Brigada" data-brigada="VIGESIMA NOVENA BRIGADA" title="Vigésima Novena Brigada">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/vigesima_novena_brigada.gif' %}" alt="Vigésima Novena Brigada"/>
+			</a>
+		</li>
+		<!-- Vigésima Tercera Brigada -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=Vigésima Tercera Brigada" data-brigada="VIGESIMA TERCERA BRIGADA" title="Vigésima Tercera Brigada">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/vigesima_tercera_brigada.png' %}" alt="Vigésima Tercera Brigada"/>
+			</a>
+		</li>
+		<!-- FUDRA 2 -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=FUDRA 2" data-brigada="FUDRA 2" title="FUDRA 2">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/FUDRA_2.png' %}" alt="FUDRA 2"/>
+			</a>
+		</li>
+		<!-- FUDRA 4 -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=FUDRA 4" data-brigada="FUDRA 4" title="FUDRA 4">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/FUDRA_4.png' %}" alt="FUDRA 4"/>
+			</a>
+		</li>
+		<!-- FUERZA DE TAREA HÉRCULES -->
+		<li class="resultados-nav__item">
+			<a class="resultados-nav__btn" href="{% url 'accounts:batallones' %}?brigada=Fuerza de Tarea Hércules" data-brigada="FUERZA DE TAREA HERCULES" title="Fuerza de Tarea Hércules">
+				<img src="{% static 'images/IMG/ICONOS_BRIGADAS/fuerza_de_tarea_hercules.png' %}" alt="Fuerza de Tarea Hércules"/>
+			</a>
+		</li>
+	</ul>
+</nav>
+

@@ -27,20 +27,18 @@
 
         <nav class="header-nav">
           <ul class="nav-items">
-            <li><a href="{% url 'admin_home' %}">TERCERA DIVISIÓN</a></li>
+            <li><a href="{% url 'accounts:brigadas' %}">TERCERA DIVISIÓN</a></li>
             {% if user.is_authenticated %}
               {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
-                <!-- Solo Admin e Instructor pueden ver CREAR CURSOS -->
-                <li><a href="{% url 'crear_cursos' %}">CREAR CURSOS</a></li>
-                <!-- Solo Admin e Instructor pueden ver CREAR USUARIOS -->
-                <li><a href="{% url 'crear_usuarios' %}">CREAR USUARIOS</a></li>
+                <li><a href="{% url 'accounts:crear_cursos' %}">CREAR CURSOS</a></li>
+                <li><a href="{% url 'accounts:crear_usuarios' %}">CREAR USUARIOS</a></li>
               {% endif %}
             {% endif %}
-            <li><a href="{% url 'admin_home' %}">GRUPOS USUARIOS</a></li>
+            <li><a href="{% url 'accounts:admin_home' %}">GRUPOS USUARIOS</a></li>
             <li class="nav-formularios">
-              <a href="{% url 'soldado_home' %}">FORMULARIOS</a>
+              <a href="{% url 'accounts:soldado_home' %}">FORMULARIOS</a>
               {% if user.is_authenticated %}
-                <form method="post" action="{% url 'logout' %}" class="logout-inline">{% csrf_token %}
+                <form method="post" action="{% url 'accounts:logout' %}" class="logout-inline">{% csrf_token %}
                   <button type="submit" class="logout-button-modern" aria-label="Salir">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 17L21 12L16 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 19H7A2 2 0 0 1 5 17V7A2 2 0 0 1 7 5H12" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Salir
@@ -78,7 +76,7 @@
               window.history.back();
             } else {
               // Si no hay historial, redirigir a página principal
-              window.location.href = "{% url 'admin_home' %}";
+              window.location.href = "{% url 'accounts:admin_home' %}";
             }
           }
           // Si tiene una URL específica, permitir comportamiento normal

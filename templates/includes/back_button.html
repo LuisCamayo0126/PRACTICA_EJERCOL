@@ -1,0 +1,12 @@
+{% comment %}Reusable back button include.
+   Usage: {% include 'includes/back_button.html' with href=HREF label=LABEL style=STYLE %}
+   - href: link target (defaults to javascript:history.back())
+   - label: visible text (defaults to 'Volver Atrás')
+   - style: optional inline style string (e.g. 'display:none;')
+{% endcomment %}
+<div class="back-navigation">
+  <a href="{{ href|default:'javascript:history.back()' }}" class="btn-back"{% if style %} style="{{ style }}"{% endif %}>
+    <span class="icon">←</span>
+    {{ label|default:'Volver Atrás' }}
+  </a>
+</div>

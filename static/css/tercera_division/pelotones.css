@@ -1,0 +1,264 @@
+/* Pelotones Styles */
+.pelotones-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #2c3d4a, #47596b);
+    min-height: 100vh;
+}
+
+.pelotones-header {
+    text-align: center;
+    margin-bottom: 35px;
+    color: #fff;
+}
+
+.pelotones-header h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.pelotones-header .company-info {
+    font-size: 0.95em;
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 6px;
+}
+
+.pelotones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.peloton-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    padding: 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.peloton-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border-color: #47596b;
+}
+
+.peloton-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.peloton-icon {
+    font-size: 1.8em;
+    margin-right: 10px;
+    color: #2c3d4a;
+}
+
+.peloton-title {
+    flex: 1;
+}
+
+.peloton-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2c3d4a;
+    margin: 0;
+}
+
+.peloton-number {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 2px;
+}
+
+.peloton-info {
+    color: #555;
+    margin-bottom: 12px;
+    line-height: 1.3;
+    font-size: 0.85em;
+}
+
+.peloton-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: rgba(44, 61, 74, 0.1);
+    border-radius: 6px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3d4a;
+}
+
+.stat-label {
+    font-size: 0.75em;
+    color: #666;
+    margin-top: 1px;
+}
+
+.peloton-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.action-button {
+    flex: 1;
+    background: linear-gradient(45deg, #2c3d4a, #47596b);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 0.8em;
+}
+
+.action-button:hover {
+    background: linear-gradient(45deg, #1e2a34, #2c3d4a);
+    color: white;
+    text-decoration: none;
+    transform: scale(1.02);
+}
+
+.action-button.export {
+    background: rgba(44, 61, 74, 0.2);
+    color: #2c3d4a;
+    border: 2px solid #2c3d4a;
+}
+
+.action-button.export:hover {
+    background: #2c3d4a;
+    color: white;
+}
+
+.export-options {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.export-title {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #2c3d4a;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.export-btn {
+    background: #2c3d4a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    background: #1e2a34;
+    transform: scale(1.05);
+}
+
+.breadcrumb {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+.breadcrumb a {
+    color: #2c3d4a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #666;
+    margin: 0 6px;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 30px;
+    color: #2c3d4a;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-size: 0.85em;
+}
+
+.back-button:hover {
+    background: white;
+    color: #2c3d4a;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pelotones-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 0 8px;
+    }
+    
+    .pelotones-header h1 {
+        font-size: 1.6em;
+    }
+    
+    .peloton-card {
+        padding: 12px;
+    }
+    
+    .peloton-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+}

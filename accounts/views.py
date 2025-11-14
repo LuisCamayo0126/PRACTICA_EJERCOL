@@ -8,8 +8,22 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+import csv
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+import secrets
+import unicodedata
+from io import BytesIO
+import unicodedata as _unic
+try:
+	from reportlab.lib.pagesizes import letter
+	from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+	from reportlab.lib import colors
+	from reportlab.lib.styles import getSampleStyleSheet
+	_REPORTLAB_AVAILABLE = True
+except Exception:
+	_REPORTLAB_AVAILABLE = False
 
 
 def home_redirect(request):
@@ -18,7 +32,7 @@ def home_redirect(request):
 		return redirect('login')
 	
 	# Todos los usuarios autenticados van a la misma página principal (admin_home)
-	return redirect('admin_home')
+	return redirect('accounts:admin_home')
 
 
 def _collect_carousel_images():
@@ -48,6 +62,248 @@ def admin_home(request):
 def instructor_dashboard(request):
 	carousel_images = _collect_carousel_images()
 	return render(request, 'accounts/instructor_dashboard.html', {'carousel_images': carousel_images})
+
+
+
+@login_required
+def brigadas(request):
+	"""Vista principal de brigadas (alias más claro para Tercera División)."""
+	return render(request, 'tercera_division/brigadas.html')
+
+
+@login_required
+def tercedivi_excel(request):
+	"""Vista para la gestión de archivos Excel de TERCEDIVI"""
+	return render(request, 'accounts/tercedivi_excel.html')
+
+
+def _normalize_text(s: str) -> str:
+	s = s or ''
+	s = ' '.join(str(s).split())
+	s = _unic.normalize('NFKD', s)
+	s = ''.join(ch for ch in s if not _unic.combining(ch))
+	return s.strip()
+
+def _csv_path():
+	return os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', 'terdivexc', 'FORMATO PRESENTACION.csv')
+
+def _load_estructura():
+	"""Carga el CSV de estructura (DIVISION;BRIGADA;BATALLÓN;COMPAÑÍA) y devuelve lista de dicts."""
+	rows = []
+	path = _csv_path()
+	if not os.path.exists(path):
+		return rows
+	import csv as _csv
+	with open(path, 'r', encoding='utf-8-sig', newline='') as f:
+		reader = _csv.DictReader(f, delimiter=';')
+		for r in reader:
+			# Normalizar campos y colapsar saltos de línea en BATALLÓN
+			div = _normalize_text(r.get('DIVISION', ''))
+			bri = _normalize_text(r.get('BRIGADA', ''))
+			bat = _normalize_text(r.get('BATALLÓN', r.get('BATALLON', '')))
+			com = _normalize_text(r.get('COMPAÑÍA', r.get('COMPANIA', '')))
+			if bri and bat:
+				rows.append({'division': div, 'brigada': bri, 'batallon': bat, 'compania': com})
+	return rows
+
+def _match_key(s: str) -> str:
+	"""Clave canónica para comparar (mayúsculas sin tildes/espacios extra)."""
+	s = _normalize_text(s).upper()
+	return s
+
+def _canonical_brigada_name(s: str) -> str:
+	"""Normaliza nombres de brigada y unifica alias.
+	Ejemplos: "FUERZA DE DESPLIEGUE RAPIDO N° 2" -> "FUDRA 2"
+			  "FUERZA DE DESPLIEGUE RAPIDO No 4" -> "FUDRA 4"
+	El resto retorna la clave en mayúsculas sin tildes.
+	"""
+	k = _match_key(s)
+	if 'FUERZA DE DESPLIEGUE RAPIDO' in k:
+		nums = _extract_numbers(k)
+		if '2' in nums:
+			return 'FUDRA 2'
+		if '4' in nums:
+			return 'FUDRA 4'
+	if 'FUDRA 2' in k:
+		return 'FUDRA 2'
+	if 'FUDRA 4' in k:
+		return 'FUDRA 4'
+	return k
+
+def _brigada_to_folder(brigada: str) -> str | None:
+	key = _canonical_brigada_name(brigada)
+	mapping = {
+		'TERCERA BRIGADA': 'BATALLONES_BR3',
+		'VIGESIMA NOVENA BRIGADA': 'BAT_BR29',
+		'VIGESIMA TERCERA BRIGADA': 'BATALLONES_BR23',
+		'FUDRA 2': 'BATALLONES_FUDRA2',
+		'FUDRA 4': 'BATALLONES_FUDRA4',
+		'FUERZA DE TAREA HERCULES': 'BATALLONES_FUHER',
+	}
+	return mapping.get(key)
+
+def _first_icon_for_brigada(brigada: str) -> str | None:
+	folder = _brigada_to_folder(brigada)
+	if not folder:
+		return None
+	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', folder)
+	if not os.path.isdir(base):
+		return None
+	for name in sorted(os.listdir(base)):
+		if name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+			rel = f"images/tercedivi/{folder}/{name}"
+			return settings.STATIC_URL.rstrip('/') + '/' + rel
+	return None
+
+def _extract_numbers(text: str) -> list[str]:
+	import re
+	return re.findall(r"\d+", text or "")
+
+def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
+	"""Intenta encontrar un ícono específico para el batallón dentro de la carpeta de su brigada.
+	Heurística: buscar por números dentro del nombre del batallón (p.ej. 10, 8, 3, 53...).
+	Si no encuentra coincidencias, retorna el primero disponible.
+	"""
+	folder = _brigada_to_folder(brigada)
+	if not folder:
+		return None
+	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', folder)
+	if not os.path.isdir(base):
+		return None
+	# 1) Mapeos explícitos por nombre (más específicos que la heurística)
+	key = _match_key(batallon)
+	nums = _extract_numbers(batallon)
+	def file_url(fname: str) -> str | None:
+		path = os.path.join(base, fname)
+		if os.path.exists(path):
+			rel = f"images/tercedivi/{folder}/{fname}"
+			return settings.STATIC_URL.rstrip('/') + '/' + rel
+		return None
+
+	# BIVEN -> BIVEN23.png
+	if 'BIVEN' in key:
+		url = file_url('BIVEN23.png')
+		if url:
+			return url
+	# Batallón de Ingenieros de Combate No. 3 Coronel "AGUSTIN CODAZZI" -> BICOD3.png
+	if 'INGENIEROS' in key and 'CODAZZI' in key:
+		url = file_url('BICOD3.png')
+		if url:
+			return url
+	# Batallón de Policía Militar No. 3 General "EUSEBIO BORRERO ACOSTA" -> BAPOM3.png
+	if 'POLICIA' in key and 'MILITAR' in key:
+		url = file_url('BAPOM3.png')
+		if url:
+			return url
+	# Batallón de Montaña No. 3 "RODRIGO LLOREDA CAICEDO" -> BAMRO#.png (# = primer número encontrado, por defecto 3)
+	if ('MONTANA' in key or 'MONTAÑA' in key) and 'RODRIGO' in key:
+		n = (nums[0] if nums else '3')
+		url = file_url(f'BAMRO{n}.png')
+		if url:
+			return url
+	# Batallón de Artillería de Campaña No. 3 "BATALLA DE PALACE" -> BAACA#.png (usa primer número; por defecto 3)
+	if 'ARTILLERIA' in key and 'CAMPANA' in key:
+		n = (nums[0] if nums else '3')
+		url = file_url(f'BAACA{n}.png')
+		if url:
+			return url
+	candidates = sorted(os.listdir(base))
+	# Priorizar por coincidencia de números
+	for n in nums:
+		for name in candidates:
+			low = name.lower()
+			if n in low and low.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+				rel = f"images/tercedivi/{folder}/{name}"
+				return settings.STATIC_URL.rstrip('/') + '/' + rel
+	# Fallback: primero disponible
+	for name in candidates:
+		if name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+			rel = f"images/tercedivi/{folder}/{name}"
+			return settings.STATIC_URL.rstrip('/') + '/' + rel
+	return None
+
+@login_required
+def batallones(request):
+	"""Lista de batallones para una brigada (usa batallon.html)."""
+	brigada = _normalize_text(request.GET.get('brigada') or '')
+	data = _load_estructura()
+	# Unificar alias de brigada en comparación (FUDRA 2/4)
+	canon_input = _canonical_brigada_name(brigada)
+	batallones = sorted({row['batallon'] for row in data if _canonical_brigada_name(row['brigada']) == canon_input})
+	items = []
+	for b in batallones:
+		icon = _icon_for_batallon(brigada, b) or _first_icon_for_brigada(brigada)
+		items.append({'name': b, 'icon': icon})
+	return render(request, 'tercera_division/batallon.html', { 'brigada': brigada, 'batallones': items })
+
+@login_required
+def companias(request):
+	"""Lista de compañías para un batallón específico."""
+	brigada = _normalize_text(request.GET.get('brigada') or '')
+	batallon = _normalize_text(request.GET.get('batallon') or '')
+	data = _load_estructura()
+	canon_bri = _canonical_brigada_name(brigada)
+	companias = sorted({row['compania'] for row in data if _canonical_brigada_name(row['brigada']) == canon_bri and _match_key(row['batallon']) == _match_key(batallon) and row['compania']})
+	return render(request, 'tercera_division/companias.html', { 'brigada': brigada, 'batallon': batallon, 'companias': companias })
+
+@login_required
+def pelotones(request):
+	"""Vista de Pelotones. Por ahora genera hasta 4 pelotones genéricos."""
+	brigada = _normalize_text(request.GET.get('brigada') or '')
+	batallon = _normalize_text(request.GET.get('batallon') or '')
+	compania = _normalize_text(request.GET.get('compania') or '')
+	# Hasta tener datos reales de pelotones, mostraremos 4 placeholders
+	pelotones = [f"Pelotón {i}" for i in range(1,5)]
+	return render(request, 'tercera_division/pelotones.html', { 'brigada': brigada, 'batallon': batallon, 'compania': compania, 'pelotones': pelotones })
+
+
+@login_required
+def export_peloton_csv(request):
+	"""Exporta un CSV del personal del pelotón indicado.
+
+	Por ahora no hay modelo de personal en la BD, así que devolvemos una plantilla CSV
+	con los encabezados y metadatos de la selección. Cuando exista el modelo, aquí se
+	hará la consulta y se rellenarán las filas reales.
+	"""
+	brigada = (request.GET.get('brigada') or '').strip()
+	batallon = (request.GET.get('batallon') or '').strip()
+	compania = (request.GET.get('compania') or '').strip()
+	peloton = (request.GET.get('peloton') or '').strip()
+
+	# Construir nombre de archivo seguro
+	def slugify(s):
+		return ''.join(ch for ch in s.replace(' ', '_') if ch.isalnum() or ch in ('_', '-')).strip('_') or 'seleccion'
+
+	filename = f"personal_{slugify(brigada)}_{slugify(batallon)}_{slugify(compania)}_{slugify(peloton)}.csv"
+
+	# Preparar respuesta CSV
+	response = HttpResponse(content_type='text/csv; charset=utf-8')
+	response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+	writer = csv.writer(response)
+	# Encabezados típicos para personal; ajustar cuando se conozca el modelo real
+	writer.writerow([
+		'Documento', 'Apellidos', 'Nombres', 'Grado', 'Pelotón', 'Compañía', 'Batallón', 'Brigada'
+	])
+
+	# Datos mock para facilitar las pruebas manuales en tanto no exista el modelo real
+	# Nota: Los valores de Pelotón/Compañía/Batallón/Brigada reflejan la selección recibida por querystring
+	mock_rows = [
+		('1001001001', 'Pérez Gómez', 'Juan Carlos', 'SL', peloton, compania, batallon, brigada),
+		('1001001002', 'Rodríguez López', 'María Fernanda', 'SL', peloton, compania, batallon, brigada),
+		('1001001003', 'García Martínez', 'Luis Alberto', 'CB', peloton, compania, batallon, brigada),
+		('1001001004', 'Hernández Díaz', 'Ana Lucía', 'CB', peloton, compania, batallon, brigada),
+		('1001001005', 'Sánchez Torres', 'Carlos Andrés', 'SG', peloton, compania, batallon, brigada),
+		('1001001006', 'Ramírez Castillo', 'Diana Paola', 'SG', peloton, compania, batallon, brigada),
+		('1001001007', 'Torres Ríos', 'Jorge Enrique', 'TC', peloton, compania, batallon, brigada),
+		('1001001008', 'Vargas Ortiz', 'Camila Alejandra', 'TC', peloton, compania, batallon, brigada),
+		('1001001009', 'Flores Medina', 'Oscar Eduardo', 'ST', peloton, compania, batallon, brigada),
+		('1001001010', 'Castillo Niño', 'Valentina', 'ST', peloton, compania, batallon, brigada),
+	]
+	for row in mock_rows:
+		writer.writerow(row)
+
+	return response
 
 
 @login_required
@@ -190,81 +446,35 @@ class AdminAuthorizedRegistrationForm(forms.Form):
 
 
 def register(request):
-	# Verificar si el usuario está autenticado y es administrador
-	user_is_admin = False
-	if request.user.is_authenticated:
-		user_is_admin = request.user.is_superuser or request.user.is_staff
+	"""Vista de registro que requiere autenticación de administrador y redirige a crear usuarios"""
 	
 	if request.method == 'POST':
-		# Verificar si es una request AJAX
-		if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+		# Manejar solicitud AJAX para validación de admin
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 			try:
-				# Si el usuario ya es admin autenticado, usar formulario simplificado
-				if user_is_admin:
-					form = SimpleRegistrationForm(request.POST)
-				else:
-					form = AdminAuthorizedRegistrationForm(request.POST)
+				data = json.loads(request.body)
+				username = data.get('username', '').strip()
+				password = data.get('password', '').strip()
 				
-				if form.is_valid():
-					# Crear el nuevo usuario
-					user = User.objects.create_user(
-						username=form.cleaned_data['username'],
-						email=form.cleaned_data['email'],
-						password=form.cleaned_data['password1'],
-						first_name=form.cleaned_data['first_name'],
-						last_name=form.cleaned_data['last_name']
-					)
+				if not username or not password:
+					return JsonResponse({'valid': False, 'error': 'Credenciales requeridas'})
+				
+				# Autenticar usuario
+				admin_user = authenticate(username=username, password=password)
+				
+				if admin_user and (admin_user.is_staff or admin_user.is_superuser):
+					# Autenticación exitosa - redirigir a crear usuarios
 					return JsonResponse({
-						'success': True,
-						'username': user.username,
-						'email': user.email,
-						'nombres': user.first_name,
-						'apellidos': user.last_name,
-						'message': f'Usuario {user.username} creado exitosamente.'
+						'valid': True, 
+						'redirect_url': '/accounts/crear-usuarios/'
 					})
 				else:
-					return JsonResponse({
-						'success': False,
-						'errors': form.errors,
-						'error': 'Error en la validación del formulario.'
-					})
+					return JsonResponse({'valid': False, 'error': 'Credenciales de administrador inválidas'})
 			except Exception as e:
-				return JsonResponse({
-					'success': False,
-					'error': str(e)
-				})
-		else:
-			# Procesamiento normal (no AJAX)
-			if user_is_admin:
-				form = SimpleRegistrationForm(request.POST)
-			else:
-				form = AdminAuthorizedRegistrationForm(request.POST)
-			
-			if form.is_valid():
-				# Crear el nuevo usuario
-				user = User.objects.create_user(
-					username=form.cleaned_data['username'],
-					email=form.cleaned_data['email'],
-					password=form.cleaned_data['password1'],
-					first_name=form.cleaned_data['first_name'],
-					last_name=form.cleaned_data['last_name']
-				)
-				messages.success(request, f'Usuario {user.username} creado exitosamente. Puede iniciar sesión ahora.')
-				return redirect('login')
-	else:
-		# Crear el formulario apropiado según el estado del usuario
-		if user_is_admin:
-			form = SimpleRegistrationForm()
-		else:
-			form = AdminAuthorizedRegistrationForm()
+				return JsonResponse({'valid': False, 'error': f'Error: {str(e)}'})
 	
-	# Pasar información del tipo de formulario al template
-	context = {
-		'form': form,
-		'user_is_admin': user_is_admin,
-		'show_admin_fields': not user_is_admin
-	}
-	return render(request, 'accounts/register.html', context)
+	# Redirigir directamente a crear usuarios sin mostrar formulario intermedio
+	return redirect('crear_usuarios')
 
 
 def password_reset(request):
@@ -348,20 +558,216 @@ def crear_usuarios(request):
 				form = AdminAuthorizedRegistrationForm()
 			
 			# Renderizar sin modal (admin ya autenticado)
-			return render(request, 'accounts/crear_usuarios.html', {
+			return render(request, 'crear-usuarios/crear_usuarios.html', {
 				'form': form,
 				'require_auth': False,
 				'user_role': 'admin'
 			})
 		else:
 			# Si es instructor/soldado, mostrar modal de autenticación
-			return render(request, 'accounts/crear_usuarios.html', {
+			return render(request, 'crear-usuarios/crear_usuarios.html', {
 				'require_auth': True,
 				'user_role': 'instructor_soldado'
 			})
 	else:
 		# Si no está autenticado, mostrar modal de autenticación
-		return render(request, 'accounts/crear_usuarios.html', {
+		return render(request, 'crear-usuarios/crear_usuarios.html', {
 			'require_auth': True,
 			'user_role': 'anonymous'
 		})
+
+
+@csrf_exempt
+def crear_usuarios_bulk(request):
+	"""Endpoint para registro masivo de usuarios desde Excel.
+
+	Autoriza de dos maneras:
+	- Si el usuario autenticado es admin/staff.
+	- O si provee credenciales admin válidas en el payload (admin_username/admin_password).
+
+	Espera JSON con estructura:
+	{
+	  "records": [
+		{"grado": "", "arma": "", "apellidos": "", "nombres": "", "cedula": "", ...}
+	  ],
+	  "admin_username": "opcional",
+	  "admin_password": "opcional"
+	}
+	"""
+	if request.method != 'POST':
+		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+	try:
+		data = json.loads(request.body or '{}')
+	except Exception:
+		return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+	# Autorización
+	authorized = False
+	if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+		authorized = True
+	else:
+		admin_username = (data.get('admin_username') or '').strip()
+		admin_password = (data.get('admin_password') or '').strip()
+		if admin_username and admin_password:
+			admin_user = authenticate(username=admin_username, password=admin_password)
+			if admin_user and (admin_user.is_staff or admin_user.is_superuser):
+				authorized = True
+
+	if not authorized:
+		return JsonResponse({'success': False, 'error': 'No autorizado. Se requieren credenciales administrativas.'}, status=403)
+
+	records = data.get('records') or []
+	if not isinstance(records, list) or not records:
+		return JsonResponse({'success': False, 'error': 'No se recibieron registros válidos.'}, status=400)
+
+	def _norm(s):
+		if s is None:
+			return ''
+		s = str(s).strip()
+		s = unicodedata.normalize('NFKD', s)
+		s = ''.join(ch for ch in s if not unicodedata.combining(ch))
+		return s
+
+	def _gen_username(base):
+		base = ''.join(ch for ch in base if ch.isalnum()).lower() or 'user'
+		candidate = base
+		i = 1
+		while User.objects.filter(username=candidate).exists():
+			i += 1
+			candidate = f"{base}{i}"
+		return candidate
+
+	results = []
+	created_count = 0
+	errors_count = 0
+
+	with transaction.atomic():
+		for idx, rec in enumerate(records, start=1):
+			try:
+				apellidos = _norm(rec.get('apellidos', ''))
+				nombres = _norm(rec.get('nombres', ''))
+				cedula = _norm(rec.get('cedula', ''))
+
+				if not apellidos or not nombres or not cedula:
+					raise ValueError('Fila incompleta: se requieren NOMBRES, APELLIDOS y CÉDULA')
+
+				# username base: inicial nombre + apellido + últimos 3 de cédula
+				parts = nombres.split()
+				inicial = parts[0][0] if parts else 'u'
+				apellido_base = apellidos.split()[0] if apellidos else 'user'
+				ced_tail = cedula[-3:] if len(cedula) >= 3 else cedula
+				uname_base = f"{inicial}{apellido_base}{ced_tail}"
+				username = _gen_username(uname_base)
+
+				password = secrets.token_urlsafe(10)
+
+				user = User.objects.create_user(
+					username=username,
+					email='',
+					password=password,
+					first_name=nombres,
+					last_name=apellidos
+				)
+
+				created_count += 1
+				results.append({
+					'row': idx,
+					'success': True,
+					'username': username,
+					'password': password
+				})
+			except Exception as e:
+				errors_count += 1
+				results.append({
+					'row': idx,
+					'success': False,
+					'error': str(e)
+				})
+
+	return JsonResponse({
+		'success': errors_count == 0,
+		'created': created_count,
+		'failed': errors_count,
+		'results': results
+	})
+
+
+@csrf_exempt
+def crear_usuarios_credentials_pdf(request):
+	"""Genera un PDF con las credenciales ya creadas (username/password) enviadas en JSON.
+
+	Seguridad: requiere admin autenticado o credenciales admin en payload.
+	Payload esperado:
+	{
+	  "credentials": [ {"username": "u1", "password": "p1"}, ... ],
+	  "admin_username": "opcional",
+	  "admin_password": "opcional"
+	}
+	"""
+	if request.method != 'POST':
+		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+	try:
+		data = json.loads(request.body or '{}')
+	except Exception:
+		return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+	# Autorización
+	authorized = False
+	if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+		authorized = True
+	else:
+		admin_username = (data.get('admin_username') or '').strip()
+		admin_password = (data.get('admin_password') or '').strip()
+		if admin_username and admin_password:
+			admin_user = authenticate(username=admin_username, password=admin_password)
+			if admin_user and (admin_user.is_staff or admin_user.is_superuser):
+				authorized = True
+
+	if not authorized:
+		return JsonResponse({'success': False, 'error': 'No autorizado.'}, status=403)
+
+	credentials = data.get('credentials') or []
+	if not isinstance(credentials, list) or not credentials:
+		return JsonResponse({'success': False, 'error': 'Lista de credenciales vacía.'}, status=400)
+
+	if not _REPORTLAB_AVAILABLE:
+		return JsonResponse({'success': False, 'error': 'ReportLab no está instalado en el servidor.'}, status=500)
+
+	# Generar PDF en memoria
+	buffer = BytesIO()
+	doc = SimpleDocTemplate(buffer, pagesize=letter)
+	styles = getSampleStyleSheet()
+	story = []
+
+	title = Paragraph('Credenciales Generadas - Registro Masivo', styles['Title'])
+	story.append(title)
+	story.append(Spacer(1, 12))
+	story.append(Paragraph(f'Total credenciales: {len(credentials)}', styles['Normal']))
+	story.append(Spacer(1, 12))
+
+	# Tabla de credenciales
+	data_table = [['#', 'Usuario', 'Contraseña']]
+	for i, cred in enumerate(credentials, start=1):
+		data_table.append([str(i), cred.get('username', ''), cred.get('password', '')])
+
+	table = Table(data_table, colWidths=[40, 200, 200])
+	table.setStyle(TableStyle([
+		('BACKGROUND', (0,0), (-1,0), colors.HexColor('#143a33')),
+		('TEXTCOLOR', (0,0), (-1,0), colors.white),
+		('ALIGN', (0,0), (-1,-1), 'CENTER'),
+		('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+		('BOTTOMPADDING', (0,0), (-1,0), 8),
+		('BACKGROUND', (0,1), (-1,-1), colors.whitesmoke),
+		('GRID', (0,0), (-1,-1), 0.5, colors.gray),
+	]))
+	story.append(table)
+
+	doc.build(story)
+	pdf_bytes = buffer.getvalue()
+	buffer.close()
+
+	response = HttpResponse(pdf_bytes, content_type='application/pdf')
+	response['Content-Disposition'] = 'attachment; filename="credenciales_registro_masivo.pdf"'
+	return response

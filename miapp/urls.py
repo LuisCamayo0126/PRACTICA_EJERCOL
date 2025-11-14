@@ -5,6 +5,6 @@ from accounts.views import home_redirect
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/", include("accounts.urls")),
+    path("accounts/", include("accounts.urls", namespace="accounts")),
     path("", home_redirect, name="home"),  # 👈 vista inteligente de redirección
 ]

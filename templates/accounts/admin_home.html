@@ -35,7 +35,7 @@
 
     
     <div class="admin-content-actions">
-      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
         <!-- Botón de logout si se necesita -->
       </form>
     </div>

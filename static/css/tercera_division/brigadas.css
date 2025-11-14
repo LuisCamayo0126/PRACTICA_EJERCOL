@@ -1,0 +1,401 @@
+/* Brigadas CSS - Estilo Boletín de Rendimiento */
+
+/* Fondo blanco/gris claro como en la imagen original */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body.brigadas-page {
+  background: #f5f5f5 !important;
+  background-image: none !important;
+  min-height: 100vh !important;
+  font-family: 'Arial', sans-serif;
+}
+
+.brigadas-page {
+  background: #f5f5f5 !important;
+  min-height: 100vh !important;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Asegurar que contenedores también tengan el fondo */
+body.brigadas-page .site-wrap,
+body.brigadas-page .brigadas-container {
+  background: transparent !important;
+}
+
+/* Header del Boletín */
+.boletin-header {
+  text-align: center;
+  padding: 30px 20px;
+  margin-bottom: 30px;
+}
+
+.boletin-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 900;
+  color: #FF4444;
+  text-shadow: 
+    4px 4px 8px #D4CDB0,
+    -2px -2px 0 #D4CDB0,
+    2px -2px 0 #D4CDB0,
+    -2px 2px 0 #D4CDB0,
+    2px 2px 0 #D4CDB0,
+    0 0 10px rgba(255, 68, 68, 1),
+    0 0 20px rgba(255, 68, 68, 0.8),
+    0 0 30px rgba(255, 68, 68, 0.6),
+    0 0 40px rgba(255, 68, 68, 0.4),
+    0 0 50px rgba(255, 68, 68, 0.2);
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: glow-pulse 4s ease-in-out infinite, shimmer 6s linear infinite;
+}
+
+/* Container Principal */
+.brigadas-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Grid de Brigadas */
+.brigadas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  padding: 20px;
+  justify-items: center;
+}
+
+/* Tarjetas de Brigadas (estilo acorde a maqueta) */
+.brigada-card, .card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.06);
+  overflow: hidden;
+  width: 240px;
+  height: 380px; /* taller card */
+  text-align: center;
+  transition: transform 0.28s cubic-bezier(.2,.9,.2,1), box-shadow 0.28s;
+  cursor: pointer;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+}
+
+.brigada-card:hover, .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 42px 80px rgba(0,0,0,0.16), 0 18px 40px rgba(0,0,0,0.08);
+}
+
+/* Estructura de tarjeta (top con imagen y bottom con emblema/título) */
+
+.card-top {
+  position: relative;
+  height: 50%; /* image occupies top half */
+  overflow: hidden;
+  display: block;
+  padding: 0; /* allow image to span full width */
+}
+
+.card-top img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+
+.card-top .region {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-size: 12px;
+  color: #ffffff;
+  background: rgba(0,0,0,0.45);
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+
+.card-bottom {
+  padding: 8px 10px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 50%; /* bottom half */
+  padding-top: 24px;
+}
+
+.logo-brigada {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  display: block;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+.card-bottom h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ff8a00; /* orange title like mockup */
+  margin: 4px 0 0;
+}
+
+/* Wrapper that draws the yellow ring and positions emblem centered overlapping the top */
+.logo-wrapper {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: transparent; /* remove white disc */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none; /* remove yellow ring */
+  box-shadow: none;
+  z-index: 2;
+  margin: 12px auto 6px;
+}
+
+.logo-wrapper .logo-brigada {
+  width: 72px;
+  height: 72px;
+}
+
+/* Reset extra top padding now that emblem is in flow */
+.brigada-card { padding: 0; }
+
+/* Fallback class for top when image missing */
+.card-top.bg-fallback {
+  background: linear-gradient(45deg, #2d5a3d, #1a472a);
+}
+
+/* Etiqueta de Ubicación */
+.location-label {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: #1a472a;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.82em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  box-shadow: 0 6px 14px rgba(26,71,42,0.12);
+}
+
+/* Contenedor del Emblema */
+.card-emblem-container {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.emblem-circle {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  background: #fff;
+  border: 6px solid #21492f;
+  box-shadow: 0 18px 40px rgba(33,73,47,0.12), 0 8px 18px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.emblem-image {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+}
+
+/* Título de la Brigada */
+.card-title {
+  padding: 74px 20px 20px 20px;
+  text-align: center;
+  background: white;
+}
+
+.card-title h3 {
+  color: #123822;
+  font-size: 1.25em;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Acciones de la Tarjeta */
+.card-actions {
+  padding: 18px 20px 28px 20px;
+  background: white;
+  text-align: center;
+}
+/* Buttons removed: cards are clickable; keep class if used elsewhere */
+.btn-ver-mas { display: none !important; }
+
+/* (removed decorative inner rectangle; not used for image-based cards) */
+
+/* Back button styling is handled globally via `.btn-back` in `auth.css`.
+   Local `.btn-back-main` definitions removed to avoid conflicting styles. */
+
+/* Placeholder para imágenes faltantes */
+.card-background[src*="placeholder-bg.jpg"] {
+  background: linear-gradient(45deg, #2d5a3d, #1a472a);
+  content: '';
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .brigadas-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 10px;
+  }
+  
+  .boletin-title {
+    font-size: 2em;
+    letter-spacing: 2px;
+  }
+  
+  .brigada-card {
+    width: 280px;
+    height: 380px;
+  }
+  
+  .card-image-container {
+    height: 180px;
+  }
+  
+  .emblem-circle {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .emblem-image {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .card-title h3 {
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 480px) {
+  .brigada-card {
+    width: 260px;
+    height: 360px;
+  }
+  
+  .card-image-container {
+    height: 160px;
+  }
+  
+  .card-emblem-container {
+    top: 130px;
+  }
+  
+  .emblem-circle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .emblem-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .card-title h3 {
+    font-size: 1.1em;
+  }
+  
+  .boletin-title {
+    font-size: 1.7em;
+    letter-spacing: 1px;
+  }
+}
+
+/* Animaciones adicionales - DESHABILITADAS (removed empty ruleset) */
+
+/* Animaciones para el título - iguales a admin_home */
+@keyframes glow-pulse {
+  0% {
+    text-shadow: 
+      4px 4px 8px #D4CDB0,
+      -2px -2px 0 #D4CDB0,
+      2px -2px 0 #D4CDB0,
+      -2px 2px 0 #D4CDB0,
+      2px 2px 0 #D4CDB0,
+      0 0 5px rgba(255, 68, 68, 0.8),
+      0 0 15px rgba(255, 68, 68, 0.6),
+      0 0 25px rgba(255, 68, 68, 0.4);
+    filter: brightness(0.9) saturate(1) hue-rotate(0deg);
+    transform: scale(1);
+  }
+  
+  50% {
+    text-shadow: 
+      6px 6px 12px #D4CDB0,
+      -3px -3px 0 #D4CDB0,
+      3px -3px 0 #D4CDB0,
+      -3px 3px 0 #D4CDB0,
+      3px 3px 0 #D4CDB0,
+      0 0 10px rgba(255, 68, 68, 1),
+      0 0 25px rgba(255, 68, 68, 0.8),
+      0 0 40px rgba(255, 68, 68, 0.6);
+    filter: brightness(1.1) saturate(1.2) hue-rotate(5deg);
+    transform: scale(1.02);
+  }
+  
+  100% {
+    text-shadow: 
+      4px 4px 8px #D4CDB0,
+      -2px -2px 0 #D4CDB0,
+      2px -2px 0 #D4CDB0,
+      -2px 2px 0 #D4CDB0,
+      2px 2px 0 #D4CDB0,
+      0 0 5px rgba(255, 68, 68, 0.8),
+      0 0 15px rgba(255, 68, 68, 0.6),
+      0 0 25px rgba(255, 68, 68, 0.4);
+    filter: brightness(0.9) saturate(1) hue-rotate(0deg);
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+.brigada-card {
+  padding: 0;
+}
+
+.brigada-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

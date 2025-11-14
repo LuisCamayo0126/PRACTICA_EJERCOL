@@ -1,0 +1,222 @@
+/* Batallones Styles */
+.batallones-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #3d4a2c, #5a6b47);
+    min-height: 100vh;
+}
+
+.batallones-header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.batallones-header h1 {
+    font-size: 2.3em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.batallones-header .brigada-info {
+    font-size: 1.1em;
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.batallones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.batallon-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    position: relative;
+    border: 3px solid transparent;
+}
+
+.batallon-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    border-color: #5a6b47;
+}
+
+.batallon-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.batallon-icon {
+    font-size: 2.2em;
+    margin-right: 15px;
+    color: #3d4a2c;
+}
+
+.batallon-title {
+    flex: 1;
+}
+
+.batallon-name {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #3d4a2c;
+    margin: 0;
+}
+
+.batallon-code {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.batallon-info {
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.batallon-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(61, 74, 44, 0.1);
+    border-radius: 8px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #3d4a2c;
+}
+
+.stat-label {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 3px;
+}
+
+.batallon-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    flex: 1;
+    background: linear-gradient(45deg, #3d4a2c, #5a6b47);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.action-button:hover {
+    background: linear-gradient(45deg, #2a3420, #3d4a2c);
+    color: white;
+    text-decoration: none;
+    transform: scale(1.02);
+}
+
+.action-button.secondary {
+    background: rgba(61, 74, 44, 0.2);
+    color: #3d4a2c;
+    border: 2px solid #3d4a2c;
+}
+
+.action-button.secondary:hover {
+    background: #3d4a2c;
+    color: white;
+}
+
+.breadcrumb {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 25px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.breadcrumb a {
+    color: #3d4a2c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #666;
+    margin: 0 10px;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    color: #3d4a2c;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.back-button:hover {
+    background: white;
+    color: #3d4a2c;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .batallones-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 10px;
+    }
+    
+    .batallones-header h1 {
+        font-size: 1.8em;
+    }
+    
+    .batallon-card {
+        padding: 20px;
+    }
+    
+    .batallon-actions {
+        flex-direction: column;
+    }
+    
+    .batallon-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}

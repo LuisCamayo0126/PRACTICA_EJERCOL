@@ -14,12 +14,14 @@
   // Inicializar URLs para el módulo crear_usuarios
   document.addEventListener('DOMContentLoaded', function() {
     if (window.CrearUsuariosModule) {
+      // Flag de autenticación inyectado desde Django
+  const requireAuthFlag = ('{{ require_auth|yesno:"true,false" }}' === 'true');
       CrearUsuariosModule.initializeUrls(
         '{{ csrf_token }}',
-        '{% url "validate_admin" %}',
-        '{% url "crear_usuarios" %}',
-        '{% url "login" %}',
-        {% if require_auth %}true{% else %}false{% endif %}
+  '{% url "accounts:validate_admin" %}',
+  '{% url "accounts:crear_usuarios" %}',
+  '{% url "accounts:login" %}',
+        requireAuthFlag
       );
     }
   });
@@ -28,10 +30,8 @@
 
 {% block content %}
 <!-- Botón Volver Atrás -->
-<a href="{% url 'admin_home' %}" class="btn-back">
-  <span class="icon">←</span>
-  Volver Atrás
-</a>
+{% url 'accounts:admin_home' as admin_home_url %}
+{% include 'includes/back_button.html' with href=admin_home_url label='Volver Atrás' %}
 
 <!-- Modal de Éxito -->
 <div class="success-overlay" id="successOverlay">
@@ -119,8 +119,8 @@
         <a href="#" class="nav-item">TERCERA DIVISIÓN</a>
         {% if user.is_authenticated %}
           {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
-            <a href="{% url 'crear_cursos' %}" class="nav-item">CREAR CURSOS</a>
-            <a href="{% url 'crear_usuarios' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
+            <a href="{% url 'accounts:crear_cursos' %}" class="nav-item">CREAR CURSOS</a>
+            <a href="{% url 'accounts:crear_usuarios' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
           {% endif %}
         {% endif %}
         <a href="#" class="nav-item">GRUPOS USUARIOS</a>
@@ -167,76 +167,81 @@
           <!-- Fila 1 -->
           <div class="form-row-four">
             <div class="form-group-military">
-              <input type="text" name="grado" class="form-input-military" placeholder="Grado">
+              <label class="field-label">Grado</label>
+              <input type="text" name="grado" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="arma" class="form-input-military" placeholder="Arma">
+              <label class="field-label">Arma</label>
+              <input type="text" name="arma" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="apellidos" class="form-input-military" placeholder="Apellidos">
+              <label class="field-label">Apellidos</label>
+              <input type="text" name="apellidos" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="nombres" class="form-input-military" placeholder="Nombres">
+              <label class="field-label">Nombres</label>
+              <input type="text" name="nombres" class="form-input-military" placeholder="" autocomplete="off">
             </div>
           </div>
           
           <!-- Fila 2 -->
           <div class="form-row-four">
             <div class="form-group-military">
-              <input type="text" name="cedula" class="form-input-military" placeholder="Cédula">
+              <label class="field-label">Cédula</label>
+              <input type="text" name="cedula" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="lugar_expedicion" class="form-input-military" placeholder="Lugar y fecha de expedición del documento">
+              <!-- Este campo mantiene el placeholder interno según requerimiento -->
+              <label class="field-label visually-hidden">Lugar de expedición</label>
+              <input type="text" name="lugar_expedicion" class="form-input-military" placeholder="Lugar de expedición" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="telefono" class="form-input-military" placeholder="Teléfono">
+              <label class="field-label">Teléfono</label>
+              <input type="text" name="telefono" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="fecha_nacimiento" class="form-input-military" placeholder="Fecha de nacimiento">
+              <label class="field-label">Fecha de nacimiento</label>
+              <input type="date" name="fecha_nacimiento" class="form-input-military" placeholder="" autocomplete="off">
             </div>
           </div>
           
           <!-- Fila 3 -->
           <div class="form-row-four">
             <div class="form-group-military">
-              <input type="text" name="sexo" class="form-input-military" placeholder="Sexo">
+              <label class="field-label">Sexo</label>
+              <input type="text" name="sexo" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="rh" class="form-input-military" placeholder="RH">
+              <label class="field-label">RH</label>
+              <input type="text" name="rh" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="tiempo_servicio" class="form-input-military" placeholder="Tiempo de servicio">
+              <label class="field-label">Tiempo de servicio</label>
+              <input type="text" name="tiempo_servicio" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="aptitud_fisica" class="form-input-military" placeholder="Aptitud física">
+              <label class="field-label">Aptitud física</label>
+              <input type="text" name="aptitud_fisica" class="form-input-military" placeholder="" autocomplete="off">
             </div>
           </div>
           
           <!-- Fila 4 -->
           <div class="form-row-four">
             <div class="form-group-military">
-              <input type="text" name="brigada" class="form-input-military" placeholder="Brigada">
+              <label class="field-label">Brigada</label>
+              <input type="text" name="brigada" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="batallon" class="form-input-military" placeholder="Batallón">
+              <label class="field-label">Batallón</label>
+              <input type="text" name="batallon" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="compania" class="form-input-military" placeholder="Compañía">
+              <label class="field-label">Compañía</label>
+              <input type="text" name="compania" class="form-input-military" placeholder="" autocomplete="off">
             </div>
-            
             <div class="form-group-military">
-              <input type="text" name="peloton" class="form-input-military" placeholder="Pelotón">
+              <label class="field-label">Pelotón</label>
+              <input type="text" name="peloton" class="form-input-military" placeholder="" autocomplete="off">
             </div>
           </div>
 
@@ -281,7 +286,7 @@
               </tbody>
             </table>
           </div>
-          
+
           <div class="excel-preview-actions">
             <div class="excel-stats">
               <div class="stat-item">
@@ -323,14 +328,14 @@
 
         <div class="form-links">
           {% if user.is_authenticated %}
-            <a href="{% if user.is_staff %}{% url 'admin_home' %}{% elif user.groups.all.0.name == 'Instructor' %}{% url 'instructor_dashboard' %}{% else %}{% url 'soldado_home' %}{% endif %}" class="link-back">
+            <a href="{% if user.is_staff %}{% url 'accounts:admin_home' %}{% elif user.groups.all.0.name == 'Instructor' %}{% url 'accounts:instructor_dashboard' %}{% else %}{% url 'accounts:soldado_home' %}{% endif %}" class="link-back">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
               </svg>
               Volver al panel principal
             </a>
           {% else %}
-            <a href="{% url 'login' %}" class="link-back">
+            <a href="{% url 'accounts:login' %}" class="link-back">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
               </svg>

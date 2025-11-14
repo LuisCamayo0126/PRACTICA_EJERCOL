@@ -1,0 +1,96 @@
+/* Barra lateral de resultados (íconos circulares) */
+.resultados-sidebar, .resultados-nav {
+	/* make sidebar static (not sticky) and part of normal flow) */
+	position: relative;
+	align-self: start;
+}
+
+/* push the resultados block slightly down so there's space
+	 between the golden header line and the sidebar, and make
+	 it align vertically with the cards area */
+.resultados-sidebar {
+	margin-top: 56px; /* increased spacing to move sidebar lower */
+}
+
+.resultados-nav {
+	width: 200px; /* increased width per request */
+	background: #E6E0C8; /* beige claro similar a la maqueta */
+	border-radius: 12px;
+	padding: 18px 14px;
+	box-shadow: 0 8px 18px rgba(0,0,0,.18);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+}
+
+.resultados-nav__label {
+	/* horizontal title */
+	writing-mode: horizontal-tb;
+	transform: none;
+	font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+	letter-spacing: 2px;
+	font-weight: 900;
+	color: #222;
+	user-select: none;
+	text-align: center;
+	width: 100%;
+	font-size: 14px;
+	margin-bottom: 6px;
+}
+
+.resultados-nav__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	align-items: center;
+}
+
+.resultados-nav__btn {
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: #fff;
+	display: grid;
+	place-items: center;
+	border: 3px solid #fff;
+	box-shadow: 0 6px 14px rgba(0,0,0,.16), inset 0 0 0 2px #c7c2aa;
+	transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.resultados-nav__btn img {
+	width: 70%;
+	height: 70%;
+	object-fit: contain;
+	border-radius: 50%;
+}
+
+.resultados-nav__btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 14px rgba(0,0,0,.28), inset 0 0 0 2px #b5ac8e;
+}
+
+.resultados-nav__btn[aria-current="true"],
+.resultados-nav__btn.active {
+	border-color: #d73c3c; /* acento rojo del título */
+	box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 0 0 2px #d73c3c;
+}
+
+/* Layout helper si se usa con main */
+.tercedivi-layout {
+	display: grid;
+	grid-template-columns: 200px 1fr; /* allocate more width to resultados */
+	gap: 24px;
+	align-items: start; /* ensure sidebar and main content align at the same top level */
+}
+
+@media (max-width: 900px){
+	.tercedivi-layout{ grid-template-columns: 1fr; }
+	.resultados-nav{ position: relative; width: 100%; flex-direction: row; padding: 10px; }
+	.resultados-nav__label{ writing-mode: initial; transform: none; }
+	.resultados-nav__list{ flex-direction: row; flex-wrap: wrap; justify-content: center; }
+}
+

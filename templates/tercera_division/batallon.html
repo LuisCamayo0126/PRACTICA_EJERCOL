@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Batallones - {{ brigada|default:'Tercera División' }}{% endblock %}
+{% block body_class %}tercedivi-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}">
+<style>
+  .batallones-wrap{ max-width:1200px; margin:24px auto; padding:0 16px 48px; }
+  .batallones-title{ text-align:center; font-family:'Montserrat',sans-serif; font-weight:900; font-size: clamp(1.8rem,4vw,3rem); letter-spacing:2px; margin: 18px 0 6px; color:#d73c3c; text-shadow: 0 0 8px rgba(0,0,0,.12); }
+  .batallones-sub{ text-align:center; font-weight:700; color:#222; margin-bottom: 24px; }
+  .batallones-grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); gap: 18px; }
+  .battalion-card{ background:#fff; border-radius: 14px; box-shadow: 0 10px 22px rgba(0,0,0,.15); padding: 14px; transition: transform .15s ease, box-shadow .15s ease; }
+  .battalion-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 34px rgba(0,0,0,.28); }
+  .battalion-card .icon-wrap{ display:grid; place-items:center; }
+  .battalion-card img{ width:100px; height:100px; object-fit:contain; border-radius:50%; background:#fff; border:2px solid #eee; }
+  .battalion-card h3{ margin:10px 0 0; font-size:1rem; text-align:center; }
+  .battalion-card a{ text-decoration:none; color:inherit; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="tercedivi-layout">
+    <aside class="resultados-sidebar">
+      {% include 'tercera_division/resultados.html' %}
+    </aside>
+    <main class="dashboard-main">
+      <div class="batallones-wrap">
+        <h1 class="batallones-title">BATALLONES</h1>
+        <div class="batallones-sub">Brigada seleccionada: <strong>{{ brigada|default:'---' }}</strong></div>
+        <div class="batallones-grid">
+          {% if batallones %}
+            {% for b in batallones %}
+            <a class="battalion-card" href="{% url 'accounts:companias' %}?brigada={{ brigada|urlencode }}&batallon={{ b.name|urlencode }}">
+              <div class="icon-wrap">
+                {% if b.icon %}
+                  <img src="{{ b.icon }}" alt="Icono {{ b.name }}" loading="lazy">
+                {% else %}
+                  <img src="{% static 'images/logo_3div.png' %}" alt="{{ b.name }}" loading="lazy">
+                {% endif %}
+              </div>
+              <h3>{{ b.name }}</h3>
+            </a>
+            {% endfor %}
+          {% else %}
+            <p>No se encontraron batallones para esta brigada.</p>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tercera_division/resultados.js' %}"></script>
+{% endblock %}

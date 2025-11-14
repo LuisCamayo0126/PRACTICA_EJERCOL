@@ -1,0 +1,75 @@
+{% extends 'base.html' %}{% extends 'base.html' %}
+
+{% load static %}{% load static %}
+
+
+
+{% block title %}Pelotones - Tercera División{% endblock %}{% block title %}Pelotones - {{ batallon|default:'Selecciona un batallón' }}{% endblock %}
+
+{% block body_class %}tercedivi-page{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pelotones - {{ batallon|default:'Pelotones' }}{% endblock %}
+{% block body_class %}tercedivi-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tercera_division/companias.css' %}">
+<link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="tercedivi-layout">
+    <aside class="resultados-sidebar">
+      {% include 'tercera_division/resultados.html' %}
+    </aside>
+    <main class="dashboard-main">
+      <div class="pelotones-wrap">
+        <div class="breadcrumb">
+          <a href="{% url 'accounts:brigadas' %}">Tercera División</a>
+          <span>→</span>
+          <a href="{% url 'accounts:batallones' %}?brigada={{ brigada|urlencode }}">Batallones</a>
+          <span>→</span>
+          <a href="{% url 'accounts:companias' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}">Compañías</a>
+          <span>→</span>
+          <strong>Pelotones{% if compania %} - {{ compania }}{% endif %}</strong>
+        </div>
+
+        <h1 class="pelotones-title">PELOTONES</h1>
+        <div class="pelotones-sub">Brigada: <strong id="brigadaNombre">{{ brigada|default:'---' }}</strong> • Batallón: <strong id="batallonNombre">{{ batallon|default:'---' }}</strong>{% if compania %} • Compañía: <strong>{{ compania }}</strong>{% endif %}</div>
+
+        <a href="{% url 'accounts:companias' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}" class="btn-back">
+          <span class="icon">←</span>
+          Volver
+        </a>
+
+        <div class="pelotones-grid">
+          {% if pelotones %}
+            {% for p in pelotones %}
+              <div class="peloton-card">
+                <div class="peloton-header">
+                  <div class="peloton-icon">🎖️</div>
+                  <div class="peloton-title">
+                    <h3 class="peloton-name">{{ p }}</h3>
+                  </div>
+                </div>
+                <div class="peloton-actions">
+                  <a class="action-button" href="#">Ver Detalles</a>
+                  <a class="action-button export" href="#">Exportar</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p style="text-align:center;color:#444;">No hay pelotones para mostrar.</p>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tercera_division/resultados.js' %}"></script>
+{% endblock %}
