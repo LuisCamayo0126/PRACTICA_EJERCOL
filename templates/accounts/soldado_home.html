@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% extends 'base.html' %}
-{% load static %}
-
 {% block body_class %}admin-page{% endblock %}
 
 {% block extra_css %}
@@ -22,7 +19,7 @@
 	<div class="role-panel">
 		<h1>Bienvenido — {{ user.username }}</h1>
 		<p>Esta es la página del soldado.</p>
-		<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link-logout">Cerrar sesión</button></form>
+		<form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="link-logout">Cerrar sesión</button></form>
 	</div>
 </main>
 {% endblock %}

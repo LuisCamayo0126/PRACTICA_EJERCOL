@@ -10,183 +10,36 @@
 {% block content %}
 <div class="companias-container">
     <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb">
-        <a href="{% url 'accounts:brigadas' %}">Tercera División</a>
-        <span>→</span>
-    <a href="{% url 'accounts:brigadas' %}">Brigadas</a>
-        <span>→</span>
-        <a href="{% url 'accounts:batallones' %}">Batallones</a>
-        <span>→</span>
-        <strong>Compañías{% if batallon %} - {{ batallon }}{% endif %}</strong>
-    </div>
     
-    <!-- Back Button -->
-    {% url 'accounts:batallones' as batallones_url %}
-    {% include 'includes/back_button.html' with href=batallones_url label='← Volver' %}
 
-    <!-- Header -->
-    <div class="companias-header">
-        <h1>Compañías</h1>
-        {% if batallon %}
-            <div class="battalion-info">{{ batallon }}</div>
-        {% endif %}
-        <p>Gestión y supervisión de compañías</p>
-    </div>
+        <!-- Compañías estilo 'boletín' con botones píldora centrados -->
+        <!-- Breadcrumb Navigation (sin enlaces) -->
 
-    <!-- Compañías Grid -->
-    <div class="companias-grid">
-        <!-- Compañía Alpha -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">🅰️</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Alpha</h3>
-                    <p class="compania-designation">1ª Cía</p>
-                </div>
+            {% include 'includes/back_button.html' with label='Volver' %}
+            <h1 class="boletin-title">BOLETÍN DE RENDIMIENTO POR COMPAÑÍA</h1>
+
+            <div class="boletin-emblems">
+                {# Izquierda: icono representativo de la brigada (preferir `brigada_icon`) #}
+                <div class="emblem emblem-left" {% if brigada_icon %} style="background-image: url('{{ brigada_icon }}'); background-size: cover; background-position: center;" {% elif emblem_left %} style="background-image: url('{{ emblem_left }}'); background-size: cover; background-position: center;" {% endif %}></div>
+                {# Derecha: icono del batallón (usar `batallon_icon` si está) #}
+                <div class="emblem emblem-right" {% if batallon_icon %} style="background-image: url('{{ batallon_icon }}'); background-size: cover; background-position: center;" {% elif emblem_right %} style="background-image: url('{{ emblem_right }}'); background-size: cover; background-position: center;" {% endif %}></div>
             </div>
-            <div class="compania-info">
-                Especialidad: Asalto
-            </div>
-            <div class="compania-stats">
-                <div class="stat-item">
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Pelotones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">85</div>
-                    <div class="stat-label">Personal</div>
-                </div>
-            </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Alpha" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
+
+            <div class="boletin-buttons">
+                {% if companias %}
+                    {% for c in companias %}
+                        <a href="{% url 'accounts:pelotones' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}&compania={{ c|urlencode }}" class="boletin-pill">{{ c|upper }}</a>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback: muestra ejemplos si no hay compañías -->
+                    <a href="#" class="boletin-pill">ANTILOPE</a>
+                    <a href="#" class="boletin-pill">BALLESTA</a>
+                    <a href="#" class="boletin-pill">COLINA</a>
+                    <a href="#" class="boletin-pill">ESCUDO</a>
+                    <a href="#" class="boletin-pill">DAGA</a>
+                {% endif %}
             </div>
         </div>
-
-        <!-- Compañía Bravo -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">🅱️</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Bravo</h3>
-                    <p class="compania-designation">2ª Cía</p>
-                </div>
-            </div>
-            <div class="compania-info">
-                Especialidad: Apoyo
-            </div>
-            <div class="compania-stats">
-                <div class="stat-item">
-                    <div class="stat-number">3</div>
-                    <div class="stat-label">Pelotones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">72</div>
-                    <div class="stat-label">Personal</div>
-                </div>
-            </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Bravo" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
-            </div>
-        </div>
-
-        <!-- Compañía Charlie -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">🇨</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Charlie</h3>
-                    <p class="compania-designation">3ª Cía</p>
-                </div>
-            </div>
-            <div class="compania-info">
-                Especialidad: Reconocimiento
-            </div>
-            <div class="compania-stats">
-                <div class="stat-item">
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Pelotones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">88</div>
-                    <div class="stat-label">Personal</div>
-                </div>
-            </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Charlie" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
-            </div>
-        </div>
-
-        <!-- Compañía Delta -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">🔺</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Delta</h3>
-                    <p class="compania-designation">4ª Cía</p>
-                </div>
-            </div>
-            <div class="compania-info">
-                Especialidad: Logística
-            </div>
-            <div class="compania-stats">
-                <div class="stat-item">
-                    <div class="stat-number">3</div>
-                    <div class="stat-label">Pelotones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">75</div>
-                    <div class="stat-label">Personal</div>
-                </div>
-            </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Delta" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
-            </div>
-        </div>
-
-        <!-- Compañía Echo -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">📡</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Echo</h3>
-                    <p class="compania-designation">5ª Cía</p>
-                </div>
-            </div>
-            <div class="compania-info">
-                Especialidad: Comunicaciones
-            </div>
-            <div class="compania-stats">
-                <div class="stat-item">
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Pelotones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">90</div>
-                    <div class="stat-label">Personal</div>
-                </div>
-            </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Echo" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
-            </div>
-        </div>
-
-        <!-- Compañía Foxtrot -->
-        <div class="compania-card">
-            <div class="compania-header">
-                <div class="compania-icon">⚙️</div>
-                <div class="compania-title">
-                    <h3 class="compania-name">Compañía Foxtrot</h3>
-                    <p class="compania-designation">6ª Cía</p>
-                </div>
-            </div>
-            <div class="compania-info">
-                Especialidad: Ingeniería
-            </div>
             <div class="compania-stats">
                 <div class="stat-item">
                     <div class="stat-number">3</div>
@@ -197,10 +50,7 @@
                     <div class="stat-label">Personal</div>
                 </div>
             </div>
-            <div class="compania-actions">
-                <a href="{% url 'accounts:pelotones' %}?compania=Foxtrot" class="action-button">Ver Pelotones</a>
-                <button class="action-button secondary">Reporte</button>
-            </div>
+                <!-- acciones removidas: Ver Pelotones / Reporte (ocultadas a petición) -->
         </div>
     </div>
 </div>

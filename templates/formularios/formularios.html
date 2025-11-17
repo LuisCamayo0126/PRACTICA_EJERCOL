@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Formularios{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/formularios/formularios.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="flex-main">
+
+  <!-- Constructor del Formulario -->
+  <section id="constructor-form" class="seccion-formulario vista-oculta">
+
+    <h2 class="titulo-form">NUEVO FORMULARIO</h2>
+
+    <input type="text" id="titulo-formulario" class="input-titulo" placeholder="Título del formulario">
+    <select id="tipoUsuario" class="input-titulo">
+      <option value="" disabled selected>Asigna a un rol</option>
+      <option value="soldado">Soldado</option>
+      <option value="instructor">Instructor</option>
+    </select>
+
+    <div class="fila-switch">
+      <label class="titulo-estado">Estado:</label>
+      <label class="switch">
+        <input type="checkbox" id="estado-form" checked>
+        <span class="slider"></span>
+      </label>
+      <span id="estado-texto">ACTIVO</span>
+    </div>
+
+    <div id="contenedor-preguntas">
+      <!-- Ejemplo de tarjeta de pregunta (visible por defecto) -->
+      <div class="pregunta-card">
+        <div class="pregunta-row">
+          <label>Pregunta:</label>
+          <input type="text" id="pregunta-1" placeholder="Escribe la pregunta">
+        </div>
+        <div class="pregunta-row" style="margin-top:10px;">
+          <label>Tipo de respuesta:</label>
+          <select id="tipo-respuesta-1">
+            <option value="" selected>Selecciona</option>
+            <option value="texto">Respuesta corta</option>
+            <option value="parrafo">Párrafo</option>
+            <option value="opcion">Opción única</option>
+            <option value="multiple">Opción múltiple</option>
+          </select>
+        </div>
+        <div class="pregunta-row" style="margin-top:12px; justify-content:space-between; align-items:center;">
+          <div class="obligatorio"><strong>Obligatorio</strong>
+            <label class="switch" style="margin-left:8px;">
+              <input type="checkbox" id="obligatorio-1">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-eliminar">Eliminar</button>
+            <button class="btn-mini btn-arriba">Arriba</button>
+            <button class="btn-mini btn-abajo">Abajo</button>
+          </div>
+        </div>
+        <!-- Contenedor para opciones (solo visible si el tipo es 'opcion' o 'multiple') -->
+        <div class="pregunta-row opciones-container" style="display:none; margin-top:12px;">
+          <div style="width:100%;">
+            <label>Opciones:</label>
+            <div class="opciones-list" data-pregunta-id="1">
+              <!-- inputs agregados por JS -->
+            </div>
+            <button class="btn-mini btn-add-opcion" data-pregunta-id="1">Agregar opción</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fila-botones">
+      <button id="btn-add-pregunta" class="btn-mini btn-agregar">Agregar pregunta</button>
+      <button id="btn-preview" class="btn-mini btn-vista">Vista previa</button>
+      <button class="btn-mini btn-eliminar" id="btn-eliminar-form">Eliminar formulario</button>
+      <button id="btn-guardar-form" class="btn-mini btn-guardar">Guardar formulario</button>
+      <button id="btn-cancelar" class="btn-mini btn-cancelar">Cancelar</button>
+    </div>
+
+  </section>
+
+  <!-- Vista Previa -->
+  <section id="vista-previa" class="vista-oculta vista-panel">
+    <h2 class="titulo-form">VISTA PREVIA DEL FORMULARIO</h2>
+    <div id="preview-content"></div>
+    <button id="btn-volver" class="btn-preview">← VOLVER</button>
+  </section>
+
+</main>
+
+{% include 'includes/back_button.html' %}
+
+<div id="vista-listado" style="width: 95%; margin: auto;">
+
+  <div style="display:flex; gap:30px; align-items:flex-start; margin-top:30px;">
+
+    <!-- Panel lateral -->
+    <div class="panel-lateral">
+      <div id="btnCrear" class="panel-action">
+        <img src="{% static 'images/CREAR.png' %}" alt="Crear">
+        <p>CREAR</p>
+      </div>
+
+      <div id="btnEdit" class="panel-action disabled">
+        <img src="{% static 'images/EDITAR.png' %}" alt="Editar">
+        <p>EDITAR</p>
+      </div>
+
+      <div id="btnDelete" class="panel-action disabled">
+        <img src="{% static 'images/Eliminar.png' %}" alt="Eliminar">
+        <p>ELIMINAR</p>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="tabla-panel">
+      <table class="tabla-formularios">
+        <thead>
+          <tr>
+            <th>Seleccionar</th>
+            <th>NOMBRE</th>
+            <th>ESTADO</th>
+            <th>N° RESPUESTAS</th>
+            <th>ASIGNACIONES</th>
+          </tr>
+        </thead>
+        <tbody id="tablaFormularios">
+          {% if formularios and formularios|length > 0 %}
+            {% for f in formularios %}
+              <tr data-form-id="{{ f.id }}">
+                <td><input type="checkbox" class="select-form" value="{{ f.id }}"></td>
+                <td>{{ f.title }}</td>
+                <td>{% if f.estado %}ACTIVO{% else %}INACTIVO{% endif %}</td>
+                <td>{{ f.preguntas.count }}</td>
+                <td>{{ f.role }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty">No hay formularios creados aún</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/formularios/formulario.js' %}"></script>
+{% endblock %}

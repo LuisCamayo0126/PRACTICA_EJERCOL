@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Grupos y Usuarios{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/grupos_usuarios/grupos_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="grupos-main">
+  <header class="page-header">
+    <div class="page-title">GRUPOS USUARIOS</div>
+  </header>
+
+  <section class="panel resumen">
+    <div class="panel-lateral-acciones">
+      <div class="accion">MODIFICAR</div>
+      <div class="accion crear">CREAR</div>
+      <div class="accion eliminar">ELIMINAR</div>
+    </div>
+    <div class="panel-contenido">
+      <h3 class="panel-title">RESUMEN DE USUARIOS</h3>
+      <table class="tabla-resumen">
+        <thead>
+          <tr>
+            <th></th>
+            <th>NOMBRE</th>
+            <th>ESTADO</th>
+            <th>N° USUARIOS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="download-cell">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'admins' %}" title="Descargar administradores">
+                <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
+              </a>
+            </td>
+            <td>ADMINISTRADORES</td>
+            <td>ACTIVO</td>
+            <td id="count-admins">{{ admins|length }}</td>
+          </tr>
+          <tr>
+            <td class="download-cell">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'instructors' %}" title="Descargar instructores">
+                <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
+              </a>
+            </td>
+            <td>INSTRUCTORES</td>
+            <td>ACTIVO</td>
+            <td id="count-instructors">{{ instructors|length }}</td>
+          </tr>
+          <tr>
+            <td class="download-cell">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'soldados' %}" title="Descargar soldados">
+                <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
+              </a>
+            </td>
+            <td>SOLDADOS</td>
+            <td>ACTIVO</td>
+            <td id="count-soldados">{{ soldados|length }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel lista">
+    <div class="panel-lateral-acciones small">
+      <div class="accion">MODIFICAR</div>
+      <div class="accion crear">CREAR</div>
+      <div class="accion eliminar">ELIMINAR</div>
+    </div>
+    <div class="panel-contenido wide">
+      <div class="table-header-row">
+        <h3 class="panel-title">INSTRUCTORES</h3>
+        <div class="table-controls">
+          <input class="table-search" data-target="instructors" placeholder="Buscar instructores...">
+        </div>
+      </div>
+      <div class="tabla-wrap">
+        <table id="tabla-instructors" class="tabla-datos">
+          <thead>
+            <tr>
+              <th>APELLIDO</th>
+              <th>NOMBRE</th>
+              <th>EMAIL</th>
+              <th>TELEFONO</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-instructors">
+            {% for u in instructors %}
+            <tr>
+              <td>{{ u.last_name }}</td>
+              <td>{{ u.first_name }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.telefono }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">No hay instructores registrados</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel lista">
+    <div class="panel-lateral-acciones small">
+      <div class="accion">MODIFICAR</div>
+      <div class="accion crear">CREAR</div>
+      <div class="accion eliminar">ELIMINAR</div>
+    </div>
+    <div class="panel-contenido wide">
+        <div class="table-header-row">
+          <h3 class="panel-title">SOLDADOS</h3>
+          <div class="table-controls">
+            <input class="table-search" data-target="soldados" placeholder="Buscar soldados...">
+          </div>
+        </div>
+        <div class="tabla-wrap">
+          <table id="tabla-soldados" class="tabla-datos">
+          <thead>
+            <tr>
+              <th>APELLIDO</th>
+              <th>NOMBRE</th>
+              <th>EMAIL</th>
+              <th>TELEFONO</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-soldados">
+            {% for u in soldados %}
+            <tr>
+              <td>{{ u.last_name }}</td>
+              <td>{{ u.first_name }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.telefono }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">No hay soldados registrados</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/grupos_usuarios/grupos_usuarios.js' %}"></script>
+{% endblock %}

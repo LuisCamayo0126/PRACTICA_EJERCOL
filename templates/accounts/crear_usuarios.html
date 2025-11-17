@@ -29,6 +29,9 @@
 {% endblock %}
 
 {% block content %}
+<!-- Insert header-inner for Crear Usuarios section -->
+{% include 'includes/header.html' %}
+
 <!-- Botón Volver Atrás -->
 {% url 'accounts:admin_home' as admin_home_url %}
 {% include 'includes/back_button.html' with href=admin_home_url label='Volver Atrás' %}
@@ -104,32 +107,7 @@
 </div>
 {% endif %}
 
-<!-- Header de Navegación Específico -->
-<div class="admin-navigation-header">
-  <div class="nav-container">
-    <div class="nav-left">
-      <div class="nav-logo">
-        <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo del Ejército" class="nav-logo-img">
-        <span class="nav-title">Evaluación de competencias</span>
-      </div>
-    </div>
-    
-    <div class="nav-center">
-      <nav class="nav-menu">
-        <a href="#" class="nav-item">TERCERA DIVISIÓN</a>
-        {% if user.is_authenticated %}
-          {% if user.is_staff or user.is_superuser or request.session.role_selected == 'admin' or request.session.role_selected == 'instructor' %}
-            <a href="{% url 'accounts:crear_cursos' %}" class="nav-item">CREAR CURSOS</a>
-            <a href="{% url 'accounts:crear_usuarios' %}" class="nav-item nav-item-active">CREAR USUARIOS</a>
-          {% endif %}
-        {% endif %}
-        <a href="#" class="nav-item">GRUPOS USUARIOS</a>
-        <a href="#" class="nav-item">FORMULARIOS</a>
-      </nav>
-    </div>
-  </div>
-  <div class="nav-line"></div>
-</div>
+<!-- Usar el header principal definido en base.html. El header local se eliminó para evitar duplicados. -->
 
 <main class="register-wrapper">
   <div class="register-container">

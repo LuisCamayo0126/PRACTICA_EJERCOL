@@ -1,12 +1,3 @@
-{% extends 'base.html' %}{% extends 'base.html' %}
-
-{% load static %}{% load static %}
-
-
-
-{% block title %}Pelotones - Tercera División{% endblock %}{% block title %}Pelotones - {{ batallon|default:'Selecciona un batallón' }}{% endblock %}
-
-{% block body_class %}tercedivi-page{% endblock %}
 {% extends 'base.html' %}
 {% load static %}
 
@@ -16,6 +7,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/tercera_division/companias.css' %}">
 <link rel="stylesheet" href="{% static 'css/tercera_division/resultados.css' %}">
+<link rel="stylesheet" href="{% static 'css/tercera_division/pelotones.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -26,25 +18,39 @@
     </aside>
     <main class="dashboard-main">
       <div class="pelotones-wrap">
-        <div class="breadcrumb">
-          <a href="{% url 'accounts:brigadas' %}">Tercera División</a>
-          <span>→</span>
-          <a href="{% url 'accounts:batallones' %}?brigada={{ brigada|urlencode }}">Batallones</a>
-          <span>→</span>
-          <a href="{% url 'accounts:companias' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}">Compañías</a>
-          <span>→</span>
-          <strong>Pelotones{% if compania %} - {{ compania }}{% endif %}</strong>
+        <!-- Header: title + brigade logo, battalion icon and company name (no breadcrumb links) -->
+        <div class="pelotones-header" role="banner">
+          <h1 class="pelotones-main-title">BOLETÍN DE RENDIMIENTO POR PELOTONES</h1>
+          <div class="pelotones-emblems">
+            {# Left: brigade emblem (brigada icon or emblem_left) #}
+            {% if brigada_icon %}
+              <div class="emblem-left" style="background-image: url('{{ brigada_icon }}');"></div>
+            {% elif emblem_left %}
+              <div class="emblem-left" style="background-image: url('{{ emblem_left }}');"></div>
+            {% else %}
+              <div class="emblem-left" style="background-image: url('{% static "images/logo_3div.png" %}');"></div>
+            {% endif %}
+
+            <div class="emblem-center">
+              {# Centro: siempre mostrar el logo de la Tercera División (# logo_3div.png) #}
+              <div class="batallon-icon" style="background-image: url('{% static "images/logo_3div.png" %}');"></div>
+              <div class="company-name">{% if compania %}{{ compania }}{% else %}Compañía{% endif %}</div>
+            </div>
+
+            {# Right: battalion icon preferred #}
+            {% if batallon_icon %}
+              <div class="emblem-right" style="background-image: url('{{ batallon_icon }}');"></div>
+            {% elif emblem_right %}
+              <div class="emblem-right" style="background-image: url('{{ emblem_right }}');"></div>
+            {% else %}
+              <div class="emblem-right" style="background-image: url('{% static "images/logo_3div.png" %}');"></div>
+            {% endif %}
+          </div>
         </div>
 
-        <h1 class="pelotones-title">PELOTONES</h1>
-        <div class="pelotones-sub">Brigada: <strong id="brigadaNombre">{{ brigada|default:'---' }}</strong> • Batallón: <strong id="batallonNombre">{{ batallon|default:'---' }}</strong>{% if compania %} • Compañía: <strong>{{ compania }}</strong>{% endif %}</div>
+        {% include 'includes/back_button.html' with label='Volver' %}
 
-        <a href="{% url 'accounts:companias' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}" class="btn-back">
-          <span class="icon">←</span>
-          Volver
-        </a>
-
-        <div class="pelotones-grid">
+        <div class="pelotones-grid" id="pelotones-grid" data-brigada="{{ brigada|default:'' }}" data-batallon="{{ batallon|default:'' }}" data-compania="{{ compania|default:'' }}">
           {% if pelotones %}
             {% for p in pelotones %}
               <div class="peloton-card">
@@ -56,7 +62,7 @@
                 </div>
                 <div class="peloton-actions">
                   <a class="action-button" href="#">Ver Detalles</a>
-                  <a class="action-button export" href="#">Exportar</a>
+                  <a class="action-button export" href="{% url 'accounts:export_peloton_csv' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}&compania={{ compania|urlencode }}&peloton={{ p|urlencode }}">Exportar</a>
                 </div>
               </div>
             {% endfor %}
@@ -72,4 +78,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/tercera_division/resultados.js' %}"></script>
+<script src="{% static 'js/tercera_division/pelotones.js' %}"></script>
 {% endblock %}

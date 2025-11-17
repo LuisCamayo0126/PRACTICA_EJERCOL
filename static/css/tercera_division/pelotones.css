@@ -1,55 +1,71 @@
 /* Pelotones Styles */
 .pelotones-container {
     padding: 20px;
-    background: linear-gradient(135deg, #2c3d4a, #47596b);
+    background: linear-gradient(135deg, #f6f7f8, #eef0f1);
     min-height: 100vh;
 }
 
-.pelotones-header {
-    text-align: center;
-    margin-bottom: 35px;
-    color: #fff;
+.pelotones-wrap {
+    /* Keep the main cards/header close to the golden header line */
+    padding-top: 4px; /* distance from golden line to header: 4px */
+    max-width: 1200px;
+    margin: 0 auto 35px auto;
+    padding-left: 24px; /* give slightly more left gutter so cards align with mockup */
+    padding-right: 24px;
 }
+
+/* Header and emblems */
+.pelotones-header { text-align: center; margin-bottom: 8px; }
+.pelotones-main-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 34px;
+    color: #b71c1c; /* deep red */
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin: 0 0 6px 0;
+}
+.pelotones-emblems { display:flex; gap:34px; justify-content:center; align-items:center; margin-bottom:6px; }
+.pelotones-emblems .emblem-left, .pelotones-emblems .emblem-right, .pelotones-emblems .batallon-icon {
+    width:72px; height:72px; border-radius:50%; background-size:cover; background-position:center; box-shadow: 0 8px 18px rgba(0,0,0,0.14); border:8px solid #fff; display:inline-block;
+}
+.pelotones-emblems .emblem-center { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.pelotones-emblems .company-name { font-weight:800; color:#b71c1c; margin-top:6px; font-size:20px; }
 
 .pelotones-header h1 {
     font-size: 2em;
     font-weight: bold;
     margin-bottom: 8px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.pelotones-header .company-info {
-    font-size: 0.95em;
-    opacity: 0.9;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 6px 14px;
-    border-radius: 12px;
-    display: inline-block;
-    margin-top: 6px;
 }
 
 .pelotones-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
-    max-width: 900px;
-    margin: 0 auto;
+    gap: 36px; /* slightly larger vertical/horizontal gap to match visual rhythm */
+    max-width: 1200px;
+    margin: 0 auto 12px auto;
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .peloton-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 8px;
-    padding: 18px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    /* Peloton card background: CMYK C:16 M:9 Y:31 K:0 -> approx RGB(214,232,176) -> #D6E8B0 */
+    background: #D6E8B0;
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 28px; /* a touch more padding for visual weight */
+    transition: all 0.18s ease;
+    box-shadow: 0 10px 30px rgba(3,29,18,0.22);
     position: relative;
-    border: 2px solid transparent;
+    border: 1px solid rgba(255,255,255,0.05);
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .peloton-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border-color: #47596b;
+    transform: translateY(-6px);
+    /* hover: slightly darker shade of the new CMYK color */
+    background: #C5D5A2;
+    border-color: rgba(0,0,0,0.06);
 }
 
 .peloton-header {
@@ -59,9 +75,12 @@
 }
 
 .peloton-icon {
-    font-size: 1.8em;
-    margin-right: 10px;
-    color: #2c3d4a;
+    font-size: 2.6em;
+    margin-right: 14px;
+    color: rgba(255,255,255,0.98);
+    background: rgba(255,255,255,0.06);
+    padding: 10px;
+    border-radius: 12px;
 }
 
 .peloton-title {
@@ -69,20 +88,22 @@
 }
 
 .peloton-name {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #2c3d4a;
+    font-size: 1.25rem;
+    font-weight: 900;
+    /* Titles color: CMYK C:93 M:44 Y:74 K:57 -> approx RGB(8,61,29) -> #083d1d */
+    color: #083d1d;
     margin: 0;
+    text-transform: uppercase;
 }
 
 .peloton-number {
     font-size: 0.8em;
-    color: #666;
+    color: rgba(255,255,255,0.8);
     margin-top: 2px;
 }
 
 .peloton-info {
-    color: #555;
+    color: rgba(255,255,255,0.88);
     margin-bottom: 12px;
     line-height: 1.3;
     font-size: 0.85em;
@@ -93,76 +114,86 @@
     justify-content: space-between;
     margin-bottom: 12px;
     padding: 10px;
-    background: rgba(44, 61, 74, 0.1);
+    background: rgba(255,255,255,0.03);
     border-radius: 6px;
-}
-
-.stat-item {
-    text-align: center;
-    flex: 1;
 }
 
 .stat-number {
     font-size: 1.2em;
     font-weight: bold;
-    color: #2c3d4a;
+    color: #ffffff;
 }
 
 .stat-label {
     font-size: 0.75em;
-    color: #666;
+    color: rgba(255,255,255,0.8);
     margin-top: 1px;
 }
 
 .peloton-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .action-button {
     flex: 1;
-    background: linear-gradient(45deg, #2c3d4a, #47596b);
-    color: white;
+    background: rgba(255,255,255,0.06);
+    color: #ffffff;
     border: none;
-    padding: 6px 10px;
-    border-radius: 15px;
-    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
     text-decoration: none;
     text-align: center;
-    transition: all 0.3s ease;
-    font-size: 0.8em;
+    transition: all 0.18s ease;
+    font-size: 0.85em;
 }
 
 .action-button:hover {
-    background: linear-gradient(45deg, #1e2a34, #2c3d4a);
-    color: white;
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+}
+
+.action-button:not(.export) {
+    /* Only change: set color to red with white text — keep original rectangular button shape */
+    background: #c81f22; /* red from mockup */
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
     text-decoration: none;
-    transform: scale(1.02);
+    text-align: center;
+}
+
+.action-button:not(.export):hover {
+    background: #b2181b; /* slightly darker on hover */
 }
 
 .action-button.export {
-    background: rgba(44, 61, 74, 0.2);
-    color: #2c3d4a;
-    border: 2px solid #2c3d4a;
+    /* "Exportar" button: CMYK C:37 M:62 Y:62 K:48 -> approx RGB(84,50,50) -> hex #543232 */
+    background: #543232;
+    color: #ffffff; /* white text for contrast */
+    border: 1px solid rgba(0,0,0,0.12);
 }
 
 .action-button.export:hover {
-    background: #2c3d4a;
-    color: white;
+    background: #472b2b; /* slightly darker on hover */
+    color: #ffffff;
 }
 
 .export-options {
     margin-top: 15px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(0,0,0,0.06);
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255,255,255,0.04);
 }
 
 .export-title {
     font-size: 0.9em;
     font-weight: bold;
-    color: #2c3d4a;
+    color: #ffffff;
     margin-bottom: 8px;
     text-align: center;
 }
@@ -174,8 +205,8 @@
 }
 
 .export-btn {
-    background: #2c3d4a;
-    color: white;
+    background: rgba(255,255,255,0.06);
+    color: #ffffff;
     border: none;
     padding: 6px 12px;
     border-radius: 12px;
@@ -185,12 +216,12 @@
 }
 
 .export-btn:hover {
-    background: #1e2a34;
+    background: rgba(255,255,255,0.12);
     transform: scale(1.05);
 }
 
 .breadcrumb {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 10px 15px;
     border-radius: 18px;
     margin-bottom: 20px;
@@ -199,7 +230,7 @@
 }
 
 .breadcrumb a {
-    color: #2c3d4a;
+    color: #0b6b38;
     text-decoration: none;
     font-weight: bold;
 }
@@ -217,31 +248,35 @@
     position: fixed;
     top: 20px;
     left: 20px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border: none;
     padding: 6px 10px;
     border-radius: 30px;
-    color: #2c3d4a;
+    color: #083d1d;
     font-weight: bold;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
     z-index: 100;
     font-size: 0.85em;
 }
 
 .back-button:hover {
     background: white;
-    color: #2c3d4a;
+    color: #083d1d;
     text-decoration: none;
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    .pelotones-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
     .pelotones-grid {
         grid-template-columns: 1fr;
         gap: 12px;
-        padding: 0 8px;
+        padding: 0 12px;
     }
     
     .pelotones-header h1 {
@@ -249,7 +284,8 @@
     }
     
     .peloton-card {
-        padding: 12px;
+        padding: 14px;
+        min-height: 140px;
     }
     
     .peloton-actions {
@@ -261,4 +297,50 @@
         flex-direction: column;
         gap: 4px;
     }
+    .emblem-left, .emblem-right{ width:56px; height:56px; }
+    .batallon-icon{ width:94px; height:94px; }
+    .company-name{ font-size:0.95rem; }
+}
+
+/* Ensure the main content (batallones/pelotones) sits at the same distance
+   from the golden header as the resultados column */
+@media (min-width: 901px) {
+    .pelotones-wrap { padding-top: 100px; }
+}
+
+@media (max-width: 900px) {
+    .pelotones-wrap { padding-top: 40px; }
+}
+
+/* Main title above emblems */
+.pelotones-main-title {
+    text-align: center;
+    font-weight: 900;
+    font-size: 2rem;
+    color: #b30000;
+    margin: 6px 0 12px;
+    letter-spacing: 1px;
+}
+
+.pelotones-header{ display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 0 0 6px; gap:4px; }
+.pelotones-main-title{ margin: 0 0 6px; }
+.pelotones-emblems{ display:flex; align-items:center; gap:8px; width:100%; max-width:1100px; margin:0 auto; justify-content:center; margin-top: 0; }
+.emblem-left, .emblem-right{ width:72px; height:72px; border-radius:50%; background-size:cover; background-position:center; box-shadow: 0 6px 18px rgba(0,0,0,0.12); border:6px solid #fff; }
+.emblem-center{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.batallon-icon{ width:96px; height:96px; border-radius:50%; background-size:cover; background-position:center; box-shadow: 0 10px 28px rgba(0,0,0,0.14); border:8px solid #fff; }
+.company-name{ font-weight:900; color:#b30000; font-size:1.4rem; text-transform:uppercase; text-align:center; letter-spacing:1px; margin-top:4px; }
+
+/* Responsive adjustments: reduce spacing on small screens and ensure readable company name */
+@media (max-width: 900px) {
+    .pelotones-emblems{ gap:20px; }
+    .emblem-center{ gap:12px; }
+    .company-name{ font-size:1.25rem; margin-top:10px; }
+}
+
+@media (max-width: 600px) {
+    .pelotones-emblems{ gap:14px; }
+    .emblem-center{ gap:8px; }
+    .company-name{ font-size:1rem; margin-top:8px; }
+    .emblem-left, .emblem-right{ width:56px; height:56px; }
+    .batallon-icon{ width:94px; height:94px; }
 }

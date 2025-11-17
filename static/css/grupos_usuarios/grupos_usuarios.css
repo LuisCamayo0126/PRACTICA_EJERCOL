@@ -1,0 +1,94 @@
+/* Polished layout to match reference design */
+.grupos-main{
+  padding:28px; display:flex; flex-direction:column; gap:34px; font-family: 'Open Sans', Arial, sans-serif;
+}
+.page-header{ display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
+.page-title{ font-family: 'Poppins', 'Open Sans', Arial, sans-serif; font-weight:800; font-size:22px; color:#132f2a; }
+
+/* Ensure the page title uses the same dark green used elsewhere */
+.grupos-main .page-title{ 
+  /* Center title and apply stylized headline (stroke + glow) */
+  text-align: center;
+  margin: 6px auto 14px;
+  display: block;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1;
+  /* large, punchy color like the attached style */
+  color: #ff4b3b;
+  font-size: 48px;
+  /* pale outline + heavy glow to emulate the image */
+  -webkit-text-stroke: 3px rgba(255,210,170,0.95);
+  text-shadow:
+    0 2px 0 rgba(255,255,255,0.65),
+    0 8px 20px rgba(255,90,70,0.30),
+    0 0 40px rgba(255,90,70,0.30),
+    0 0 80px rgba(255,120,100,0.16);
+}
+
+@media (max-width:1000px){
+  .grupos-main .page-title{ font-size:30px; -webkit-text-stroke:2px; }
+}
+.header-line{ height:6px; background:linear-gradient(90deg,#c88a00,#b37300); border-radius:6px; width:98%; }
+.panel{
+  background: #f0f0f0; border-radius:20px; padding:18px; display:flex; align-items:flex-start; gap:20px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
+}
+.panel .panel-lateral-acciones{
+  width:92px; background:#ffffff; border-radius:12px; padding:14px; box-shadow:0 14px 30px rgba(6,21,24,0.12); display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center;
+}
+.panel .panel-lateral-acciones.small{ width:72px; padding:10px; }
+.panel .panel-lateral-acciones .accion{
+  font-size:12px; text-align:center; width:100%; padding:8px 6px; border-radius:6px; background:#fff; color:#0b3b2e; font-weight:700; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.03);
+}
+.panel .panel-lateral-acciones .accion.crear{ color:#177a63; }
+.panel .panel-lateral-acciones .accion.eliminar{ color:#b72b2b; }
+.panel .panel-contenido{ flex:1; padding:6px 18px; }
+.panel .panel-title{ text-align:center; font-weight:800; margin:8px 0 16px; font-size:18px; color:#0b3b2e; }
+
+.tabla-resumen{ width:100%; border-collapse:collapse; background:transparent; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(3,12,10,0.05); }
+.tabla-resumen thead th{ background:#124638; color:#fff; padding:12px 16px; text-align:left; font-size:13px; letter-spacing:0.6px; }
+.tabla-resumen td{ padding:14px 16px; background:#fff; border-bottom:1px solid #e9e9e9; vertical-align:middle; }
+.tabla-resumen tr:last-child td{ border-bottom:none; }
+.tabla-resumen .color-box{ width:34px; height:34px; border-radius:6px; display:inline-block; margin-right:12px; vertical-align:middle; }
+.tabla-resumen .color-box.admin{ background:linear-gradient(180deg,#123f34 0%, #0b2e24 100%); }
+.tabla-resumen .color-box.instructor{ background:linear-gradient(180deg,#176a58 0%, #0f5b4a 100%); }
+.tabla-resumen .color-box.soldado{ background:linear-gradient(180deg,#0f7a64 0%, #0a6a58 100%); }
+.tabla-resumen td:nth-child(3){ color:#2b6a56; font-weight:700; }
+.tabla-resumen td:nth-child(4){ text-align:center; font-weight:800; }
+
+.tabla-wrap{ background:transparent; border-radius:10px; padding:10px; box-shadow:0 6px 18px rgba(3,12,10,0.05); }
+.tabla-datos{ width:100%; border-collapse:collapse; background:#fff; border-radius:6px; overflow:hidden; }
+.table-header-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
+.table-controls{ display:flex; gap:8px; align-items:center; }
+.table-search{ padding:8px 12px; border-radius:20px; border:1px solid #d9d9d9; min-width:220px; box-shadow:0 2px 6px rgba(16,24,20,0.04); }
+.tabla-datos thead th{ background:#124638; color:#fff; padding:12px 14px; text-align:left; font-size:13px; }
+.tabla-datos td{ padding:12px 14px; border-bottom:1px solid #f0f0f0; }
+.tabla-datos tbody tr:nth-child(odd) td{ background:#ffffff; }
+.tabla-datos tbody tr:nth-child(even) td{ background:#fbfbfb; }
+.tabla-datos thead th{ position:sticky; top:0; z-index:2; }
+.tabla-datos tr:hover td{ background:#fbfbfb; }
+.tabla-datos .empty{ text-align:center; color:#777; padding:18px; }
+
+/* subtle underline on header area to match reference gold line */
+.panel + .panel { margin-top:8px; }
+
+/* Responsive */
+@media (max-width:1000px){
+  .grupos-main{ padding:16px; }
+  .panel{ flex-direction:column; }
+  .panel .panel-lateral-acciones{ width:100%; flex-direction:row; justify-content:space-around; }
+  .tabla-resumen thead th, .tabla-datos thead th{ font-size:12px; }
+}
+
+/* small action buttons */
+.btn-action{ display:inline-block; padding:6px 10px; border-radius:6px; background:#fff; border:1px solid rgba(0,0,0,0.06); color:#0b3b2e; font-weight:700; font-size:12px; }
+.btn-action.ghost{ background:transparent; border:1px solid #d6d6d6; }
+
+/* Remove floating lateral action cards (MODIFICAR / CREAR / ELIMINAR) */
+.grupos-main .panel .panel-lateral-acciones{ display: none !important; }
+
+/* Download icon in resumen table */
+.tabla-resumen .download-cell{ width:56px; text-align:center; }
+.tabla-resumen .download-cell .download-link img{ width:36px; height:36px; object-fit:cover; border-radius:6px; box-shadow:0 6px 14px rgba(0,0,0,0.08); }
+
+

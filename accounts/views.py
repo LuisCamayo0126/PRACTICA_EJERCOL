@@ -2,6 +2,7 @@ import os
 import json
 from django.conf import settings
 from django.shortcuts import render, redirect
+from .utils import image_mapper
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
@@ -12,6 +13,7 @@ from django.http import JsonResponse, HttpResponse
 import csv
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
+from django.db.models import Q
 import secrets
 import unicodedata
 from io import BytesIO
@@ -29,7 +31,8 @@ except Exception:
 def home_redirect(request):
 	"""Vista inteligente que redirije según el estado del usuario"""
 	if not request.user.is_authenticated:
-		return redirect('login')
+		# `login` está definido en el namespace `accounts` (accounts:login)
+		return redirect('accounts:login')
 	
 	# Todos los usuarios autenticados van a la misma página principal (admin_home)
 	return redirect('accounts:admin_home')
@@ -132,15 +135,55 @@ def _canonical_brigada_name(s: str) -> str:
 
 def _brigada_to_folder(brigada: str) -> str | None:
 	key = _canonical_brigada_name(brigada)
+	# Mapeos explícitos (claves normalizadas esperadas)
 	mapping = {
-		'TERCERA BRIGADA': 'BATALLONES_BR3',
-		'VIGESIMA NOVENA BRIGADA': 'BAT_BR29',
-		'VIGESIMA TERCERA BRIGADA': 'BATALLONES_BR23',
-		'FUDRA 2': 'BATALLONES_FUDRA2',
-		'FUDRA 4': 'BATALLONES_FUDRA4',
-		'FUERZA DE TAREA HERCULES': 'BATALLONES_FUHER',
+		'TERCERA BRIGADA': 'BATALLONES_BRIGADA_3',
+		'BRIGADA 3': 'BATALLONES_BRIGADA_3',
+		'VIGESIMA NOVENA BRIGADA': 'BATALLONES_BRIGADA_29',
+		'BRIGADA 29': 'BATALLONES_BRIGADA_29',
+		'VIGESIMA TERCERA BRIGADA': 'BATALLONES_BRIGRADA_23',
+		'BRIGADA 23': 'BATALLONES_BRIGRADA_23',
+		'FUDRA 2': 'BATALLONES_FUDRA_2',
+		'FUDRA 4': 'BATALLONES_FUDRA_4',
+		'FUERZA DE TAREA HERCULES': 'BATALLONES_FUERZA_DE_TAREA_HERCULES',
 	}
-	return mapping.get(key)
+	# Primero intentar mapeo directo
+	if key in mapping:
+		return mapping.get(key)
+
+	# Heurística: buscar por número en el nombre (p.ej. '3', '29', '23')
+	nums = _extract_numbers(brigada)
+	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi')
+	try:
+		candidates = [d for d in os.listdir(base) if os.path.isdir(os.path.join(base, d))]
+	except Exception:
+		candidates = []
+
+	# Si hay números, priorizar carpetas que contengan ese número
+	for n in nums:
+		for d in candidates:
+			if n in d:
+				return d
+
+	# Intentar buscar coincidencias por fragmentos de palabras (excluyendo 'BRIGADA')
+	fragments = [w for w in key.split() if w and w not in ('BRIGADA', 'BRIG', 'THE')]
+	if fragments:
+		for d in candidates:
+			du = d.upper()
+			if all(f in du for f in fragments):
+				return d
+
+	# Fallbacks simples: nombre corto que contenga el número '3' o '29' etc.
+	short_map = {
+		'3': 'BATALLONES_BRIGADA_3',
+		'29': 'BATALLONES_BRIGADA_29',
+		'23': 'BATALLONES_BRIGRADA_23',
+	}
+	for n in nums:
+		if n in short_map:
+			return short_map[n]
+
+	return None
 
 def _first_icon_for_brigada(brigada: str) -> str | None:
 	folder = _brigada_to_folder(brigada)
@@ -155,6 +198,23 @@ def _first_icon_for_brigada(brigada: str) -> str | None:
 			return settings.STATIC_URL.rstrip('/') + '/' + rel
 	return None
 
+def _icons_for_brigada(brigada: str, limit: int = 2) -> list[str]:
+	"""Devuelve hasta `limit` URLs de íconos encontrados en la carpeta de la brigada."""
+	folder = _brigada_to_folder(brigada)
+	if not folder:
+		return []
+	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', folder)
+	if not os.path.isdir(base):
+		return []
+	urls: list[str] = []
+	for name in sorted(os.listdir(base)):
+		if name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+			rel = f"images/tercedivi/{folder}/{name}"
+			urls.append(settings.STATIC_URL.rstrip('/') + '/' + rel)
+			if len(urls) >= limit:
+				break
+	return urls
+
 def _extract_numbers(text: str) -> list[str]:
 	import re
 	return re.findall(r"\d+", text or "")
@@ -167,6 +227,7 @@ def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
 	folder = _brigada_to_folder(brigada)
 	if not folder:
 		return None
+ 
 	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', folder)
 	if not os.path.isdir(base):
 		return None
@@ -222,6 +283,301 @@ def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
 			return settings.STATIC_URL.rstrip('/') + '/' + rel
 	return None
 
+
+@login_required
+def formularios(request):
+	"""Página principal de formularios (lista + constructor)."""
+	from .models import Formulario
+	forms = Formulario.objects.all().order_by('-created_at')
+	return render(request, 'formularios/formularios.html', {'formularios': forms})
+
+
+@login_required
+def guardar_formulario(request):
+	"""Guardar o actualizar un formulario enviado desde el constructor (JSON).
+
+	Si el payload incluye `form_id` se intentará actualizar el formulario existente,
+	eliminando preguntas previas y recreándolas. Si no, crea uno nuevo.
+	"""
+	if request.method != 'POST':
+		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+	try:
+		payload = json.loads(request.body.decode('utf-8'))
+	except Exception:
+		return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+	form_id = payload.get('form_id')
+	title = payload.get('title') or 'Sin título'
+	role = payload.get('role') or ''
+	estado = bool(payload.get('estado', True))
+	questions = payload.get('questions', []) or []
+
+	if not isinstance(questions, list):
+		return JsonResponse({'success': False, 'error': 'questions debe ser una lista'}, status=400)
+
+	from .models import Formulario, Pregunta, Opcion
+
+	try:
+		with transaction.atomic():
+			if form_id:
+				# intentar actualizar
+				try:
+					form = Formulario.objects.get(id=form_id)
+				except Formulario.DoesNotExist:
+					return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
+				# simple autorización: sólo el creador o staff puede actualizar
+				if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
+					return JsonResponse({'success': False, 'error': 'No autorizado para editar'}, status=403)
+				# actualizar metadatos
+				form.title = title
+				form.role = role
+				form.estado = estado
+				form.save()
+				# eliminar preguntas previas (y sus opciones)
+				Pregunta.objects.filter(formulario=form).delete()
+			else:
+				form = Formulario.objects.create(title=title, role=role, estado=estado, created_by=request.user)
+
+			for idx, q in enumerate(questions, start=1):
+				text = (q.get('text') or '').strip()
+				tipo = q.get('type') or q.get('tipo') or ''
+				required = bool(q.get('required', False))
+				if not text:
+					continue
+				pregunta = Pregunta.objects.create(formulario=form, text=text, tipo=tipo or 'texto', required=required, orden=idx)
+				opts = q.get('options') or q.get('opciones') or []
+				if isinstance(opts, list):
+					for j, otext in enumerate(opts, start=1):
+						if otext and str(otext).strip():
+							Opcion.objects.create(pregunta=pregunta, text=str(otext).strip(), orden=j)
+
+		return JsonResponse({'success': True, 'form_id': form.id})
+	except Exception as e:
+		return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def get_formulario_json(request, form_id):
+	"""Devuelve un formulario con sus preguntas y opciones en formato JSON."""
+	from .models import Formulario, Pregunta, Opcion
+	try:
+		form = Formulario.objects.get(id=form_id)
+	except Formulario.DoesNotExist:
+		return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
+
+	# autorización básica: si quiere ajustarla, puede añadir más reglas
+	if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
+		return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+
+	questions = []
+	for p in Pregunta.objects.filter(formulario=form).order_by('orden'):
+		opts = [o.text for o in Opcion.objects.filter(pregunta=p).order_by('orden')]
+		questions.append({'text': p.text, 'type': p.tipo, 'required': p.required, 'options': opts})
+
+	return JsonResponse({'success': True, 'form': {'id': form.id, 'title': form.title, 'role': form.role, 'estado': form.estado, 'questions': questions}})
+
+
+@login_required
+def eliminar_formulario(request):
+	"""Eliminar un formulario. Espera POST JSON con {'form_id': id} o form_id en POST form-data."""
+	if request.method != 'POST':
+		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+	try:
+		payload = json.loads(request.body.decode('utf-8'))
+	except Exception:
+		payload = {}
+
+	form_id = payload.get('form_id') or request.POST.get('form_id')
+	if not form_id:
+		return JsonResponse({'success': False, 'error': 'form_id requerido'}, status=400)
+
+	from .models import Formulario
+	try:
+		form = Formulario.objects.get(id=form_id)
+	except Formulario.DoesNotExist:
+		return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
+
+	if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
+		return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+
+	# eliminamos completamente
+	form.delete()
+	return JsonResponse({'success': True})
+
+
+@login_required
+def grupos_usuarios(request):
+	"""Vista que muestra los grupos y usuarios: administradores, instructores y soldados."""
+	from django.contrib.auth.models import User, Group
+
+	# Administradores: staff o superuser
+	admins = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
+
+	# Instructores: usuarios que pertenecen al Group named 'Instructor'
+	try:
+		instructor_group = Group.objects.get(name__iexact='Instructor')
+		instructors = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
+	except Group.DoesNotExist:
+		instructors = User.objects.none()
+
+	# Soldados: usuarios no staff and not in instructor group
+	if instructors.exists():
+		soldados = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
+	else:
+		soldados = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
+
+	def _to_row(u):
+		prof = getattr(u, 'profile', None)
+		telefono = ''
+		try:
+			telefono = getattr(prof, 'telefono', '') or ''
+		except Exception:
+			telefono = ''
+		return {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'telefono': telefono}
+
+	admins_list = [_to_row(u) for u in admins]
+	instr_list = [_to_row(u) for u in instructors]
+	soldados_list = [_to_row(u) for u in soldados]
+
+	return render(request, 'grupos_usuarios/grupos_usuarios.html', {'admins': admins_list, 'instructors': instr_list, 'soldados': soldados_list})
+
+
+@login_required
+def grupos_usuarios_json(request):
+	"""Devuelve JSON con arrays: admins, instructors, soldados"""
+	from django.contrib.auth.models import User, Group
+
+	admins_qs = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
+	try:
+		instructor_group = Group.objects.get(name__iexact='Instructor')
+		instructors_qs = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
+	except Group.DoesNotExist:
+		instructors_qs = User.objects.none()
+
+	if instructors_qs.exists():
+		soldados_qs = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
+	else:
+		soldados_qs = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
+
+	def _to_row(u):
+		prof = getattr(u, 'profile', None)
+		telefono = ''
+		try:
+			telefono = getattr(prof, 'telefono', '') or ''
+		except Exception:
+			telefono = ''
+		return {'first_name': u.first_name or '', 'last_name': u.last_name or '', 'email': u.email or '', 'telefono': telefono}
+
+	data = {
+		'admins': [_to_row(u) for u in admins_qs],
+		'instructors': [_to_row(u) for u in instructors_qs],
+		'soldados': [_to_row(u) for u in soldados_qs],
+	}
+	return JsonResponse({'success': True, 'data': data})
+
+
+@login_required
+def grupos_download(request, group: str):
+	"""Genera y descarga un PDF con la lista de usuarios del grupo solicitado.
+	`group` puede ser: 'admins', 'instructors', 'soldados'.
+	"""
+	from django.contrib.auth.models import User, Group
+
+	# Determinar queryset según el parámetro
+	if group == 'admins':
+		qs = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
+		title = 'Administradores'
+		filename = 'administradores.pdf'
+	elif group == 'instructors':
+		try:
+			instructor_group = Group.objects.get(name__iexact='Instructor')
+			qs = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
+		except Group.DoesNotExist:
+			qs = User.objects.none()
+		title = 'Instructores'
+		filename = 'instructores.pdf'
+	elif group == 'soldados':
+		try:
+			instructor_group = Group.objects.get(name__iexact='Instructor')
+			instructors_exist = User.objects.filter(groups=instructor_group, is_active=True).exists()
+		except Group.DoesNotExist:
+			instructors_exist = False
+		if instructors_exist:
+			qs = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
+		else:
+			qs = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
+		title = 'Soldados'
+		filename = 'soldados.pdf'
+	else:
+		return redirect('accounts:grupos_usuarios')
+
+	# Preparar filas: encabezado + datos
+	rows = [['APELLIDO', 'NOMBRE', 'EMAIL', 'TELEFONO']]
+	for u in qs:
+		prof = getattr(u, 'profile', None)
+		telefono = ''
+		try:
+			telefono = getattr(prof, 'telefono', '') or ''
+		except Exception:
+			telefono = ''
+		rows.append([u.last_name or '', u.first_name or '', u.email or '', telefono])
+
+	# Intentar importar reportlab en tiempo de ejecución (evita depender de la variable global)
+	try:
+		from reportlab.lib.pagesizes import letter
+		from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+		from reportlab.lib import colors as rl_colors
+		from reportlab.lib.styles import getSampleStyleSheet
+		REPORTLAB_AVAILABLE = True
+	except Exception:
+		REPORTLAB_AVAILABLE = False
+
+	if not REPORTLAB_AVAILABLE:
+		# Fallback: informar que PDF no está disponible y devolver TXT con la lista
+		text = title + '\n\n'
+		for r in rows[1:]:
+			text += f"{r[0]}\t{r[1]}\t{r[2]}\t{r[3]}\n"
+		resp = HttpResponse(text, content_type='text/plain; charset=utf-8')
+		resp['Content-Disposition'] = f'attachment; filename="{filename.replace(".pdf", ".txt")}"'
+		return resp
+
+	# Generar PDF en memoria
+	buffer = BytesIO()
+	doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=18)
+	elements = []
+	styles = getSampleStyleSheet()
+	title_style = styles.get('Title', styles['Heading1'])
+	title_style.alignment = 1
+	elements.append(Paragraph(title, title_style))
+	elements.append(Spacer(1, 12))
+
+	# Tabla
+	table = Table(rows, repeatRows=1, hAlign='LEFT')
+	tbl_style = TableStyle([
+		('BACKGROUND', (0,0), (-1,0), rl_colors.HexColor('#124638')),
+		('TEXTCOLOR', (0,0), (-1,0), rl_colors.HexColor('#ffffff')),
+		('ALIGN', (0,0), (-1,-1), 'LEFT'),
+		('GRID', (0,0), (-1,-1), 0.25, rl_colors.HexColor('#dddddd')),
+		('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+		('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+		('FONTSIZE', (0,0), (-1,0), 11),
+		('FONTSIZE', (0,1), (-1,-1), 10),
+		('BOTTOMPADDING', (0,0), (-1,0), 8),
+		('TOPPADDING', (0,0), (-1,0), 6),
+	])
+	table.setStyle(tbl_style)
+	elements.append(table)
+
+	doc.build(elements)
+	pdf = buffer.getvalue()
+	buffer.close()
+
+	response = HttpResponse(pdf, content_type='application/pdf')
+	response['Content-Disposition'] = f'attachment; filename="{filename}"'
+	return response
+
 @login_required
 def batallones(request):
 	"""Lista de batallones para una brigada (usa batallon.html)."""
@@ -234,7 +590,33 @@ def batallones(request):
 	for b in batallones:
 		icon = _icon_for_batallon(brigada, b) or _first_icon_for_brigada(brigada)
 		items.append({'name': b, 'icon': icon})
-	return render(request, 'tercera_division/batallon.html', { 'brigada': brigada, 'batallones': items })
+
+	# Obtener hasta dos emblemas desde la carpeta de la brigada (si existen)
+	icons = _icons_for_brigada(brigada, limit=2)
+	emblem_left = icons[0] if len(icons) > 0 else None
+	emblem_right = icons[1] if len(icons) > 1 else None
+
+	# Imagen principal de la brigada (primer ícono disponible en su carpeta)
+	brigada_main = _first_icon_for_brigada(brigada)
+
+	# Preferir el mapeo explícito en `accounts.utils.image_mapper` (ICONOS_BRIGADAS),
+	# luego emblem_left y finalmente brigada_main.
+	try:
+		mapped = image_mapper(brigada)
+	except Exception:
+		mapped = None
+	brigada_icon = mapped or emblem_left or brigada_main
+
+	context = {
+		'brigada': brigada,
+		'batallones': items,
+		'emblem_left': emblem_left,
+		'emblem_right': emblem_right,
+		'brigada_main': brigada_main,
+		'brigada_icon': brigada_icon,
+	}
+
+	return render(request, 'tercera_division/batallon.html', context)
 
 @login_required
 def companias(request):
@@ -244,17 +626,136 @@ def companias(request):
 	data = _load_estructura()
 	canon_bri = _canonical_brigada_name(brigada)
 	companias = sorted({row['compania'] for row in data if _canonical_brigada_name(row['brigada']) == canon_bri and _match_key(row['batallon']) == _match_key(batallon) and row['compania']})
-	return render(request, 'tercera_division/companias.html', { 'brigada': brigada, 'batallon': batallon, 'companias': companias })
+	# Obtener hasta dos emblemas desde la carpeta de la brigada (si existen)
+	icons = _icons_for_brigada(brigada, limit=2)
+	emblem_left = icons[0] if len(icons) > 0 else None
+	emblem_right = icons[1] if len(icons) > 1 else None
+
+	# Imagen principal de la brigada (primer ícono disponible en su carpeta)
+	brigada_main = _first_icon_for_brigada(brigada)
+
+	# Buscar logo central en CARD_BRIGADAS (si existe) con fallback al brigada_main
+	center_icon = None
+	card_folder = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', 'CARD_BRIGADAS')
+	key = _match_key(brigada)
+	if os.path.isdir(card_folder):
+		for fname in sorted(os.listdir(card_folder)):
+			if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+				if key and key.replace(' ', '') in fname.upper().replace(' ', ''):
+					center_icon = settings.STATIC_URL.rstrip('/') + '/images/tercedivi/CARD_BRIGADAS/' + fname
+					break
+		if not center_icon:
+			for fname in sorted(os.listdir(card_folder)):
+				if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+					center_icon = settings.STATIC_URL.rstrip('/') + '/images/tercedivi/CARD_BRIGADAS/' + fname
+					break
+
+	if not center_icon:
+		center_icon = brigada_main
+
+	# Icono del batallón (heurística existente con fallback a la brigada)
+	batallon_icon = _icon_for_batallon(brigada, batallon) or brigada_main
+
+	# Icono representativo de la brigada (izquierda).
+	# Preferir el mapeo explícito en `accounts.utils.image_mapper` (ICONOS_BRIGADAS),
+	# luego emblem_left (íconos localizados en la carpeta de la brigada) y finalmente brigada_main.
+	try:
+		mapped = image_mapper(brigada)
+	except Exception:
+		mapped = None
+	brigada_icon = mapped or emblem_left or brigada_main
+
+	# Si no hay compañías listadas en el CSV (p. ej. brigadas especiales),
+	# generar un fallback de compañías para mantener la navegación coherente.
+	fallback_generated = False
+	if not companias:
+		# Nombres de compañía por defecto (cuatro pelotones esperado)
+		companias = ['COMPAÑÍA A', 'COMPAÑÍA B', 'COMPAÑÍA C', 'COMPAÑÍA D']
+		fallback_generated = True
+
+	context = {
+		'brigada': brigada,
+		'batallon': batallon,
+		'companias': companias,
+		'emblem_left': emblem_left,
+		'emblem_right': emblem_right,
+		'brigada_main': brigada_main,
+		'center_icon': center_icon,
+		'batallon_icon': batallon_icon,
+		'brigada_icon': brigada_icon,
+		'fallback_companias': fallback_generated,
+	}
+
+	return render(request, 'tercera_division/companias.html', context)
 
 @login_required
 def pelotones(request):
-	"""Vista de Pelotones. Por ahora genera hasta 4 pelotones genéricos."""
+	"""Vista de Pelotones.
+
+	Añade al contexto varias URLs de emblemas para que la plantilla pueda
+	mostrar los íconos correctamente sin depender exclusivamente de la
+	heurística del cliente.
+	"""
 	brigada = _normalize_text(request.GET.get('brigada') or '')
 	batallon = _normalize_text(request.GET.get('batallon') or '')
 	compania = _normalize_text(request.GET.get('compania') or '')
-	# Hasta tener datos reales de pelotones, mostraremos 4 placeholders
-	pelotones = [f"Pelotón {i}" for i in range(1,5)]
-	return render(request, 'tercera_division/pelotones.html', { 'brigada': brigada, 'batallon': batallon, 'compania': compania, 'pelotones': pelotones })
+
+	# Hasta tener datos reales de pelotones en el CSV, mostramos 4 placeholders
+	pelotones = [f"Pelotón {i}" for i in range(1, 5)]
+
+	# Emblemas relacionados a la brigada/batallón
+	icons = _icons_for_brigada(brigada, limit=2)
+	emblem_left = icons[0] if len(icons) > 0 else None
+	emblem_right = icons[1] if len(icons) > 1 else None
+
+	# Imagen principal de la brigada (primer ícono disponible en su carpeta)
+	brigada_main = _first_icon_for_brigada(brigada)
+
+	# Intentar obtener un 'card' o logo central más representativo desde una
+	# carpeta común `CARD_BRIGADAS` si existe; si no, caer al `brigada_main`.
+	center_icon = None
+	card_folder = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', 'CARD_BRIGADAS')
+	key = _match_key(brigada)
+	if os.path.isdir(card_folder):
+		for fname in sorted(os.listdir(card_folder)):
+			if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+				if key and key.replace(' ', '') in fname.upper().replace(' ', ''):
+					center_icon = settings.STATIC_URL.rstrip('/') + '/images/tercedivi/CARD_BRIGADAS/' + fname
+					break
+		# Si no hubo coincidencia por nombre, usar el primero disponible
+		if not center_icon:
+			for fname in sorted(os.listdir(card_folder)):
+				if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+					center_icon = settings.STATIC_URL.rstrip('/') + '/images/tercedivi/CARD_BRIGADAS/' + fname
+					break
+
+	if not center_icon:
+		center_icon = brigada_main
+
+	# Icono del batallón (heurística existente con fallback a la brigada)
+	batallon_icon = _icon_for_batallon(brigada, batallon) or brigada_main
+
+	# Icono representativo de la brigada (izquierda).
+	try:
+		mapped = image_mapper(brigada)
+	except Exception:
+		mapped = None
+	brigada_icon = mapped or emblem_left or brigada_main
+
+	context = {
+		'brigada': brigada,
+		'batallon': batallon,
+		'compania': compania,
+		'pelotones': pelotones,
+		'emblem_left': emblem_left,
+		'emblem_right': emblem_right,
+		'brigada_icon': brigada_icon,
+		'brigada_main': brigada_main,
+		'center_icon': center_icon,
+		'batallon_icon': batallon_icon,
+	}
+
+	return render(request, 'tercera_division/pelotones.html', context)
 
 
 @login_required
@@ -316,7 +817,8 @@ def crear_cursos(request):
 	
 	if not is_authorized:
 		messages.error(request, "No tienes permisos para acceder a esta sección.")
-		return redirect('admin_home')
+		# Redirigir usando el namespace 'accounts' para coincidir con `accounts/urls.py`
+		return redirect('accounts:admin_home')
 	
 	# Por ahora, mostrar una página simple - después se puede expandir
 	return render(request, 'accounts/crear_cursos.html', {
@@ -327,6 +829,7 @@ def crear_cursos(request):
 @login_required
 def soldado_home(request):
 	return render(request, 'accounts/soldado_home.html')
+
 
 
 class SimpleRegistrationForm(forms.Form):
@@ -373,6 +876,17 @@ class SimpleRegistrationForm(forms.Form):
 		username = cleaned_data.get("username")
 		if username and User.objects.filter(username=username).exists():
 			raise forms.ValidationError("Este nombre de usuario ya existe.")
+
+		# Enforce allowed email domain
+		email = cleaned_data.get('email')
+		if email:
+			allowed = getattr(settings, 'ALLOWED_EMAIL_DOMAIN', 'ejercito.mil.co')
+			if '@' in email:
+				_local, domain = email.split('@', 1)
+				if domain.lower() != allowed.lower():
+					raise forms.ValidationError(f"El correo debe ser del dominio @{allowed}.")
+			else:
+				raise forms.ValidationError("Correo electrónico inválido.")
 
 		return cleaned_data
 

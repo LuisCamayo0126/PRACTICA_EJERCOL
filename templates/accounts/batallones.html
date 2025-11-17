@@ -27,7 +27,15 @@
     <main class="dashboard-main">
       <div class="batallones-wrap">
         <h1 class="batallones-title">BATALLONES</h1>
-        <div class="batallones-sub">Brigada seleccionada: <span id="brigadaNombre">{{ brigada|default:'---' }}</span></div>
+        <div class="batallones-logo-center">
+          {% if brigada_icon %}
+            <img class="brigada-logo" src="{{ brigada_icon }}" alt="{{ brigada|default:'Brigada' }}" />
+          {% elif emblem_left %}
+            <img class="brigada-logo" src="{{ emblem_left }}" alt="{{ brigada|default:'Brigada' }}" />
+          {% else %}
+            <img class="brigada-logo" src="{% static 'images/logo_3div.png' %}" alt="Tercera División" />
+          {% endif %}
+        </div>
 
         <div class="batallones-grid" id="batallonesGrid">
           <!-- Placeholder de tarjetas de batallones; integrar datos reales después -->

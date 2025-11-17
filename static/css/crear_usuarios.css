@@ -21,3 +21,17 @@
   color: #ffc107;
   margin-right: 0.5rem;
 }
+
+/* Ensure the global back button is visible and positioned on the Crear Usuarios page */
+body.register-page .btn-back {
+  display: flex !important;
+  position: fixed !important;
+  top: 90px !important;
+  left: 30px !important;
+  z-index: 1100;
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  body.register-page .btn-back { top: 70px !important; left: 16px !important; }
+}

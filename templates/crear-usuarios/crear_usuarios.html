@@ -3,13 +3,21 @@
 
 {% block title %}Crear Usuarios{% endblock %}
 
+{% block body_class %}register-page{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/crear_usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'css/crear_usuarios/crear_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width:900px;margin:36px auto;padding:24px;background:#fff;border-radius:8px;">
-  <h1>Crear Usuarios</h1>
+
+{% include 'includes/header.html' %}
+
+<div class="container" style="max-width:1100px;margin:24px auto;padding:18px;background:#fff;border-radius:8px;">
+
+  {% include 'includes/back_button.html' %}
+
+  <h1 style="text-align:center;margin-bottom:8px;">Crear Usuarios</h1>
 
   {% if messages %}
     <ul class="messages">
@@ -19,32 +27,62 @@
     </ul>
   {% endif %}
 
-  {% if require_auth and not form %}
-    <p>Se requiere autenticación administrativa para crear usuarios. Por favor autorízate con un administrador.</p>
-    <p>Si ya tienes credenciales administrativas puedes validarlas desde la pantalla de registro.</p>
-  {% else %}
-    {% if form %}
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <fieldset>
-          {{ form.as_p }}
-        </fieldset>
-        <div style="margin-top:12px;">
-          <button type="submit" class="btn">Crear usuario</button>
-          <a href="{% url 'accounts:admin_home' %}" class="btn" style="margin-left:8px;">Cancelar</a>
+  <!-- Upload / Excel UI -->
+  <section>
+    <div class="crear-usuarios">
+      <div class="upload-section">
+        <p>Por favor subir el archivo excel para autocompletar los campos</p>
+        <img src="{% static 'images/tercedivi/logo_excel.png' %}" alt="Excel" class="excel-icon" id="uploadExcel" />
+      </div>
+
+      <div id="uploadModal" class="modal">
+        <div class="modal-content" id="dropArea">
+          <h3>ARRASTRAR ARCHIVO <br><span>O</span></h3>
+          <img src="{% static 'images/tercedivi/logo_archivo.png' %}" alt="Subir archivo" class="folder-icon" />
+          <p class="accepted">Tipos aceptados: xlsx, xls</p>
+          <input type="file" id="excelFile" accept=".xlsx, .xls" hidden />
         </div>
+      </div>
+
+      <div id="tableContainer"></div>
+
+      <form id="infoForm">
+        <div class="form-grid">
+          <select name="grado"><option value="">Grado</option><option>Soldado</option><option>Cabo</option><option>Sargento</option><option>Teniente</option><option>Capitán</option><option>Mayor</option><option>Coronel</option></select>
+          <select name="arma"><option value="">Arma</option><option>Infantería</option><option>Artillería</option><option>Ingenieros</option><option>Caballería</option></select>
+          <input name="apellidos" type="text" placeholder="Apellidos" />
+          <input name="nombres" type="text" placeholder="Nombres" />
+          <input name="cedula" type="text" placeholder="Cédula" />
+          <input name="lugar_expedicion" type="text" placeholder="Lugar de expedición" />
+          <input name="fecha_expedicion" type="date" placeholder="Fecha de expedición" />
+          <input name="telefono" type="tel" placeholder="Teléfono" />
+          <input name="lugar_nacimiento" type="text" placeholder="Lugar de nacimiento" />
+          <input name="fecha_nacimiento" type="date" placeholder="Fecha de nacimiento" />
+          <select name="sexo"><option value="">Sexo</option><option>Masculino</option><option>Femenino</option></select>
+          <input name="rh" type="text" placeholder="RH" />
+          <input name="tiempo_servicio" type="text" placeholder="Tiempo de servicio" />
+          <input name="aptitud_fisica" type="text" placeholder="Aptitud física" />
+          <select name="brigada"><option value="">Brigada</option><option>Primera Brigada</option><option>Segunda Brigada</option><option>Tercera Brigada</option></select>
+          <select name="batallon"><option value="">Batallón</option><option>Batallón A</option><option>Batallón B</option><option>Batallón C</option></select>
+          <select name="compania"><option value="">Compañía</option><option>Compañía 1</option><option>Compañía 2</option><option>Compañía 3</option></select>
+          <select name="peloton"><option value="">Pelotón</option><option>Pelotón 1</option><option>Pelotón 2</option><option>Pelotón 3</option></select>
+        </div>
+
+        <button type="submit" class="submit-btn">Enviar Información</button>
       </form>
-    {% else %}
-      <p>No hay formulario disponible. Si crees que es un error, contacta con un administrador.</p>
-    {% endif %}
-  {% endif %}
+    </div>
+  </section>
+
+  <!-- Server-side admin form removed: UI is handled via Excel upload and bulk endpoint -->
 
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="{% static 'js/crear_usuarios/crear_usuarios.js' %}"></script>
 <script>
-// pequeño ajuste: si existe algún campo con clase admin-field, enfocarlo opcionalmente
 document.addEventListener('DOMContentLoaded', function(){
   var f = document.querySelector('form'); if (!f) return; var el = f.querySelector('.admin-field'); if(el) el.focus();
 });

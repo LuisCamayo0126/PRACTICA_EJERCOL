@@ -1,0 +1,89 @@
+/* Scoped styles for Crear Usuarios section */
+.crear-usuarios {
+	font-family: 'Montserrat', sans-serif;
+	padding: 40px 60px 80px;
+	background: #fff;
+	color: #222;
+}
+
+.crear-usuarios .upload-section {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 18px;
+	margin-top: 10px;
+	font-weight: 800;
+	text-align: center;
+}
+
+.crear-usuarios .excel-icon {
+	width: 120px;
+	height: auto;
+	cursor: pointer;
+	transition: transform 0.15s ease;
+}
+.crear-usuarios .excel-icon:hover{ transform: scale(1.05); }
+
+.crear-usuarios .modal {
+	display: none;
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background-color: rgba(0,0,0,0.55);
+	justify-content: center;
+	align-items: center;
+	z-index: 2000;
+}
+
+.crear-usuarios .modal-content {
+	background-color: #fff;
+	border: 2px dashed #2b2348;
+	border-radius: 10px;
+	width: 720px;
+	max-width: calc(100% - 40px);
+	height: 360px;
+	text-align: center;
+	padding: 18px;
+	box-sizing: border-box;
+}
+
+.crear-usuarios .modal-content.dragover {
+	background-color: #fafafa;
+	border-color: #c82626;
+}
+
+.crear-usuarios .folder-icon{
+	width: 220px;
+	margin-top: 8px;
+}
+
+.crear-usuarios .accepted{ color: #444; margin-top: 8px; font-size: 13px; }
+
+.crear-usuarios #tableContainer{ width: 90%; margin: 30px auto; text-align: center }
+
+.crear-usuarios table{ border-collapse: collapse; width: 100%; margin-top: 12px }
+.crear-usuarios th, .crear-usuarios td{ border: 1px solid #ddd; padding: 8px; font-size: 14px }
+.crear-usuarios th{ background: #143a33; color: #fff; font-weight: 700 }
+
+.crear-usuarios form{ display: flex; flex-direction: column; align-items: center }
+.crear-usuarios .form-grid{
+	display: grid;
+	grid-template-columns: repeat(4, 300px);
+	gap: 15px;
+	justify-content: center;
+	margin-top: 18px;
+}
+
+.crear-usuarios input, .crear-usuarios select, .crear-usuarios textarea{
+	width: 100%; height: 55px; padding: 10px; border: 2px solid #2b2348; border-radius: 6px; background:#fafafa; color:#666; text-align:center; box-sizing:border-box;
+}
+.crear-usuarios textarea{ height:55px; resize:none }
+
+.crear-usuarios .submit-btn{ background:#c82626; color:#fff; font-size:18px; font-weight:700; border-radius:20px; padding:12px 36px; border:2px solid #1d174d; margin:28px auto; cursor:pointer }
+.crear-usuarios .submit-btn:hover{ background:#a61f1f }
+
+@media (max-width: 900px){
+	.crear-usuarios .form-grid{ grid-template-columns: repeat(2, 1fr); }
+	.crear-usuarios .modal-content{ width: 92%; height: 420px }
+}
+

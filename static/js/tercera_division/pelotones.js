@@ -1,5 +1,39 @@
 // Pelotones JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    // If there are no peloton cards rendered by server, create 4 default green peloton cards
+    (function createFallbackPelotones(){
+        const grid = document.getElementById('pelotones-grid');
+        if(!grid) return;
+        if(grid.querySelectorAll('.peloton-card').length > 0) return; // server rendered
+        const brigada = grid.dataset.brigada || '';
+        const batallon = grid.dataset.batallon || '';
+        const compania = grid.dataset.compania || '';
+        const names = ['Pelotón 1','Pelotón 2','Pelotón 3','Pelotón 4'];
+        names.forEach(name => {
+            const card = document.createElement('div'); card.className = 'peloton-card';
+            const header = document.createElement('div'); header.className = 'peloton-header';
+            const icon = document.createElement('div'); icon.className = 'peloton-icon'; icon.textContent = '🎖️';
+            const titleWrap = document.createElement('div'); titleWrap.className = 'peloton-title';
+            const h3 = document.createElement('h3'); h3.className = 'peloton-name'; h3.textContent = name;
+            titleWrap.appendChild(h3);
+            header.appendChild(icon); header.appendChild(titleWrap);
+
+            const actions = document.createElement('div'); actions.className = 'peloton-actions';
+            const details = document.createElement('a'); details.className = 'action-button'; details.href = '#'; details.textContent = 'Ver Detalles';
+            const exportBtn = document.createElement('a'); exportBtn.className = 'action-button export';
+            const params = new URLSearchParams();
+            if(brigada) params.set('brigada', brigada);
+            if(batallon) params.set('batallon', batallon);
+            if(compania) params.set('compania', compania);
+            params.set('peloton', name);
+            exportBtn.href = '/accounts/export_peloton_csv/?' + params.toString();
+            exportBtn.textContent = 'Exportar';
+            actions.appendChild(details); actions.appendChild(exportBtn);
+
+            card.appendChild(header); card.appendChild(actions);
+            grid.appendChild(card);
+        });
+    })();
     // Animación de entrada para tarjetas de pelotones
     const platoonCards = document.querySelectorAll('.peloton-card');
     platoonCards.forEach((card, index) => {

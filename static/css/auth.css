@@ -184,6 +184,7 @@ body.admin-page .role-page {
   background-image: url('../images/fondo-admin.jpeg'); 
   background-size: cover; 
   background-position: center; 
+  background-repeat: no-repeat;
   min-height: calc(100vh - 80px);
 }
 /* Quitar fondo del body completo */
@@ -203,7 +204,8 @@ body.login-page::before { display: none !important; }
 .btn-back{
   position: fixed;
   /* place the back button between the golden header line and the resultados block */
-  top: 80px;
+  /* move it closer to the header so it doesn't overlap the golden line */
+  top: calc(20px + 6px + 4px); /* header-inner padding (20px) + header-line height (6px) + 4px gap */
   left: 25px;
   background: rgba(255,255,255,0.95);
   border: 2px solid #CC2900;

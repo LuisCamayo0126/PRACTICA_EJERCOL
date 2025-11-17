@@ -9,19 +9,21 @@
 	 between the golden header line and the sidebar, and make
 	 it align vertically with the cards area */
 .resultados-sidebar {
-	margin-top: 56px; /* increased spacing to move sidebar lower */
+	margin-top: 8px; /* align the resultados column 8px below the golden header */
+	display:flex; align-items:center; justify-content:center; padding: 18px 6px;
+	margin-left: 14px; /* small gap from the left edge to match reference layout */
 }
 
 .resultados-nav {
-	width: 200px; /* increased width per request */
-	background: #E6E0C8; /* beige claro similar a la maqueta */
+	width: 120px; /* narrow vertical bar like the reference */
+	background: #E7E1C9; /* beige claro similar a la maqueta */
 	border-radius: 12px;
-	padding: 18px 14px;
-	box-shadow: 0 8px 18px rgba(0,0,0,.18);
+	padding: 18px 8px;
+	box-shadow: 0 10px 30px rgba(0,0,0,.10);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 16px;
+	gap: 18px;
 }
 
 .resultados-nav__label {
@@ -50,20 +52,20 @@
 }
 
 .resultados-nav__btn {
-	width: 72px;
-	height: 72px;
+	width: 64px;
+	height: 64px;
 	border-radius: 50%;
 	background: #fff;
 	display: grid;
 	place-items: center;
-	border: 3px solid #fff;
-	box-shadow: 0 6px 14px rgba(0,0,0,.16), inset 0 0 0 2px #c7c2aa;
+	border: 6px solid #fff;
+	box-shadow: 0 8px 18px rgba(0,0,0,.12), inset 0 0 0 2px rgba(0,0,0,0.03);
 	transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
 
 .resultados-nav__btn img {
-	width: 70%;
-	height: 70%;
+	width: 72%;
+	height: 72%;
 	object-fit: contain;
 	border-radius: 50%;
 }
@@ -79,16 +81,59 @@
 	box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 0 0 2px #d73c3c;
 }
 
+/* Brigada logo used in batallones/pelotones header */
+.brigada-logo{
+	width:56px; /* reducido: pequeño */
+	height:56px;
+	border-radius:50%;
+	box-shadow:0 4px 12px rgba(0,0,0,0.10);
+	object-fit:contain;
+	display:inline-block;
+	vertical-align:middle;
+}
+
+/* Centrar y espaciar el logo bajo el título BATALLONES */
+.batallones-logo-center{
+	text-align:center;
+	margin: 10px 0 14px;
+}
+
+/* Variante levemente mayor en pantallas grandes */
+@media (min-width:1200px){
+	.brigada-logo{ width:72px; height:72px; }
+}
+
+/* Asegurar que cualquier imagen dentro del contenedor centrado no sea excesivamente grande */
+.batallones-logo-center img{
+	width:56px;
+	height:56px;
+	object-fit:contain;
+	display:inline-block;
+}
+
+@media (min-width:1200px){
+	.batallones-logo-center img{ width:72px; height:72px; }
+}
+
 /* Layout helper si se usa con main */
 .tercedivi-layout {
 	display: grid;
-	grid-template-columns: 200px 1fr; /* allocate more width to resultados */
-	gap: 24px;
+	/* left column narrow to match reference + main column */
+	grid-template-columns: 140px 1fr;
+	gap: 40px; /* gutter between resultados and main content */
 	align-items: start; /* ensure sidebar and main content align at the same top level */
+	padding-top: 0; /* remove global top padding so individual sections control their own offsets */
+}
+
+/* reset per-container top padding: spacing handled by the grid above */
+.pelotones-wrap {
+	/* reset here so the dedicated pelotones stylesheet controls the 4px offset */
+	padding-top: 0;
 }
 
 @media (max-width: 900px){
-	.tercedivi-layout{ grid-template-columns: 1fr; }
+	.tercedivi-layout{ grid-template-columns: 1fr; padding-top: 0; }
+	.resultados-sidebar{ margin-top: 8px; }
 	.resultados-nav{ position: relative; width: 100%; flex-direction: row; padding: 10px; }
 	.resultados-nav__label{ writing-mode: initial; transform: none; }
 	.resultados-nav__list{ flex-direction: row; flex-wrap: wrap; justify-content: center; }
