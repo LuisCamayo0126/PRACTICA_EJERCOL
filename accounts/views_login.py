@@ -41,7 +41,12 @@ class RoleLoginView(LoginView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        # Todos los roles van a la misma página principal (admin_home)
-        # El rol se mantiene en la sesión para otros usos pero todos ven la misma interfaz
-        # `accounts` es el namespace usado en `accounts/urls.py` via `app_name = 'accounts'`.
+        # Redirigir según el rol seleccionado en sesión.
+        # admin -> admin_home, instructor -> instructor_dashboard, soldado -> soldado_home
+        role = self.request.session.get('role_selected', 'soldado')
+        if role == 'admin':
+            return reverse('accounts:admin_home')
+        if role == 'instructor':
+            return reverse('accounts:instructor_dashboard')
+        # Soldado debe ser redirigido a admin_home según requisito
         return reverse('accounts:admin_home')

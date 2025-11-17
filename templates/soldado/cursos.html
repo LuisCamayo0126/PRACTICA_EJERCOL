@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cursos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soldado/Cursos.css' %}">
+{% endblock %}
+
+{% block body_class %}soldado-page{% endblock %}
+
+{% block content %}
+<a href="javascript:history.back()" class="btn-back">← Volver</a>
+<div class="container">
+  <h1 class="titulo">BOLETÍN INFORMATIVO</h1>
+  <p class="nota"><strong>NOTA:</strong> Se muestra primero las materias perdidas</p>
+
+  <div class="contenedor-tabla">
+    <table id="tablaBoletin">
+      <thead>
+        <tr>
+          <th>N°</th>
+          <th>CURSO</th>
+          <th>MATERIA 1</th>
+          <th>MATERIA 2</th>
+          <th>MATERIA 3</th>
+          <th>MATERIA 4</th>
+          <th>PROMEDIO</th>
+          <th>FALTAS</th>
+          <th>OBSERVACIONES</th>
+          <th>ESTADO</th>
+          <th>DESCARGAR CERTIFICADO INDIVIDUAL</th>
+          <th>DESCARGAR CERTIFICADO GRUPAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><input type="text" value="NN"></td>
+          <td><input type="number" class="notaInput" min="0" max="5" value="5"></td>
+          <td><input type="number" class="notaInput" min="0" max="5" value="4"></td>
+          <td><input type="number" class="notaInput" min="0" max="5" value="5"></td>
+          <td><input type="number" class="notaInput" min="0" max="5" value="3"></td>
+          <td><input type="text" class="promedio" readonly></td>
+          <td><input type="number" min="0" value="1"></td>
+          <td><input type="text" value="Llega tarde"></td>
+          <td>
+            <select class="estado">
+              <option>EN CURSO</option>
+              <option>TERMINADO APROBADO</option>
+              <option>TERMINADO REPROBADO</option>
+            </select>
+          </td>
+          <td class="iconoDescarga"><img src="{% static 'images/descargar.png' %}" class="btnDescargar"></td>
+          <td class="iconoDescarga"><img src="{% static 'images/descargar.png' %}" class="btnDescargar"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script src="{% static 'js/soldado/Cursos.js' %}"></script>
+</div>
+{% endblock %}

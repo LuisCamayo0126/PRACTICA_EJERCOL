@@ -10,10 +10,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
+from functools import wraps
+from django.conf import settings
 import csv
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
-from django.db.models import Q
 import secrets
 import unicodedata
 from io import BytesIO
@@ -55,6 +56,46 @@ def _collect_carousel_images():
 	return images
 
 
+def role_required(allowed_roles):
+	"""Decorator to restrict access based on the selected role stored in session.
+
+	- `allowed_roles` is a list of role names (e.g. ['admin','instructor']).
+	- Staff and superuser bypass the check.
+	- If unauthorized, user is redirected to the `soldado_home` with an error message.
+	"""
+	def decorator(view_func):
+		@wraps(view_func)
+		def _wrapped(request, *args, **kwargs):
+			role = request.session.get('role_selected', 'soldado')
+			if request.user.is_staff or request.user.is_superuser:
+				return view_func(request, *args, **kwargs)
+			if role in allowed_roles:
+				return view_func(request, *args, **kwargs)
+			messages.error(request, 'No tienes permisos para acceder a esta sección.')
+			return redirect('accounts:soldado_home')
+		return _wrapped
+	return decorator
+
+
+@login_required
+def set_role(request, role='soldado'):
+	"""Helper view (DEBUG only) to set `role_selected` in session for testing.
+
+	Usage: /accounts/set-role/soldado/
+	Only active when `settings.DEBUG` is True.
+	"""
+	if not getattr(settings, 'DEBUG', False):
+		messages.error(request, 'Esta función de prueba solo está disponible en DEBUG.')
+		return redirect('accounts:admin_home')
+
+	role = (role or '').lower()
+	if role not in ('admin', 'instructor', 'soldado'):
+		role = 'soldado'
+	request.session['role_selected'] = role
+	messages.success(request, f"Rol de sesión cambiado a '{role}' para pruebas.")
+	return redirect('accounts:admin_home')
+
+
 @login_required
 def admin_home(request):
 	carousel_images = _collect_carousel_images()
@@ -75,6 +116,7 @@ def brigadas(request):
 
 
 @login_required
+@role_required(['admin', 'instructor'])
 def tercedivi_excel(request):
 	"""Vista para la gestión de archivos Excel de TERCEDIVI"""
 	return render(request, 'accounts/tercedivi_excel.html')
@@ -227,7 +269,6 @@ def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
 	folder = _brigada_to_folder(brigada)
 	if not folder:
 		return None
- 
 	base = os.path.join(settings.BASE_DIR, 'static', 'images', 'tercedivi', folder)
 	if not os.path.isdir(base):
 		return None
@@ -283,302 +324,8 @@ def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
 			return settings.STATIC_URL.rstrip('/') + '/' + rel
 	return None
 
-
 @login_required
-def formularios(request):
-	"""Página principal de formularios (lista + constructor)."""
-	from .models import Formulario
-	forms = Formulario.objects.all().order_by('-created_at')
-	return render(request, 'formularios/formularios.html', {'formularios': forms})
-
-
-@login_required
-def guardar_formulario(request):
-	"""Guardar o actualizar un formulario enviado desde el constructor (JSON).
-
-	Si el payload incluye `form_id` se intentará actualizar el formulario existente,
-	eliminando preguntas previas y recreándolas. Si no, crea uno nuevo.
-	"""
-	if request.method != 'POST':
-		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
-
-	try:
-		payload = json.loads(request.body.decode('utf-8'))
-	except Exception:
-		return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
-
-	form_id = payload.get('form_id')
-	title = payload.get('title') or 'Sin título'
-	role = payload.get('role') or ''
-	estado = bool(payload.get('estado', True))
-	questions = payload.get('questions', []) or []
-
-	if not isinstance(questions, list):
-		return JsonResponse({'success': False, 'error': 'questions debe ser una lista'}, status=400)
-
-	from .models import Formulario, Pregunta, Opcion
-
-	try:
-		with transaction.atomic():
-			if form_id:
-				# intentar actualizar
-				try:
-					form = Formulario.objects.get(id=form_id)
-				except Formulario.DoesNotExist:
-					return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
-				# simple autorización: sólo el creador o staff puede actualizar
-				if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
-					return JsonResponse({'success': False, 'error': 'No autorizado para editar'}, status=403)
-				# actualizar metadatos
-				form.title = title
-				form.role = role
-				form.estado = estado
-				form.save()
-				# eliminar preguntas previas (y sus opciones)
-				Pregunta.objects.filter(formulario=form).delete()
-			else:
-				form = Formulario.objects.create(title=title, role=role, estado=estado, created_by=request.user)
-
-			for idx, q in enumerate(questions, start=1):
-				text = (q.get('text') or '').strip()
-				tipo = q.get('type') or q.get('tipo') or ''
-				required = bool(q.get('required', False))
-				if not text:
-					continue
-				pregunta = Pregunta.objects.create(formulario=form, text=text, tipo=tipo or 'texto', required=required, orden=idx)
-				opts = q.get('options') or q.get('opciones') or []
-				if isinstance(opts, list):
-					for j, otext in enumerate(opts, start=1):
-						if otext and str(otext).strip():
-							Opcion.objects.create(pregunta=pregunta, text=str(otext).strip(), orden=j)
-
-		return JsonResponse({'success': True, 'form_id': form.id})
-	except Exception as e:
-		return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-
-@login_required
-def get_formulario_json(request, form_id):
-	"""Devuelve un formulario con sus preguntas y opciones en formato JSON."""
-	from .models import Formulario, Pregunta, Opcion
-	try:
-		form = Formulario.objects.get(id=form_id)
-	except Formulario.DoesNotExist:
-		return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
-
-	# autorización básica: si quiere ajustarla, puede añadir más reglas
-	if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
-		return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
-
-	questions = []
-	for p in Pregunta.objects.filter(formulario=form).order_by('orden'):
-		opts = [o.text for o in Opcion.objects.filter(pregunta=p).order_by('orden')]
-		questions.append({'text': p.text, 'type': p.tipo, 'required': p.required, 'options': opts})
-
-	return JsonResponse({'success': True, 'form': {'id': form.id, 'title': form.title, 'role': form.role, 'estado': form.estado, 'questions': questions}})
-
-
-@login_required
-def eliminar_formulario(request):
-	"""Eliminar un formulario. Espera POST JSON con {'form_id': id} o form_id en POST form-data."""
-	if request.method != 'POST':
-		return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
-
-	try:
-		payload = json.loads(request.body.decode('utf-8'))
-	except Exception:
-		payload = {}
-
-	form_id = payload.get('form_id') or request.POST.get('form_id')
-	if not form_id:
-		return JsonResponse({'success': False, 'error': 'form_id requerido'}, status=400)
-
-	from .models import Formulario
-	try:
-		form = Formulario.objects.get(id=form_id)
-	except Formulario.DoesNotExist:
-		return JsonResponse({'success': False, 'error': 'Formulario no encontrado'}, status=404)
-
-	if hasattr(form, 'created_by') and form.created_by and form.created_by != request.user and not request.user.is_staff:
-		return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
-
-	# eliminamos completamente
-	form.delete()
-	return JsonResponse({'success': True})
-
-
-@login_required
-def grupos_usuarios(request):
-	"""Vista que muestra los grupos y usuarios: administradores, instructores y soldados."""
-	from django.contrib.auth.models import User, Group
-
-	# Administradores: staff o superuser
-	admins = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
-
-	# Instructores: usuarios que pertenecen al Group named 'Instructor'
-	try:
-		instructor_group = Group.objects.get(name__iexact='Instructor')
-		instructors = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
-	except Group.DoesNotExist:
-		instructors = User.objects.none()
-
-	# Soldados: usuarios no staff and not in instructor group
-	if instructors.exists():
-		soldados = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
-	else:
-		soldados = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
-
-	def _to_row(u):
-		prof = getattr(u, 'profile', None)
-		telefono = ''
-		try:
-			telefono = getattr(prof, 'telefono', '') or ''
-		except Exception:
-			telefono = ''
-		return {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'telefono': telefono}
-
-	admins_list = [_to_row(u) for u in admins]
-	instr_list = [_to_row(u) for u in instructors]
-	soldados_list = [_to_row(u) for u in soldados]
-
-	return render(request, 'grupos_usuarios/grupos_usuarios.html', {'admins': admins_list, 'instructors': instr_list, 'soldados': soldados_list})
-
-
-@login_required
-def grupos_usuarios_json(request):
-	"""Devuelve JSON con arrays: admins, instructors, soldados"""
-	from django.contrib.auth.models import User, Group
-
-	admins_qs = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
-	try:
-		instructor_group = Group.objects.get(name__iexact='Instructor')
-		instructors_qs = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
-	except Group.DoesNotExist:
-		instructors_qs = User.objects.none()
-
-	if instructors_qs.exists():
-		soldados_qs = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
-	else:
-		soldados_qs = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
-
-	def _to_row(u):
-		prof = getattr(u, 'profile', None)
-		telefono = ''
-		try:
-			telefono = getattr(prof, 'telefono', '') or ''
-		except Exception:
-			telefono = ''
-		return {'first_name': u.first_name or '', 'last_name': u.last_name or '', 'email': u.email or '', 'telefono': telefono}
-
-	data = {
-		'admins': [_to_row(u) for u in admins_qs],
-		'instructors': [_to_row(u) for u in instructors_qs],
-		'soldados': [_to_row(u) for u in soldados_qs],
-	}
-	return JsonResponse({'success': True, 'data': data})
-
-
-@login_required
-def grupos_download(request, group: str):
-	"""Genera y descarga un PDF con la lista de usuarios del grupo solicitado.
-	`group` puede ser: 'admins', 'instructors', 'soldados'.
-	"""
-	from django.contrib.auth.models import User, Group
-
-	# Determinar queryset según el parámetro
-	if group == 'admins':
-		qs = User.objects.filter(is_active=True).filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('last_name', 'first_name')
-		title = 'Administradores'
-		filename = 'administradores.pdf'
-	elif group == 'instructors':
-		try:
-			instructor_group = Group.objects.get(name__iexact='Instructor')
-			qs = User.objects.filter(groups=instructor_group, is_active=True).order_by('last_name', 'first_name')
-		except Group.DoesNotExist:
-			qs = User.objects.none()
-		title = 'Instructores'
-		filename = 'instructores.pdf'
-	elif group == 'soldados':
-		try:
-			instructor_group = Group.objects.get(name__iexact='Instructor')
-			instructors_exist = User.objects.filter(groups=instructor_group, is_active=True).exists()
-		except Group.DoesNotExist:
-			instructors_exist = False
-		if instructors_exist:
-			qs = User.objects.filter(is_active=True).exclude(Q(is_staff=True) | Q(groups__name__iexact='Instructor')).order_by('last_name', 'first_name')
-		else:
-			qs = User.objects.filter(is_active=True).exclude(is_staff=True).order_by('last_name', 'first_name')
-		title = 'Soldados'
-		filename = 'soldados.pdf'
-	else:
-		return redirect('accounts:grupos_usuarios')
-
-	# Preparar filas: encabezado + datos
-	rows = [['APELLIDO', 'NOMBRE', 'EMAIL', 'TELEFONO']]
-	for u in qs:
-		prof = getattr(u, 'profile', None)
-		telefono = ''
-		try:
-			telefono = getattr(prof, 'telefono', '') or ''
-		except Exception:
-			telefono = ''
-		rows.append([u.last_name or '', u.first_name or '', u.email or '', telefono])
-
-	# Intentar importar reportlab en tiempo de ejecución (evita depender de la variable global)
-	try:
-		from reportlab.lib.pagesizes import letter
-		from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-		from reportlab.lib import colors as rl_colors
-		from reportlab.lib.styles import getSampleStyleSheet
-		REPORTLAB_AVAILABLE = True
-	except Exception:
-		REPORTLAB_AVAILABLE = False
-
-	if not REPORTLAB_AVAILABLE:
-		# Fallback: informar que PDF no está disponible y devolver TXT con la lista
-		text = title + '\n\n'
-		for r in rows[1:]:
-			text += f"{r[0]}\t{r[1]}\t{r[2]}\t{r[3]}\n"
-		resp = HttpResponse(text, content_type='text/plain; charset=utf-8')
-		resp['Content-Disposition'] = f'attachment; filename="{filename.replace(".pdf", ".txt")}"'
-		return resp
-
-	# Generar PDF en memoria
-	buffer = BytesIO()
-	doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=18)
-	elements = []
-	styles = getSampleStyleSheet()
-	title_style = styles.get('Title', styles['Heading1'])
-	title_style.alignment = 1
-	elements.append(Paragraph(title, title_style))
-	elements.append(Spacer(1, 12))
-
-	# Tabla
-	table = Table(rows, repeatRows=1, hAlign='LEFT')
-	tbl_style = TableStyle([
-		('BACKGROUND', (0,0), (-1,0), rl_colors.HexColor('#124638')),
-		('TEXTCOLOR', (0,0), (-1,0), rl_colors.HexColor('#ffffff')),
-		('ALIGN', (0,0), (-1,-1), 'LEFT'),
-		('GRID', (0,0), (-1,-1), 0.25, rl_colors.HexColor('#dddddd')),
-		('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-		('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
-		('FONTSIZE', (0,0), (-1,0), 11),
-		('FONTSIZE', (0,1), (-1,-1), 10),
-		('BOTTOMPADDING', (0,0), (-1,0), 8),
-		('TOPPADDING', (0,0), (-1,0), 6),
-	])
-	table.setStyle(tbl_style)
-	elements.append(table)
-
-	doc.build(elements)
-	pdf = buffer.getvalue()
-	buffer.close()
-
-	response = HttpResponse(pdf, content_type='application/pdf')
-	response['Content-Disposition'] = f'attachment; filename="{filename}"'
-	return response
-
-@login_required
+@role_required(['admin', 'instructor'])
 def batallones(request):
 	"""Lista de batallones para una brigada (usa batallon.html)."""
 	brigada = _normalize_text(request.GET.get('brigada') or '')
@@ -619,6 +366,7 @@ def batallones(request):
 	return render(request, 'tercera_division/batallon.html', context)
 
 @login_required
+@role_required(['admin', 'instructor'])
 def companias(request):
 	"""Lista de compañías para un batallón específico."""
 	brigada = _normalize_text(request.GET.get('brigada') or '')
@@ -689,6 +437,7 @@ def companias(request):
 	return render(request, 'tercera_division/companias.html', context)
 
 @login_required
+@role_required(['admin', 'instructor'])
 def pelotones(request):
 	"""Vista de Pelotones.
 
@@ -759,6 +508,7 @@ def pelotones(request):
 
 
 @login_required
+@role_required(['admin', 'instructor'])
 def export_peloton_csv(request):
 	"""Exporta un CSV del personal del pelotón indicado.
 
@@ -808,6 +558,7 @@ def export_peloton_csv(request):
 
 
 @login_required
+@role_required(['admin', 'instructor'])
 def crear_cursos(request):
 	"""Vista para crear cursos - Solo Admin e Instructor"""
 	# Verificar permisos
@@ -830,6 +581,26 @@ def crear_cursos(request):
 def soldado_home(request):
 	return render(request, 'accounts/soldado_home.html')
 
+
+@login_required
+@role_required(['soldado'])
+def cursos(request):
+	"""Vista para que el soldado vea sus cursos."""
+	return render(request, 'soldado/cursos.html')
+
+
+@login_required
+@role_required(['soldado'])
+def evaluacion_instructores(request):
+	"""Vista para que el soldado califique a instructores."""
+	return render(request, 'soldado/evaluacion_instructores.html')
+
+
+@login_required
+@role_required(['admin', 'instructor'])
+def formularios(request):
+	"""Render the Formularios constructor/manager page."""
+	return render(request, 'formularios/formularios.html')
 
 
 class SimpleRegistrationForm(forms.Form):

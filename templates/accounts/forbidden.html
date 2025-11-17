@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Acceso no autorizado{% endblock %}
+
+{% block content %}
+<main style="padding:40px; text-align:center;">
+  <h1>Acceso no autorizado</h1>
+  <p>No tienes permisos para ver esta página.</p>
+  <a href="javascript:history.back()" class="btn-back">← Volver</a>
+</main>
+{% endblock %}

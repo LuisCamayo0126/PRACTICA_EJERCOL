@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calificación a Instructores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soldado/calificacion_instructores/calificacion_instructores.css' %}">
+{% endblock %}
+
+{% block body_class %}soldado-page{% endblock %}
+
+{% block content %}
+<a href="javascript:history.back()" class="btn-back">← Volver</a>
+<div class="container">
+  <h1 class="title">CALIFICACIÓN A INSTRUCTORES</h1>
+
+  <div class="descripcion">
+    <h2>📋 Descripción de la tabla de evaluación</h2>
+    <p>Este formato permite evaluar a los instructores en una escala de 1 a 5 <strong>(1 = muy deficiente, 5 = excelente).</strong></p>
+    <p>En cada fila aparecen los criterios de evaluación (conocimiento, disciplina, respeto, ejemplo, etc.) y en cada columna los instructores. Los soldados deben marcar la calificación que consideren justa para cada indicador.</p>
+  </div>
+
+  <div class="resumen">
+    <h3>RESUMEN CALIFICACIONES A INSTRUCTORES</h3>
+    <table class="tabla-resumen">
+      <tr><th>INSTRUCTORES</th><th>CALIFICACIONES</th></tr>
+      <tr><td>NOMBRE INS 1</td><td class="calif-res">-</td></tr>
+      <tr><td>NOMBRE INS 2</td><td class="calif-res">-</td></tr>
+      <tr><td>NOMBRE INS 3</td><td class="calif-res">-</td></tr>
+    </table>
+  </div>
+
+  <table class="tabla-principal">
+    <thead>
+      <tr>
+        <th>N°</th>
+        <th>INDICADOR</th>
+        <th>INSTRUCTOR 1</th>
+        <th>INSTRUCTOR 2</th>
+        <th>INSTRUCTOR 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>¿El instructor demuestra dominio de los temas que enseña?</td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>¿Responde de manera adecuada las dudas de los soldados?</td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>¿El instructor mantiene la disciplina en el grupo de manera adecuada?</td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>¿Trata a los soldados con respeto y firmeza?</td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>¿Inspira respeto y da ejemplo con su comportamiento y presentación personal?</td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+        <td><select class="calificacion"><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="text-align:center; margin:36px 0;">
+    <button class="btn-enviar">Enviar Información</button>
+  </div>
+
+  <script src="{% static 'js/soldado/calificacion_instructores/Califi.js' %}"></script>
+</div>
+{% endblock %}

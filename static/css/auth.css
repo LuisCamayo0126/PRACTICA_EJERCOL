@@ -184,7 +184,6 @@ body.admin-page .role-page {
   background-image: url('../images/fondo-admin.jpeg'); 
   background-size: cover; 
   background-position: center; 
-  background-repeat: no-repeat;
   min-height: calc(100vh - 80px);
 }
 /* Quitar fondo del body completo */
@@ -196,9 +195,11 @@ body.admin-page::before { display: none !important; }
 /* Asegurar que no hay velo en la página de login */
 body.login-page::before { display: none !important; }
 .site-header{ position: relative; z-index: 40; margin-top: 20px; }
-.header-inner{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding: 20px 30px 15px 30px; }
+.header-inner{ display:flex; align-items:center; justify-content:space-between; gap:20px; padding: 20px 30px 15px 30px; }
 .header-left{ display:flex; align-items:center; gap:15px; }
 .header-logo{ width:64px; height:64px; border-radius:8px; }
+/* Ensure right area aligns content (logout) to the right */
+.header-right{ display:flex; align-items:center; margin-left: auto; }
 
 /* Botón global Volver Atrás (visible en la mayoría de páginas) */
 .btn-back{
@@ -260,6 +261,16 @@ body.login-page::before { display: none !important; }
   white-space: nowrap;
 }
 .header-line{ height:6px; background:#b8862b; margin-top:6px; border-radius:6px; display: block !important; width: 100%; }
+/* Make the golden line stop before the logout area (desktop) */
+.site-header{ position: relative; }
+.site-header .header-line{
+  position: static;   /* continuous single line under the nav */
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  margin-top: 6px;
+}
 .header-nav .nav-items{ display:flex; gap:18px; list-style:none; margin:0; padding:0; }
 .header-nav .nav-items a{ 
   display: inline-block; 
@@ -272,7 +283,24 @@ body.login-page::before { display: none !important; }
   font-weight: 700;
   letter-spacing: 0.3px;
 }
+/* Active link: subtle red text only */
+.header-nav .nav-items .nav-active{ color:#c62828; }
 .header-nav .nav-items a:hover, .header-nav .nav-items a:focus{ background:#c62828; color:white; transform: translateY(-2px); }
+
+/* Active pill style: prominent red rounded pill matching reference image */
+.header-nav .nav-items a.nav-active {
+  background: linear-gradient(90deg, #d33, #bf1e1e) !important;
+  color: #fff !important;
+  padding: 12px 22px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 8px 20px rgba(183,28,28,0.12) !important;
+  transform: translateY(-2px);
+}
+
+/* Ensure small screens keep pill shape but shrink padding */
+@media (max-width: 980px) {
+  .header-nav .nav-items a.nav-active { padding: 8px 12px !important; font-size: 14px; }
+}
 
 /* Inline logout button next to FORMULARIOS */
 .nav-formularios{ display:flex; align-items:center; gap:10px; }
@@ -565,6 +593,170 @@ body.login-page {
   background: #ffffff !important;
   background-image: none !important;
   background-color: #ffffff !important;
+}
+
+/* Apply Tercera División header rules to soldado pages (cursos / calificación) */
+body.soldado-page .site-wrap,
+body.soldado-page .brigadas-container {
+  background: transparent !important;
+}
+
+body.soldado-page .header-inner{
+  align-items: center; /* vertical centering like tercera_división */
+  padding: 28px 30px 22px 30px; /* taller header to match reference */
+}
+
+/* make header background subtle and elevated like image 2 */
+body.soldado-page .site-header{
+  background: #fafafa; /* very light gray */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+/* push the golden line further down to match image spacing */
+body.soldado-page .header-line{
+  height:6px;
+  background: linear-gradient(90deg, #b8862b, #d4af37, #b8862b);
+  margin-top:18px;
+  border-radius:6px;
+  display:block !important;
+  width:100%;
+}
+
+/* align the resultados/sidebar under the golden line */
+body.soldado-page .resultados-sidebar{ margin-top: 20px; }
+
+/* position the back button lower so it doesn't overlap the header and matches image 2 */
+.btn-back{
+  position: fixed;
+  left: 25px;
+  background: rgba(255,255,255,0.95);
+  border: 2px solid #CC2900;
+  border-radius: 10px;
+  padding: 8px 15px;
+  font-size: .95rem;
+  font-weight: 700;
+  color: #CC2900;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1000;
+  min-width: 140px;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px rgba(204,41,0,0.12);
+  transition: all .18s ease;
+}
+
+@media (min-width: 980px){
+  .btn-back{ top: 96px; }
+}
+
+@media (max-width: 980px){
+  .btn-back{ top: 72px; left: 14px; padding: 7px 12px; }
+}
+
+/* Responsive fixes: ensure soldado header behaves correctly on narrow screens */
+@media (max-width: 980px) {
+  body.soldado-page .site-header {
+    background: transparent; /* avoid boxed look on small screens */
+    box-shadow: none;
+    border-radius: 0;
+    margin-top: 8px;
+    padding: 6px 0;
+  }
+
+  body.soldado-page .header-inner{
+    padding: 10px 14px 8px 14px; /* smaller padding to free horizontal space */
+    gap: 10px;
+    align-items: center;
+  }
+
+  body.soldado-page .site-header > .header-line{
+    height: 6px !important;
+    margin-top: 8px !important;
+    border-radius: 6px !important;
+  }
+
+  .header-nav .nav-items{ flex-wrap: wrap; gap: 10px; }
+  .header-nav .nav-items a{ padding: 8px 10px; font-size: 14px; }
+
+  .header-logo{ width:52px; height:52px; }
+  .header-logo-secondary{ width:48px; height:48px; }
+
+  .btn-back{ top: 72px; left: 12px; min-width: 110px; }
+}
+
+@media (max-width: 640px) {
+  body.soldado-page .header-inner{
+    padding: 8px 10px; gap:8px;
+  }
+  .header-nav .nav-items{ gap:8px; }
+  .header-nav .nav-items a{ padding: 6px 8px; font-size: 13px; }
+  body.soldado-page .site-header > .header-line{ height:5px !important; margin-top:6px !important; }
+  .btn-back{ top: 64px; left: 10px; min-width: 92px; padding:6px 10px; font-size:0.85rem; }
+  .header-logo{ width:44px; height:44px; }
+  .header-logo-secondary{ width:40px; height:40px; }
+}
+
+/* Ensure only the site-header's header-line is visible on soldado pages
+   and hide any smaller nav-line or other decorative bars that appear
+   inside other templates (they caused the short gold segment). */
+body.soldado-page .nav-line {
+  display: none !important;
+}
+
+/* Make sure the main header-line is full width and above other elements */
+body.soldado-page .site-header > .header-line{
+  display:block !important;
+  width:100% !important;
+  position: relative;
+  z-index: 30;
+  box-shadow: none;
+  height: 10px !important; /* thicker golden line */
+  border-radius: 8px !important;
+}
+
+/* Hide any other .header-line instances that might be placed elsewhere
+   inside the page content (keep the main one visible). This targets
+   header-line elements that are NOT direct children of .site-header by
+   hiding all, then re-enabling the site-header's one above. */
+body.soldado-page .header-line{ display:none; }
+body.soldado-page .site-header > .header-line{ display:block !important; }
+
+/* Extra safeguard: hide any .header-line/.nav-line inside header (non-direct)
+   and force the main site-header header-line to be absolute full-width so no
+   small decorative pills appear at the right of the logout button. */
+header .header-line,
+header .nav-line,
+header [class*="nav-line"],
+header [class*="header-line"]{
+  display: none !important;
+}
+.site-header > .header-line{
+  display: block !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 10px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(90deg, #b8862b, #d4af37, #b8862b) !important;
+  z-index: 40 !important;
+}
+
+/* Hide any decorative golden bars that appear inside the header-right area
+   (the short rounded bar next to the logout button). This prevents small
+   duplicate golden segments from showing. */
+.header-right .header-line,
+.header-right .nav-line,
+.header-right::before,
+.header-right::after{
+  display: none !important;
+  background: none !important;
 }
 
 body.login-page .login-wrapper {
