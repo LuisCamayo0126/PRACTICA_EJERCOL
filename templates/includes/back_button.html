@@ -4,8 +4,9 @@
    - label: visible text (defaults to 'Volver Atrás')
    - style: optional inline style string (e.g. 'display:none;')
 {% endcomment %}
+{% url 'accounts:admin_home' as admin_home_url %}
 <div class="back-navigation">
-  <a href="{{ href|default:'javascript:history.back()' }}" class="btn-back"{% if style %} style="{{ style }}"{% endif %}>
+  <a href="{{ href|default:admin_home_url }}" class="btn-back"{% if style %} style="{{ style }}"{% endif %}{% if onclick %} onclick="{{ onclick }}"{% elif not href %} onclick="if (history.length > 1) { history.back(); } else { window.location.href = '{{ admin_home_url }}'; } return false;"{% endif %}>
     <span class="icon">←</span>
     {{ label|default:'Volver Atrás' }}
   </a>

@@ -1,0 +1,566 @@
+/* =========================================================
+   BASE GENERAL
+   ========================================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
+  color: #000;
+  /* Reduce top padding so the global header sits higher on the page
+     (was 100px — lowered to 36px for tighter layout). Adjust as needed. */
+  padding-top: 36px;
+}
+
+/* Header styles removed from this page-specific CSS so the global
+   header rules in `static/css/auth.css` apply uniformly across the site.
+   Any header/nav appearance should be controlled centrally to keep
+   the header identical across pages. */
+
+.title {
+  text-align: center;
+  margin-top: 20px;
+  color: #b30000;
+  font-size: 42px;
+  font-weight: 900;
+}
+
+/* Título principal */
+.titulo {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 40px;
+  color: #7d0000;
+  letter-spacing: 2px;
+}
+
+/* Contenedor de botones y buscador */
+.controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 0 40px;
+}
+
+/* Grupo de controles */
+.grupo-controles {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Select de materias */
+.select-materia {
+  padding: 10px 15px;
+  border: 2px solid #c61d1d;
+  border-radius: 25px;
+  font-size: 16px;
+  background: white;
+  color: #000;
+  min-width: 250px;
+  cursor: pointer;
+}
+
+.select-materia:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(198, 29, 29, 0.5);
+}
+
+/* Grupo de botones */
+.grupo-botones {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botones */
+.btn {
+  background: #c61d1d;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Botones específicos */
+.btn-activo {
+  background: #0f6d10 !important;
+}
+
+.btn-atras {
+  background: #6c757d !important;
+}
+
+.btn-atras:hover {
+  background: #5a6268 !important;
+}
+
+.btn-guardar-tabla {
+  background: #0f6d10 !important;
+}
+
+.btn-guardar-tabla:hover {
+  background: #0c5a0d !important;
+}
+
+/* Contenedor del buscador */
+.buscador {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.buscador input {
+  width: 350px;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: 2px solid #c61d1d;
+}
+
+.lupa {
+  position: absolute;
+  right: 10px;
+  color: #c61d1d;
+  font-size: 25px;
+}
+
+/* Tabla */
+/* Contenedor de tablas: alinear con el ancho del header y evitar saltos
+   Use max-width para mantener consistencia con el header (1200px)
+   y permitir scroll horizontal en pantallas pequeñas. */
+/* Make table containers use the page width so columns don't get squashed.
+   Use full width with internal horizontal padding instead of a small fixed max-width.
+   Keep overflow-x:auto for very small screens. */
+.tabla-container {
+  padding: 20px 40px;
+  overflow-x: auto; /* keep horizontal scrolling only when the table is wider than its container */
+  /* Use 100% instead of 100vw to avoid creating an extra viewport-sized element
+     that forces the browser to show a second scrollbar. 100vw + calc margins
+     commonly create overflow on the root, producing two scrollbars. */
+  width: 100%;
+  box-sizing: border-box;
+  /* Remove the full-bleed centering trick (margin-left/right calc). If you need
+     full-bleed visuals, prefer using a dedicated wrapper that doesn't change
+     the element's computed width relative to the viewport. */
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  /* Prefer auto layout so headers and cells can size naturally across the page width.
+     Use fixed layout only on very small screens to keep columns stable. */
+  table-layout: auto;
+}
+
+th, td {
+  border: 2px solid black;
+  padding: 12px 10px;
+  /* Allow cells to wrap naturally and break long words if needed */
+  word-wrap: break-word;
+  /* Prefer breaking whole words when necessary. Avoid breaking inside words
+     (which produced single-letter lines). Use break-word so words are kept
+     intact unless absolutely necessary. */
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+/* Make header text wrap on multiple lines and be fully visible */
+.tabla-container table th {
+  white-space: normal;       /* allow wrapping */
+  overflow: visible;        /* do not clip */
+  text-overflow: clip;      /* do not show ellipsis */
+  /* Ensure headers wrap at word boundaries rather than inside words */
+  overflow-wrap: break-word;
+  word-break: normal;
+  line-height: 1.15;
+  font-size: 13px; /* slightly smaller so long headers fit better */
+  padding: 10px 8px; /* reduce horizontal padding to give more room */
+}
+
+/* Slightly reduce header text size on small screens to avoid excessive height */
+@media (max-width: 900px) {
+  .tabla-container table th { font-size: 13px; }
+}
+
+/* Give sensible minimum widths to avoid extreme column compression */
+.tabla-container table th,
+.tabla-container table td {
+  min-width: 110px;
+}
+.tabla-container table th:nth-child(1), .tabla-container table td:nth-child(1) { min-width: 48px; }
+.tabla-container table th:nth-child(2), .tabla-container table td:nth-child(2) { min-width: 260px; }
+.tabla-container table th:nth-child(3), .tabla-container table td:nth-child(3) { min-width: 120px; }
+
+/* Ensure the last column (Observaciones) shows its full title */
+.tabla-container table th:nth-last-child(1), .tabla-container table td:nth-last-child(1) {
+  /* Make Observaciones wider and allow wrapping so long notes don't overflow */
+  min-width: 380px;
+  white-space: normal;      /* allow wrapping */
+  overflow-wrap: break-word;  /* break long words only when necessary */
+  word-break: break-word;
+  text-overflow: clip;
+}
+
+/* Prevent word breaks and hyphenation in headers/titles so words stay whole
+   and single-letter words (e.g. 'y', 'o', 'N°') don't wrap alone on a new line. */
+.tabla-container table th,
+.tabla-container table th *,
+h1, h2, h3,
+.titulo,
+.title {
+  hyphens: none;
+  -ms-hyphens: none;
+  -webkit-hyphens: none;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+}
+
+/* On very small screens, allow wrapping but avoid single-letter orphans by
+   preferring to keep short words with their following word (JS enforces).
+   These CSS rules reduce browser-inserted breaks and hyphenation. */
+@media (max-width: 480px) {
+  .tabla-container table th {
+    font-size: 0.9rem;
+    line-height: 1.1;
+  }
+}
+
+.encabezado {
+  background: #0c3b37;
+  color: white;
+  font-weight: bold;
+}
+
+.pdf-imagen {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Style the boletines download link as a visible button */
+.download-boletines-link.pdf-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 2px solid #c61d1d;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.download-boletines-link.pdf-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(198,29,29,0.12);
+}
+
+.download-boletines-link.pdf-button:hover {
+  transform: translateY(-2px);
+  background: #fff6f6;
+}
+
+/* Slightly reduce image inside button to fit neatly */
+.download-boletines-link.pdf-button .pdf-imagen {
+  width: 64px;
+  height: auto;
+  display: block;
+}
+
+.vista-oculta {
+  display: none;
+}
+
+#vista-edicion {
+  background: white;
+  padding: 30px;
+  border: 2px solid #c61d1d;
+  width: 60%;
+  margin: 40px auto;
+  border-radius: 15px;
+}
+
+#vista-edicion input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #888;
+  border-radius: 6px;
+}
+
+.btn-guardar {
+  background: #0f6d10;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.btn-cancelar {
+  background: #b30d0d;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+/* Estilos para inputs en la tabla de calificaciones */
+.input-calificacion {
+  width: 80px;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.input-observacion {
+  width: 100%;
+  max-width: 420px; /* allow wider inputs so the cell expands */
+  min-width: 260px; /* encourage table to allocate space to observations */
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.input-calificacion:focus,
+.input-observacion:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.promedio {
+  font-weight: bold;
+  background-color: #e8f5e8;
+  padding: 8px;
+}
+
+/* Asegurar que las tablas tengan el mismo estilo */
+#tabla-calificaciones,
+#tabla-principal {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+#tabla-calificaciones th,
+#tabla-calificaciones td,
+#tabla-principal th,
+#tabla-principal td {
+  border: 2px solid black;
+  padding: 12px;
+}
+
+/* Estilos específicos para vista de asistencia */
+.input-faltas {
+  width: 60px;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+.input-faltas:focus {
+  border-color: #dc3545;
+  outline: none;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+}
+
+/* Estilo para resaltar la columna de faltas en vista principal */
+#tabla-principal td:nth-child(9) {
+  background-color: #fff3cd;
+  font-weight: bold;
+}
+
+/* Asegurar que la tabla de asistencia tenga buen estilo */
+#tabla-asistencia {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+#tabla-asistencia th,
+#tabla-asistencia td {
+  border: 2px solid black;
+  padding: 12px;
+}
+
+#tabla-asistencia th {
+  background: #0c3b37;
+  color: white;
+  font-weight: bold;
+}
+
+/* Ensure the attendance view table fills the page-width area inside the site-wrap
+   and remove extra horizontal padding so it visually matches the header width. */
+/* For the specific views ensure the table area aligns with the page paddings */
+#vista-asistencia .tabla-container,
+#vista-calificaciones .tabla-container {
+  padding: 12px 60px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#vista-asistencia .tabla-container table,
+#vista-calificaciones .tabla-container table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Make the input fields in asistencia more visible while preventing them forcing column width */
+.input-faltas { width: 60px; padding: 6px; font-size: 14px; }
+.input-observacion { width: 100%; padding: 6px; }
+
+/* Small responsive tweak: allow horizontal scroll on very small screens */
+@media (max-width: 640px) {
+  .input-observacion { width: 140px; }
+  .input-faltas { width: 60px; }
+  /* On very small screens keep fixed layout to avoid dramatic column collapse */
+  table { table-layout: fixed; }
+  .tabla-container { padding: 12px 12px; }
+}
+
+/* Column width hints for more stable layout (desktop). Adjust as needed. */
+@media (min-width: 641px) {
+  /* Remove rigid percentage widths so columns size according to content (headers)
+     Keep earlier min-width hints, letting JS compute optimal widths dynamically. */
+  .tabla-container table th:nth-child(1), .tabla-container table td:nth-child(1) { min-width: 48px; }
+  .tabla-container table th:nth-child(2), .tabla-container table td:nth-child(2) { min-width: 220px; }
+  .tabla-container table th:nth-child(3), .tabla-container table td:nth-child(3) { min-width: 120px; }
+  /* Make FALTAS narrow so it doesn't stretch the layout */
+  .tabla-container table th:nth-child(4), .tabla-container table td:nth-child(4) { min-width: 56px; max-width: 90px; }
+  /* Give OBSERVACIONES room and allow wrapping. Increase min-width to avoid narrow wrapping */
+  /* Force OBSERVACIONES to be wider. Using !important to override inline colgroup if present. */
+  .tabla-container table th:nth-child(5), .tabla-container table td:nth-child(5) {
+    min-width: 480px !important;
+    width: 480px !important;
+    max-width: none !important;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Urgent fix: make the 4th column (the long subject header like
+     "Ejecutar técnicas en Movimiento al Contacto") wider so its header
+     doesn't squeeze into a narrow column. Apply to main tables only. */
+  #tabla-principal th:nth-child(4), #tabla-principal td:nth-child(4),
+  #tabla-calificaciones th:nth-child(4), #tabla-calificaciones td:nth-child(4) {
+    min-width: 320px !important;
+    width: 320px !important;
+    max-width: none !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  /* remaining columns (including edit) share the rest */
+}
+
+/* Estilos para botón de edición */
+.btn-editar {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.18s, transform 0.08s;
+  display: inline-block;
+  min-width: 0;
+  width: 56px;
+  text-align: center;
+}
+
+.btn-editar:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* Compact final column: apply only to row cells (td) so headers (th) keep full width */
+#tabla-calificaciones td:last-child,
+#tabla-asistencia td:last-child {
+  width: 68px;
+  max-width: 68px;
+  padding: 2px 2px;
+  min-width: 0; /* override global min-width so this cell can shrink */
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Button slightly smaller than the cell so it fits snugly like image 2 */
+#tabla-calificaciones td:last-child .btn-editar,
+#tabla-asistencia td:last-child .btn-editar {
+  width: 36px;
+  padding: 2px 4px;
+  margin: 6px auto;
+  display: block;
+  box-sizing: border-box;
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Estilo para indicar que la vista principal es solo lectura */
+#tabla-principal tr:not(.encabezado) {
+  cursor: default;
+}
+
+#tabla-principal tr:not(.encabezado):hover {
+  background-color: transparent;
+}
+
+/* Estilos para mensaje de no resultados */
+.no-resultados {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+}
+
+/* Mejorar estilo del buscador */
+.buscador input {
+  width: 350px;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: 2px solid #c61d1d;
+  transition: border-color 0.3s;
+}
+
+.buscador input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}

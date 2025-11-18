@@ -34,29 +34,59 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td><input type="text" value="NN"></td>
-          <td><input type="number" class="notaInput" min="0" max="5" value="5"></td>
-          <td><input type="number" class="notaInput" min="0" max="5" value="4"></td>
-          <td><input type="number" class="notaInput" min="0" max="5" value="5"></td>
-          <td><input type="number" class="notaInput" min="0" max="5" value="3"></td>
-          <td><input type="text" class="promedio" readonly></td>
-          <td><input type="number" min="0" value="1"></td>
-          <td><input type="text" value="Llega tarde"></td>
-          <td>
-            <select class="estado">
-              <option>EN CURSO</option>
-              <option>TERMINADO APROBADO</option>
-              <option>TERMINADO REPROBADO</option>
-            </select>
-          </td>
-          <td class="iconoDescarga"><img src="{% static 'images/descargar.png' %}" class="btnDescargar"></td>
-          <td class="iconoDescarga"><img src="{% static 'images/descargar.png' %}" class="btnDescargar"></td>
-        </tr>
+        {% if boletin_rows %}
+          {% for r in boletin_rows %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <input type="text" value="{{ r.nombre }}" readonly class="soldado-nombre">
+              <input type="hidden" value="{{ r.curso }}" class="course-name">
+            </td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="{{ r.notas.0 }}" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="{{ r.notas.1 }}" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="{{ r.notas.2 }}" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="{{ r.notas.3 }}" readonly></td>
+            <td><input type="text" class="promedio" value="{{ r.promedio }}" readonly></td>
+            <td><input type="number" min="0" value="{{ r.faltas|default:0 }}" readonly></td>
+            <td><input type="text" value="{{ r.observaciones }}" readonly></td>
+            <td>
+              <select class="estado" disabled>
+                <option {% if r.estado == '' or r.estado == 'EN CURSO' %}selected{% endif %}>EN CURSO</option>
+                <option {% if r.estado == 'TERMINADO APROBADO' %}selected{% endif %}>TERMINADO APROBADO</option>
+                <option {% if r.estado == 'TERMINADO REPROBADO' %}selected{% endif %}>TERMINADO REPROBADO</option>
+              </select>
+            </td>
+            <td class="iconoDescarga"><a href="#" class="download-individual" title="Descargar certificado individual"><img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" class="btnDescargar"></a></td>
+            <td class="iconoDescarga"><a href="#" class="download-group" title="Descargar certificado grupal"><img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" class="btnDescargar"></a></td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td>1</td>
+            <td><input type="text" value="NN" readonly class="course-name"></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="5" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="4" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="5" readonly></td>
+            <td><input type="number" class="notaInput" min="0" max="5" value="3" readonly></td>
+            <td><input type="text" class="promedio" readonly></td>
+            <td><input type="number" min="0" value="1" readonly></td>
+            <td><input type="text" value="Llega tarde" readonly></td>
+            <td>
+              <select class="estado" disabled>
+                <option>EN CURSO</option>
+                <option>TERMINADO APROBADO</option>
+                <option>TERMINADO REPROBADO</option>
+              </select>
+            </td>
+            <td class="iconoDescarga"><a href="#" class="download-individual" title="Descargar certificado individual"><img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" class="btnDescargar"></a></td>
+            <td class="iconoDescarga"><a href="#" class="download-group" title="Descargar certificado grupal"><img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" class="btnDescargar"></a></td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
+  <!-- jsPDF for client-side PDF generation (used to simulate certificate download) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="{% static 'js/soldado/Cursos.js' %}"></script>
 </div>
 {% endblock %}

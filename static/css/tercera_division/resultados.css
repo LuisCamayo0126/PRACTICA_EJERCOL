@@ -105,14 +105,27 @@
 
 /* Asegurar que cualquier imagen dentro del contenedor centrado no sea excesivamente grande */
 .batallones-logo-center img{
-	width:56px;
-	height:56px;
-	object-fit:contain;
-	display:inline-block;
+	/* Further reduced clamps so the brigade emblem stays compact and balanced.
+	   Mobile-first: very small min, responsive mid, and conservative max width. */
+	width: clamp(70px, 10vw, 140px) !important;
+	max-width: 140px !important;
+	height: auto !important;
+	object-fit: contain;
+	display: inline-block;
 }
 
 @media (min-width:1200px){
-	.batallones-logo-center img{ width:72px; height:72px; }
+	/* For very wide screens allow a bit more, but cap strictly to avoid overpowering the title */
+	.batallones-logo-center img{ width: clamp(90px, 8vw, 160px) !important; max-width:160px !important; height: auto !important; }
+}
+
+/* Generic helper: keep hero/page images at original size unless a more
+   specific rule overrides them. This helps when a template inserts a
+   full-bleed banner image without a dedicated class. */
+.page-hero img, .hero-image, .site-hero img {
+	width: auto !important;
+	max-width: none !important;
+	height: auto !important;
 }
 
 /* Layout helper si se usa con main */

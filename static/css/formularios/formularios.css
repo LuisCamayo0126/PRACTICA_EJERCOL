@@ -2,41 +2,208 @@
 * { box-sizing: border-box; }
 body { font-family: 'Montserrat', sans-serif; color:#000; background:#fff; }
 
-/* Header spacing handled by base.html; keep page padding */
-.flex-main { padding-top: 20px; }
+/* Page padding and centering */
+.flex-main { padding:28px 0 40px; }
 
-.seccion-formulario { background: #f0f0f0; padding: 22px; border-radius: 16px; width: 100%; max-width: 720px; margin: 0 auto 24px; }
-.titulo-form { text-align:center; font-size: 22px; font-weight:700; margin-bottom: 12px; }
-.input-titulo { width:100%; padding:10px; border-radius:8px; border:2px solid #181143; margin-bottom:12px; }
+/* Main form card (centered, large rounded corners like mock) */
+.seccion-formulario { background: #ececec; padding: 28px 30px; border-radius: 16px; width: 100%; max-width: 760px; margin: 0 auto 28px; box-shadow: none; }
+.titulo-form { text-align:center; font-size: 24px; font-weight:800; margin-bottom: 18px; letter-spacing:1px; }
 
-.fila-switch { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+/* Inputs: thicker dark purple border, larger radius like mock */
+.input-titulo { width:100%; padding:12px 14px; border-radius:10px; border:2.5px solid #181143; margin-bottom:14px; background:#fff; }
+
+.fila-switch { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.titulo-estado{ font-weight:600; margin-right:6px; }
 .switch { position:relative; width:56px; height:28px; }
 .switch input { display:none; }
-.slider { position:absolute; inset:0; background:#c11f25; border-radius:26px; }
-.slider:before { content:''; width:20px; height:20px; background:#fff; border-radius:50%; position:absolute; left:4px; top:4px; }
+.slider { position:absolute; inset:0; background:#cfd3d3; border-radius:26px; }
+.slider:before { content:''; width:20px; height:20px; background:#fff; border-radius:50%; position:absolute; left:4px; top:4px; transition:transform .18s ease; }
 .switch input:checked + .slider { background:#143e34; }
 .switch input:checked + .slider:before { transform: translateX(28px); }
+#estado-texto { margin-left:6px; font-weight:700; color:#143e34; }
 
-.fila-botones { display:flex; gap:10px; margin-top:12px; justify-content:flex-start; }
-.btn-mini { padding:8px 10px; border-radius:6px; border:none; cursor:pointer; }
-.btn-secundario { background:#181143; color:#fff; }
-.btn-peligro { background:#c11f25; color:#fff; }
-.btn-preview { background:#181143; color:#fff; padding:10px 14px; border-radius:8px; }
+/* Question panel box */
+#contenedor-preguntas { margin-top:12px; }
+.pregunta-card { background:#fff; padding:16px; border-radius:10px; box-shadow: none; border:1px solid #e6e6e6; margin-bottom:12px; }
+.pregunta-card label{ display:block; font-weight:600; margin-bottom:6px; }
+.pregunta-card .input-titulo{ padding:8px 10px; border-radius:6px; }
 
-.vista-panel { max-width:720px; margin:0 auto; }
+/* Buttons row: center aligned and colored to match mock */
+.fila-botones { display:flex; gap:12px; margin-top:18px; justify-content:center; align-items:center; flex-wrap:wrap; }
+.btn-mini { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:700; color:#fff; }
+.btn-primary { background:#1b163a; } /* dark navy */
+.btn-success { background:#1f6a53; } /* green */
+.btn-danger { background:#c11f25; } /* red */
+.btn-outline { background:transparent; border:2px solid #1b163a; color:#1b163a; padding:8px 12px; border-radius:8px; }
 
-.panel-lateral { width:160px; background:#fff; padding:10px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.2); text-align:center; }
-.panel-action { margin-bottom:22px; cursor:pointer; }
+.btn-preview { background:#1f6a53; color:#fff; padding:10px 14px; border-radius:8px; }
+
+.vista-panel { max-width:760px; margin:0 auto; }
+
+/* Left vertical panel (icons) */
+.panel-lateral { width:120px; background:transparent; padding:6px 0; border-radius:10px; text-align:center; }
+.panel-action { margin-bottom:22px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; }
 .panel-action.disabled { opacity:.45; pointer-events:none; }
-.panel-action img { width:90px; display:block; margin:0 auto 6px; }
+.panel-action img { width:64px; display:block; margin:0 auto 6px; }
+.panel-action p{ font-weight:700; color:#143e34; }
 
-.tabla-panel { flex:1; background:#d9d9d9; padding:22px; border-radius:20px; }
-.tabla-formularios { width:100%; border-collapse:collapse; font-weight:600; }
-.tabla-formularios thead th { background:#0f4b3c; color:#fff; padding:14px; }
-.tabla-formularios td, .tabla-formularios th { border:2px solid #000; padding:10px; text-align:center; }
+/* Table panel: rounded container and styled header like mock */
+.tabla-panel { flex:1; background:transparent; padding:20px; border-radius:20px; }
+.tabla-wrapper { background:#d9d9d9; padding:14px; border-radius:14px; }
+.tabla-formularios { width:100%; border-collapse:collapse; font-weight:700; }
+.tabla-formularios thead th { background:#144a3c; color:#fff; padding:14px; }
+.tabla-formularios td, .tabla-formularios th { border:2px solid #000; padding:12px; text-align:center; background:#d2d2d2; }
+.tabla-formularios tbody tr:nth-child(even) td{ background:#cfcfcf; }
 .empty { padding:25px; font-style:italic; color:#555; }
 
 @media (max-width:900px) {
   .panel-lateral { display:flex; gap:12px; width:100%; justify-content:center; }
   .tabla-panel { margin-top:12px; }
+  .seccion-formulario { padding:20px; }
 }
+
+/* ========== Reglas adicionales sincronizadas desde EsFormulario.css ========== */
+
+/* Alineación y tamaños similares al diseño original */
+.titulo-form { font-size:32px; }
+.input-titulo { font-size:22px; }
+
+/* Switch obligatorio (estilo tipo Google Forms) */
+.switch-oblig { position: relative; width: 44px; height: 22px; display: inline-block; cursor: pointer; }
+.switch-oblig input { display: none; }
+.slider-oblig { position: absolute; background: #b2b2b2; border-radius: 20px; inset: 0; transition: 0.3s; }
+.slider-oblig:before { content: ""; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; left: 2px; top: 2px; transition: 0.3s; }
+.switch-oblig input:checked + .slider-oblig { background: #143e34; }
+.switch-oblig input:checked + .slider-oblig:before { transform: translateX(22px); }
+
+.oblig-container { display:flex; align-items:center; gap:8px; }
+.texto-oblig { font-weight:600; font-size:15px; }
+
+/* Botones específicos del mock */
+.btn-add-pregunta { background-color: #c11f25; }
+.btn-preview { background-color: #143e34; }
+.btn-eliminar-pregunta, .btn-eliminar { background: #c11f25; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight:700; }
+.btn-eliminar-pregunta:hover { opacity: .95; }
+.btn-guardar { background-color: #143e34; color: white; padding: 10px 14px; border-radius: 8px; font-weight:700; }
+
+/* Botones mover arriba/abajo */
+.btn-mover-arriba, .btn-mover-abajo, .btn-small { padding: 8px 14px; font-size: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; color: white; background-color: #181143; transition: 0.2s; }
+.btn-mover-arriba:hover, .btn-mover-abajo:hover, .btn-small:hover { background-color:#3c4219; }
+
+/* Estilos para opciones y contenedor dinámico */
+.options-container { margin-top:10px; }
+.option-item input[type="text"] { width:100%; padding:10px; border:2px solid #181143; border-radius:6px; font-size:16px; }
+
+/* Pequeños ajustes visuales para la fila de botones */
+.fila-botones { margin-top: 25px; margin-bottom: 35px; }
+.btn-mini { background-color: #181143; }
+.btn-mini.btn-secundario { background-color: #143e34; }
+.btn-mini.btn-peligro { background-color: #c11f25; }
+
+/* Vista previa: botón volver */
+.btn-preview-back, #btn-volver { background:#181143; color:#fff; padding:10px 12px; border-radius:8px; border:none; }
+
+/* Ajustes para el contenedor principal y separación como en mock */
+.seccion-formulario { box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+
+/* Small helpers also used by the JS logic */
+.pregunta-container { background: white; border-radius: 12px; padding: 18px; margin-bottom: 14px; border: 1px solid #e6e6e6; }
+.oblig-footer { display:flex; align-items:center; justify-content:flex-end; gap:14px; margin-top:10px; }
+
+/* Utility class to hide views until JS toggles them */
+.vista-oculta { display: none !important; }
+.vista-oculta.fade { opacity: 0; transition: opacity .22s ease; }
+
+/* ensure preview panel uses same visual weight */
+.vista-panel { border: 2px solid #181143; padding:18px; }
+
+/* keep the table header consistent with EsFormulario.css */
+.tabla-formularios thead th { background:#0f4b3c; color:#fff; }
+
+/* ========== Ajustes para fila de pregunta (label + control) ========== */
+.fila-form {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.fila-form label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Inputs dentro de la fila de pregunta */
+.fila-form input[type="text"],
+.fila-form select,
+.preg, .tituloPregunta {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #181143;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  background: #fff;
+}
+
+.fila-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.fila-form input[type="text"]:focus,
+.fila-form select:focus,
+.preg:focus {
+  box-shadow: 0 0 0 3px rgba(193,31,37,0.06);
+  border-color: #181143;
+}
+
+/* Ajuste del contenedor dinámico para opciones */
+.dynamic { margin-top: 8px; }
+
+/* Mejor separación entre label 'Obligatorio' y toggle dentro del footer */
+.oblig-footer .txt-oblig { margin-right: 8px; }
+
+/* Tipo indicator: small icon + label next to the select */
+.tipo-indicator {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:8px;
+  background: transparent;
+  color:#333;
+  font-size:14px;
+  min-width:220px;
+}
+.tipo-indicator .tipo-icon {
+  display:inline-flex;
+  width:26px; height:26px; line-height:26px; text-align:center; border-radius:6px; background:#f0f0f0; color:#181143; font-weight:700;
+}
+.tipo-indicator .tipo-text { color:#333; }
+
+/* subtle background for indicator when type selected */
+.tipo-indicator[data-tipo] { background: rgba(24,17,67,0.03); }
+
+/* Google-Forms-like option list styles */
+.options-container { padding: 12px 10px; }
+.lista-opciones { display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
+.option-item { display:flex; align-items:center; gap:12px; background:transparent; padding:6px 4px; }
+.option-icon { width:34px; text-align:center; color:#666; }
+.icon-num { font-weight:700; color:#666; }
+.option-input-wrap { flex:1; }
+.option-input-wrap .resp { width:100%; padding:10px; border: none; border-bottom:1px solid #e0e0e0; background:transparent; font-size:15px; }
+.option-input-wrap .option-other-label { color:#666; font-style:italic; }
+.remove-option { background:none; border:none; color:#888; font-size:18px; cursor:pointer; padding:6px 8px; }
+.remove-option:hover { color:#c11f25; }
+.options-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
+.add-option-link, .add-other-link { background:none; border:none; color:#1a73e8; cursor:pointer; font-weight:600; padding:6px 8px; }
+.add-option-link:hover, .add-other-link:hover { text-decoration:underline; }
+.or-text { color:#666; }
+
+/* when dropdown list, make options numbered with slight indent */
+.lista-opciones .icon-num { width:28px; }
+
+

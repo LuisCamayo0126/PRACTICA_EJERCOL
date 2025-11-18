@@ -1,7 +1,8 @@
 /* Calificacion instructores CSS (from Califi.css) */
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: 'Montserrat', sans-serif; background-color:#fff; color:#000; padding-top:100px; }
-header{ position:fixed; top:0; left:0; width:100%; height:80px; background-color:white; display:flex; align-items:center; justify-content:space-between; padding:10px 40px; box-shadow:0 2px 10px rgba(0,0,0,0.1); z-index:1000; }
+body { font-family: 'Montserrat', sans-serif; background-color:#fff; color:#000; padding-top:36px; }
+/* Use global header from auth.css; page-local fixed header removed to keep consistent spacing */
+/* header{ position:fixed; top:0; left:0; width:100%; height:80px; background-color:white; display:flex; align-items:center; justify-content:space-between; padding:10px 40px; box-shadow:0 2px 10px rgba(0,0,0,0.1); z-index:1000; } */
 /* Removed duplicated decorative bar: main site header line is provided by auth.css
 	Avoid adding another shorter golden pill via this page stylesheet. */
 

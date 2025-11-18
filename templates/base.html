@@ -12,52 +12,7 @@
 <body class="{% block body_class %}{% endblock %}">
   <div class="site-wrap">
     <header class="site-header">
-      <div class="header-inner">
-        <div class="header-left">
-          <a href="/" class="header-logo-link">
-            <img src="{% static 'images/Escudo_Ejercito.png' %}" alt="Escudo" class="header-logo">
-          </a>
-          <a href="/" class="header-logo-link">
-            <img src="{% static 'images/logo_3div.png' %}" alt="Logo 3Div" class="header-logo header-logo-secondary">
-          </a>
-          <div class="header-text">
-            <div class="header-title">Evaluación Por Competencias</div>
-          </div>
-        </div>
-
-        <nav class="header-nav">
-          <ul class="nav-items">
-            {% with current=request.resolver_match.url_name %}
-              {% if user.is_authenticated and request.session.role_selected == 'soldado' and not user.is_staff and not user.is_superuser %}
-                <li><a class="nav-link {% if current in 'brigadas batallones companias pelotones' %}nav-active{% endif %}" href="{% url 'accounts:brigadas' %}">TERCERA DIVISIÓN</a></li>
-                <li><a class="nav-link {% if current == 'cursos' %}nav-active{% endif %}" href="{% url 'accounts:cursos' %}">CURSOS</a></li>
-                <li><a class="nav-link {% if current == 'evaluacion_instructores' %}nav-active{% endif %}" href="{% url 'accounts:evaluacion_instructores' %}">CALIFICACIÓN A INSTRUCTORES</a></li>
-              {% else %}
-                <li><a class="nav-link {% if current in 'brigadas batallones companias pelotones' %}nav-active{% endif %}" href="{% url 'accounts:brigadas' %}">TERCERA DIVISIÓN</a></li>
-                {% if user.is_authenticated %}
-                  {% if user.is_staff or user.is_superuser or request.session.role_selected in 'admin instructor soldado' %}
-                    <li><a class="nav-link {% if current == 'crear_cursos' %}nav-active{% endif %}" href="{% url 'accounts:crear_cursos' %}">CREAR CURSOS</a></li>
-                    <li><a class="nav-link {% if current == 'crear_usuarios' %}nav-active{% endif %}" href="{% url 'accounts:crear_usuarios' %}">CREAR USUARIOS</a></li>
-                  {% endif %}
-                {% endif %}
-                <li><a class="nav-link {% if current == 'admin_home' %}nav-active{% endif %}" href="{% url 'accounts:admin_home' %}">GRUPOS USUARIOS</a></li>
-                <li class="nav-formularios"><a class="nav-link {% if current == 'formularios' %}nav-active{% endif %}" href="{% url 'accounts:formularios' %}">FORMULARIOS</a></li>
-              {% endif %}
-            {% endwith %}
-          </ul>
-        </nav>
-
-        <div class="header-right">
-          {% if user.is_authenticated %}
-            <form method="post" action="{% url 'accounts:logout' %}" class="logout-inline">{% csrf_token %}
-              <button type="submit" class="logout-button-modern" aria-label="Salir">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 17L21 12L16 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 19H7A2 2 0 0 1 5 17V7A2 2 0 0 1 7 5H12" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Salir
-              </button>
-            </form>
-          {% endif %}
-        </div>
-      </div>
+      {% include 'includes/header.html' %}
       <div class="header-line"></div>
     </header>
 
