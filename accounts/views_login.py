@@ -42,11 +42,12 @@ class RoleLoginView(LoginView):
 
     def get_success_url(self):
         # Redirigir según el rol seleccionado en sesión.
-        # admin -> admin_home, instructor -> instructor_dashboard, soldado -> soldado_home
+        # admin -> admin_home, instructor -> admin_home (instructors use admin interface), soldado -> soldado_home
         role = self.request.session.get('role_selected', 'soldado')
         if role == 'admin':
             return reverse('accounts:admin_home')
         if role == 'instructor':
-            return reverse('accounts:instructor_dashboard')
-        # Soldado debe ser redirigido a admin_home según requisito
+            # Instructors should access admin_home per requirements
+            return reverse('accounts:admin_home')
+        # Default: soldado — redirect to admin_home per new requirement
         return reverse('accounts:admin_home')

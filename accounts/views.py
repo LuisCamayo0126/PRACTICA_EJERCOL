@@ -28,6 +28,8 @@ try:
 except Exception:
 	_REPORTLAB_AVAILABLE = False
 
+from django.views.decorators.csrf import csrf_exempt
+
 
 def home_redirect(request):
 	"""Vista inteligente que redirije según el estado del usuario"""
@@ -324,8 +326,54 @@ def _icon_for_batallon(brigada: str, batallon: str) -> str | None:
 			return settings.STATIC_URL.rstrip('/') + '/' + rel
 	return None
 
+
+# --- Simple JSON API for asistencia persistence (file-backed) -----------------
+@csrf_exempt
 @login_required
-@role_required(['admin', 'instructor'])
+def api_get_asistencia(request):
+	"""Return stored asistencia JSON for a materia, or empty list if none."""
+	materia = request.GET.get('materia')
+	if not materia:
+		return JsonResponse({'success': False, 'error': 'missing materia parameter'}, status=400)
+
+	path = os.path.join(settings.BASE_DIR, 'data', f'asistencia_{materia}.json')
+	if os.path.exists(path):
+		try:
+			with open(path, 'r', encoding='utf-8') as f:
+				payload = json.load(f)
+		except Exception:
+			payload = []
+	else:
+		payload = []
+
+	return JsonResponse({'success': True, 'data': payload})
+
+
+@csrf_exempt
+@login_required
+def api_save_asistencia(request):
+	"""Save asistencia JSON for a materia (expects JSON body with 'materia' and 'data')."""
+	if request.method != 'POST':
+		return JsonResponse({'success': False, 'error': 'method not allowed'}, status=405)
+	try:
+		body = json.loads(request.body.decode('utf-8'))
+		materia = body.get('materia')
+		data_payload = body.get('data')
+		if not materia or data_payload is None:
+			return JsonResponse({'success': False, 'error': 'missing fields'}, status=400)
+
+		outdir = os.path.join(settings.BASE_DIR, 'data')
+		os.makedirs(outdir, exist_ok=True)
+		path = os.path.join(outdir, f'asistencia_{materia}.json')
+		with open(path, 'w', encoding='utf-8') as f:
+			json.dump(data_payload, f, ensure_ascii=False, indent=2)
+
+		return JsonResponse({'success': True})
+	except Exception as e:
+		return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@role_required(['admin', 'instructor', 'soldado'])
 def batallones(request):
 	"""Lista de batallones para una brigada (usa batallon.html)."""
 	brigada = _normalize_text(request.GET.get('brigada') or '')
@@ -366,7 +414,7 @@ def batallones(request):
 	return render(request, 'tercera_division/batallon.html', context)
 
 @login_required
-@role_required(['admin', 'instructor'])
+@role_required(['admin', 'instructor', 'soldado'])
 def companias(request):
 	"""Lista de compañías para un batallón específico."""
 	brigada = _normalize_text(request.GET.get('brigada') or '')
@@ -437,7 +485,7 @@ def companias(request):
 	return render(request, 'tercera_division/companias.html', context)
 
 @login_required
-@role_required(['admin', 'instructor'])
+@role_required(['admin', 'instructor', 'soldado'])
 def pelotones(request):
 	"""Vista de Pelotones.
 
@@ -508,7 +556,7 @@ def pelotones(request):
 
 
 @login_required
-@role_required(['admin', 'instructor'])
+@role_required(['admin', 'instructor', 'soldado'])
 def export_peloton_csv(request):
 	"""Exporta un CSV del personal del pelotón indicado.
 
@@ -527,6 +575,56 @@ def export_peloton_csv(request):
 
 	filename = f"personal_{slugify(brigada)}_{slugify(batallon)}_{slugify(compania)}_{slugify(peloton)}.csv"
 
+	# Allow optional PDF export by passing ?format=pdf
+	# Default to PDF when reportlab is available, otherwise fall back to CSV
+	fmt = (request.GET.get('format') or '').lower()
+	if not fmt:
+		fmt = 'pdf' if _REPORTLAB_AVAILABLE else 'csv'
+	if fmt == 'pdf':
+		# Generate PDF if reportlab is available
+		if not _REPORTLAB_AVAILABLE:
+			return HttpResponse('PDF generation not available on this server.', status=501)
+
+		pdf_filename = filename.rsplit('.', 1)[0] + '.pdf'
+		buffer = BytesIO()
+		doc = SimpleDocTemplate(buffer, pagesize=letter)
+		styles = getSampleStyleSheet()
+		elements = []
+
+		title = f"Personal - {brigada} / {batallon} / {compania} / {peloton}"
+		elements.append(Paragraph(title, styles['Title']))
+		elements.append(Spacer(1, 12))
+
+		# Table data (headers + mock rows)
+		data_table = [
+			['Documento', 'Apellidos', 'Nombres', 'Grado', 'Pelotón', 'Compañía', 'Batallón', 'Brigada']
+		]
+		mock_rows = [
+			('1001001001', 'Pérez Gómez', 'Juan Carlos', 'SL', peloton, compania, batallon, brigada),
+			('1001001002', 'Rodríguez López', 'María Fernanda', 'SL', peloton, compania, batallon, brigada),
+			('1001001003', 'García Martínez', 'Luis Alberto', 'CB', peloton, compania, batallon, brigada),
+			('1001001004', 'Hernández Díaz', 'Ana Lucía', 'CB', peloton, compania, batallon, brigada),
+			('1001001005', 'Sánchez Torres', 'Carlos Andrés', 'SG', peloton, compania, batallon, brigada),
+		]
+		for r in mock_rows:
+			data_table.append(list(r))
+
+		table = Table(data_table, repeatRows=1)
+		table.setStyle(TableStyle([
+			('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f4b3c')),
+			('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+			('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+			('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+		]))
+		elements.append(table)
+		doc.build(elements)
+		pdf = buffer.getvalue()
+		buffer.close()
+
+		response = HttpResponse(content_type='application/pdf')
+		response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
+		response.write(pdf)
+		return response
 	# Preparar respuesta CSV
 	response = HttpResponse(content_type='text/csv; charset=utf-8')
 	response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -558,6 +656,19 @@ def export_peloton_csv(request):
 
 
 @login_required
+@role_required(['instructor', 'admin'])
+def calificacion_soldados(request):
+	"""Página para que el instructor califique a los soldados.
+
+	Actualmente es una vista inicial/placeholder que muestra la lista
+	de pelotones/compañías que el instructor puede calificar. Se podrá
+	ampliar con la lógica real de calificación posteriormente.
+	"""
+	# Para la primera iteración devolvemos una plantilla sencilla.
+	return render(request, 'instructor/calificacion_soldados.html')
+
+
+@login_required
 @role_required(['admin', 'instructor'])
 def crear_cursos(request):
 	"""Vista para crear cursos - Solo Admin e Instructor"""
@@ -586,7 +697,40 @@ def soldado_home(request):
 @role_required(['soldado'])
 def cursos(request):
 	"""Vista para que el soldado vea sus cursos."""
-	return render(request, 'soldado/cursos.html')
+	# Intentar cargar un JSON precargado con el boletín generado por el comando
+	data_path = os.path.join(settings.BASE_DIR, 'data', 'boletin.json')
+	boletin = []
+	if os.path.exists(data_path):
+		try:
+			with open(data_path, 'r', encoding='utf-8') as f:
+				boletin = json.load(f)
+		except Exception:
+			boletin = []
+	# Normalize rows: ensure expected keys and pad notas to 4 entries so template can index safely
+	normalized = []
+	for r in boletin:
+		notas = r.get('notas') or []
+		# convert any non-numeric to string and pad to 4
+		notas_normal = []
+		for n in notas:
+			if n is None:
+				notas_normal.append('')
+			else:
+				notas_normal.append(str(n))
+		while len(notas_normal) < 4:
+			notas_normal.append('')
+		normalized.append({
+			'cedula': r.get('cedula', ''),
+			'nombre': r.get('nombre', ''),
+			'curso': r.get('curso', ''),
+			'notas': notas_normal,
+			'promedio': r.get('promedio', ''),
+			'faltas': r.get('faltas', ''),
+			'observaciones': r.get('observaciones', ''),
+			'estado': r.get('estado', ''),
+		})
+	boletin = normalized
+	return render(request, 'soldado/cursos.html', { 'boletin_rows': boletin })
 
 
 @login_required
@@ -601,6 +745,212 @@ def evaluacion_instructores(request):
 def formularios(request):
 	"""Render the Formularios constructor/manager page."""
 	return render(request, 'formularios/formularios.html')
+
+
+# --- Grupos de usuarios ----------------------------------------------------
+@login_required
+@role_required(['admin', 'instructor'])
+def grupos_usuarios(request):
+	"""Página de gestión/listado de grupos de usuarios.
+
+	Renderiza la plantilla `grupos_usuarios/grupos_usuarios.html`. La plantilla
+	existente en el proyecto ya hace uso de la URL `accounts:grupos_download`.
+	"""
+	# Preparar contexto mínimo para la plantilla para evitar valores vacíos
+	try:
+		from django.contrib.auth.models import User, Group
+	except Exception:
+		User = None
+		Group = None
+
+	admins = []
+	instructors = []
+	soldados = []
+
+	if User is not None:
+		try:
+			admins = list(User.objects.filter(is_staff=True).order_by('last_name'))
+		except Exception:
+			admins = []
+
+	if Group is not None:
+		try:
+			g_instr = Group.objects.filter(name__icontains('instructor')).first()
+			g_sold = Group.objects.filter(name__icontains('soldad')).first()
+			if g_instr:
+				instructors = list(g_instr.user_set.all().order_by('last_name'))
+			if g_sold:
+				soldados = list(g_sold.user_set.all().order_by('last_name'))
+		except Exception:
+			instructors = []
+			soldados = []
+
+	# Fallback: si no hay grupos, considerar todos los no-staff como soldados/instructores
+	if not instructors and User is not None:
+		try:
+			instructors = list(User.objects.filter(is_staff=False, is_superuser=False).order_by('last_name')[:50])
+		except Exception:
+			instructors = []
+	if not soldados and User is not None:
+		try:
+			soldados = list(User.objects.filter(is_staff=False, is_superuser=False).order_by('last_name')[:50])
+		except Exception:
+			soldados = []
+
+	context = {
+		'admins': admins,
+		'instructors': instructors,
+		'soldados': soldados,
+	}
+
+	return render(request, 'grupos_usuarios/grupos_usuarios.html', context)
+
+
+@login_required
+@role_required(['admin', 'instructor'])
+def grupos_download(request, role='all'):
+	"""Genera un CSV con los grupos y un estado ficticio para descarga.
+
+	La plantilla invoca esta URL pasando un rol; para asegurar compatibilidad
+	con enlaces existentes, `role` es aceptado pero por ahora solo se usa
+	para nombrar el fichero.
+	"""
+	try:
+		from django.contrib.auth.models import Group
+	except Exception:
+		Group = None
+
+	# Allow optional PDF export via ?format=pdf. Default to PDF when reportlab is available.
+	fmt = (request.GET.get('format') or '').lower()
+	if not fmt:
+		fmt = 'pdf' if _REPORTLAB_AVAILABLE else 'csv'
+
+	# CSV response (fallback)
+	if fmt != 'pdf':
+		filename = f"grupos_{role}.csv"
+		response = HttpResponse(content_type='text/csv; charset=utf-8')
+		response['Content-Disposition'] = f'attachment; filename="{filename}"'
+		writer = csv.writer(response)
+		writer.writerow(['Nombre del Grupo', 'Estado'])
+		if Group is not None:
+			for g in Group.objects.all().order_by('name'):
+				writer.writerow([g.name, 'ACTIVO'])
+		else:
+			writer.writerow(['Sin datos', 'N/A'])
+		return response
+
+	# PDF generation
+	if not _REPORTLAB_AVAILABLE:
+		return HttpResponse('PDF generation not available on this server.', status=501)
+
+	pdf_filename = f"grupos_{role}.pdf"
+	buffer = BytesIO()
+	doc = SimpleDocTemplate(buffer, pagesize=letter)
+	styles = getSampleStyleSheet()
+	elements = []
+	elements.append(Paragraph(f"Grupos - {role}", styles['Title']))
+	elements.append(Spacer(1, 12))
+
+	data_table = [['Nombre del Grupo', 'Estado']]
+	if Group is not None:
+		for g in Group.objects.all().order_by('name'):
+			data_table.append([g.name, 'ACTIVO'])
+	else:
+		data_table.append(['Sin datos', 'N/A'])
+
+	table = Table(data_table, repeatRows=1)
+	table.setStyle(TableStyle([
+		('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f4b3c')),
+		('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+		('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+		('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+	]))
+	elements.append(table)
+	doc.build(elements)
+	pdf = buffer.getvalue()
+	buffer.close()
+
+	response = HttpResponse(content_type='application/pdf')
+	response['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
+	response.write(pdf)
+	return response
+
+
+@login_required
+@role_required(['admin', 'instructor'])
+def boletines_download(request):
+	"""Download all boletines as a single PDF (preferred) or a ZIP fallback.
+
+	Query params:
+	- format=pdf|zip (optional)
+
+	If reportlab is available the view will produce a combined PDF containing
+	one section per materia. If not available, the view will return a ZIP file
+	with simple text placeholders for each boletín.
+	"""
+	fmt = (request.GET.get('format') or '').lower()
+	if not fmt:
+		fmt = 'pdf' if _REPORTLAB_AVAILABLE else 'zip'
+
+	# Minimal materia list (kept in sync with frontend JS mapping)
+	materias = [
+		{'clave': 'materia1', 'nombre': 'TAREAS OFENSIVAS'},
+		{'clave': 'materia2', 'nombre': 'CONTROL DE AMENAZA HIBRIDA'},
+		{'clave': 'materia3', 'nombre': 'DRILES DE COMBATE PROACTIVOS'},
+		{'clave': 'materia4', 'nombre': 'PISTA DE CONDUCCION DE OPERACIONES'},
+		{'clave': 'materia5', 'nombre': 'FORMACIONES DE EQUIPOS Y PELOTON'},
+	]
+
+	# Preferred: single PDF with multiple sections
+	if fmt == 'pdf':
+		if not _REPORTLAB_AVAILABLE:
+			return HttpResponse('PDF generation not available on this server.', status=501)
+
+		buffer = BytesIO()
+		doc = SimpleDocTemplate(buffer, pagesize=letter)
+		styles = getSampleStyleSheet()
+		elements = []
+
+		for m in materias:
+			elements.append(Paragraph(m['nombre'], styles['Heading1']))
+			elements.append(Spacer(1, 8))
+			# Placeholder intro text for the boletín
+			elements.append(Paragraph('Boletín de rendimiento — lista y resumen de la materia.', styles['Normal']))
+			elements.append(Spacer(1, 12))
+			# Simple table header example (no real datos available here)
+			data_table = [['N°', 'NOMBRE', 'CÉDULA', 'PROMEDIO', 'FALTAS', 'OBSERVACIONES']]
+			table = Table(data_table, repeatRows=1)
+			table.setStyle(TableStyle([
+				('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f4b3c')),
+				('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+				('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+				('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+			]))
+			elements.append(table)
+			elements.append(Spacer(1, 18))
+
+		doc.build(elements)
+		pdf = buffer.getvalue()
+		buffer.close()
+
+		response = HttpResponse(pdf, content_type='application/pdf')
+		response['Content-Disposition'] = 'attachment; filename="boletines_todas_materias.pdf"'
+		return response
+
+	# Fallback: produce a ZIP containing simple text files per materia
+	import zipfile
+
+	zip_buffer = BytesIO()
+	with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+		for m in materias:
+			fname = f"boletin_{m['clave']}.txt"
+			content = f"Boletín — {m['nombre']}\n\nEste archivo es un placeholder.\n"
+			zf.writestr(fname, content.encode('utf-8'))
+
+	zip_buffer.seek(0)
+	response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+	response['Content-Disposition'] = 'attachment; filename="boletines.zip"'
+	return response
 
 
 class SimpleRegistrationForm(forms.Form):

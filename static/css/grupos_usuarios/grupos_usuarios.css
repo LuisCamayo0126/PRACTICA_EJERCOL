@@ -6,24 +6,15 @@
 .page-title{ font-family: 'Poppins', 'Open Sans', Arial, sans-serif; font-weight:800; font-size:22px; color:#132f2a; }
 
 /* Ensure the page title uses the same dark green used elsewhere */
-.grupos-main .page-title{ 
-  /* Center title and apply stylized headline (stroke + glow) */
+.grupos-main .page-title{
   text-align: center;
   margin: 6px auto 14px;
   display: block;
-  font-weight: 900;
-  letter-spacing: 2px;
+  font-weight: 800;
+  letter-spacing: 1px;
   line-height: 1;
-  /* large, punchy color like the attached style */
-  color: #ff4b3b;
-  font-size: 48px;
-  /* pale outline + heavy glow to emulate the image */
-  -webkit-text-stroke: 3px rgba(255,210,170,0.95);
-  text-shadow:
-    0 2px 0 rgba(255,255,255,0.65),
-    0 8px 20px rgba(255,90,70,0.30),
-    0 0 40px rgba(255,90,70,0.30),
-    0 0 80px rgba(255,120,100,0.16);
+  color: #0b3b2e; /* dark green matching header */
+  font-size: 26px;
 }
 
 @media (max-width:1000px){
@@ -84,8 +75,8 @@
 .btn-action{ display:inline-block; padding:6px 10px; border-radius:6px; background:#fff; border:1px solid rgba(0,0,0,0.06); color:#0b3b2e; font-weight:700; font-size:12px; }
 .btn-action.ghost{ background:transparent; border:1px solid #d6d6d6; }
 
-/* Remove floating lateral action cards (MODIFICAR / CREAR / ELIMINAR) */
-.grupos-main .panel .panel-lateral-acciones{ display: none !important; }
+/* Keep lateral action cards visible (left vertical toolbar) */
+.grupos-main .panel .panel-lateral-acciones{ display: flex; }
 
 /* Download icon in resumen table */
 .tabla-resumen .download-cell{ width:56px; text-align:center; }

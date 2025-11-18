@@ -10,7 +10,7 @@
 {% block content %}
 <main class="flex-main">
 
-  <!-- Constructor del Formulario -->
+  <!-- Constructor del Formulario (oculto hasta pulsar CREAR) -->
   <section id="constructor-form" class="seccion-formulario vista-oculta">
 
     <h2 class="titulo-form">NUEVO FORMULARIO</h2>
@@ -31,13 +31,46 @@
       <span id="estado-texto">ACTIVO</span>
     </div>
 
-    <div id="contenedor-preguntas"></div>
+    <div id="contenedor-preguntas">
+      <!-- Pregunta inicial estática: coincide con la estructura que usa Formulario.js -->
+      <div class="pregunta-container pregunta" data-id="p_initial">
+        <div class="fila-form">
+          <label>Pregunta:</label>
+          <input type="text" class="preg tituloPregunta" placeholder="Escribe la pregunta">
+        </div>
+
+        <div class="fila-form">
+          <label>Tipo de respuesta:</label>
+          <select class="tipo tipo-select">
+            <option value="" disabled selected>Selecciona</option>
+            <option value="texto">Texto corto</option>
+            <option value="texto-largo">Texto largo</option>
+            <option value="opciones">Opción múltiple</option>
+            <option value="checkbox">Casillas</option>
+            <option value="lista">Lista desplegable</option>
+          </select>
+        </div>
+
+        <div class="dynamic"></div>
+
+        <div class="oblig-footer">
+          <label class="txt-oblig">Obligatorio</label>
+          <label class="switch-oblig">
+            <input type="checkbox" class="oblig">
+            <span class="slider-oblig"></span>
+          </label>
+          <button class="btn-eliminar-pregunta" title="Eliminar pregunta">Eliminar</button>
+          <button class="btn-mover-arriba btn-small" title="Mover arriba">Arriba</button>
+          <button class="btn-mover-abajo btn-small" title="Mover abajo">Abajo</button>
+        </div>
+      </div>
+    </div>
 
     <div class="fila-botones">
-      <button id="btn-add-pregunta" class="btn-mini">Agregar pregunta</button>
-      <button id="btn-preview" class="btn-mini btn-secundario">Vista previa</button>
-      <button class="btn-mini btn-peligro" id="btn-eliminar-form">Eliminar formulario</button>
-      <button id="btn-guardar-form" class="btn-mini btn-secundario">Guardar formulario</button>
+      <button id="btn-add-pregunta" class="btn-mini btn-add-pregunta">Agregar pregunta</button>
+      <button id="btn-preview" class="btn-mini btn-preview">Vista previa</button>
+      <button class="btn-mini btn-peligro btn-eliminar-pregunta" id="btn-eliminar-form">Eliminar formulario</button>
+      <button id="btn-guardar-form" class="btn-mini btn-secundario btn-guardar">Guardar formulario</button>
     </div>
 
   </section>
@@ -57,18 +90,18 @@
 
     <!-- Panel lateral -->
     <div class="panel-lateral">
-      <div id="btnCrear" class="panel-action">
-        <img src="{% static 'images/CREAR.png' %}" alt="Crear">
+      <div id="btnCrear" class="panel-action" role="button" tabindex="0">
+        <img src="{% static 'images/tercedivi/Crear.png' %}" alt="Crear">
         <p>CREAR</p>
       </div>
 
-      <div id="btnEdit" class="panel-action disabled">
-        <img src="{% static 'images/EDITAR.png' %}" alt="Editar">
+      <div id="btnEdit" class="panel-action disabled" role="button" tabindex="0" aria-disabled="true">
+        <img src="{% static 'images/tercedivi/Editar.png' %}" alt="Editar">
         <p>EDITAR</p>
       </div>
 
-      <div id="btnDelete" class="panel-action disabled">
-        <img src="{% static 'images/Eliminar.png' %}" alt="Eliminar">
+      <div id="btnDelete" class="panel-action disabled" role="button" tabindex="0" aria-disabled="true">
+        <img src="{% static 'images/tercedivi/Eliminar.png' %}" alt="Eliminar">
         <p>ELIMINAR</p>
       </div>
     </div>

@@ -14,11 +14,6 @@
   </header>
 
   <section class="panel resumen">
-    <div class="panel-lateral-acciones">
-      <div class="accion">MODIFICAR</div>
-      <div class="accion crear">CREAR</div>
-      <div class="accion eliminar">ELIMINAR</div>
-    </div>
     <div class="panel-contenido">
       <h3 class="panel-title">RESUMEN DE USUARIOS</h3>
       <table class="tabla-resumen">
@@ -33,7 +28,7 @@
         <tbody>
           <tr>
             <td class="download-cell">
-              <a class="download-link" href="{% url 'accounts:grupos_download' 'admins' %}" title="Descargar administradores">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'admins' %}?format=pdf" title="Descargar administradores">
                 <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
               </a>
             </td>
@@ -43,7 +38,7 @@
           </tr>
           <tr>
             <td class="download-cell">
-              <a class="download-link" href="{% url 'accounts:grupos_download' 'instructors' %}" title="Descargar instructores">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'instructors' %}?format=pdf" title="Descargar instructores">
                 <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
               </a>
             </td>
@@ -53,7 +48,7 @@
           </tr>
           <tr>
             <td class="download-cell">
-              <a class="download-link" href="{% url 'accounts:grupos_download' 'soldados' %}" title="Descargar soldados">
+              <a class="download-link" href="{% url 'accounts:grupos_download' 'soldados' %}?format=pdf" title="Descargar soldados">
                 <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" />
               </a>
             </td>
@@ -67,11 +62,6 @@
   </section>
 
   <section class="panel lista">
-    <div class="panel-lateral-acciones small">
-      <div class="accion">MODIFICAR</div>
-      <div class="accion crear">CREAR</div>
-      <div class="accion eliminar">ELIMINAR</div>
-    </div>
     <div class="panel-contenido wide">
       <div class="table-header-row">
         <h3 class="panel-title">INSTRUCTORES</h3>
@@ -107,11 +97,6 @@
   </section>
 
   <section class="panel lista">
-    <div class="panel-lateral-acciones small">
-      <div class="accion">MODIFICAR</div>
-      <div class="accion crear">CREAR</div>
-      <div class="accion eliminar">ELIMINAR</div>
-    </div>
     <div class="panel-contenido wide">
         <div class="table-header-row">
           <h3 class="panel-title">SOLDADOS</h3>

@@ -1,0 +1,30 @@
+[
+  {
+    "numero": 1,
+    "nombre": "Martin Lopez",
+    "cedula": "13873184",
+    "calificaciones": [
+      100,
+      80,
+      100,
+      60
+    ],
+    "prom": 85,
+    "faltas": 1,
+    "obs": "Llega tarde"
+  },
+  {
+    "numero": 2,
+    "nombre": "Carlos Ramirez",
+    "cedula": "13873185",
+    "calificaciones": [
+      80,
+      60,
+      80,
+      80
+    ],
+    "prom": 75,
+    "faltas": 0,
+    "obs": "Excelente desempeño"
+  }
+]

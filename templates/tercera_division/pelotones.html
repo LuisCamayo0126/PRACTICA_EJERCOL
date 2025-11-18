@@ -62,7 +62,7 @@
                 </div>
                 <div class="peloton-actions">
                   <a class="action-button" href="#">Ver Detalles</a>
-                  <a class="action-button export" href="{% url 'accounts:export_peloton_csv' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}&compania={{ compania|urlencode }}&peloton={{ p|urlencode }}">Exportar</a>
+                  <a class="action-button export" href="{% url 'accounts:export_peloton_csv' %}?brigada={{ brigada|urlencode }}&batallon={{ batallon|urlencode }}&compania={{ compania|urlencode }}&peloton={{ p|urlencode }}&format=pdf">Exportar</a>
                 </div>
               </div>
             {% endfor %}
@@ -79,4 +79,20 @@
 {% block extra_js %}
 <script src="{% static 'js/tercera_division/resultados.js' %}"></script>
 <script src="{% static 'js/tercera_division/pelotones.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // Ensure every export link requests PDF (safe-guard in case templates or JS build URLs differently)
+  document.querySelectorAll('a.export').forEach(function(a){
+    try{
+      var url = new URL(a.href, window.location.origin);
+      if(!url.searchParams.has('format')) url.searchParams.set('format','pdf');
+      a.href = url.toString();
+    } catch(err) {
+      // Fallback for relative URLs or older browsers: append param if missing
+      if(a.href.indexOf('?') === -1) a.href = a.href + '?format=pdf';
+      else if(!/([?&])format=/.test(a.href)) a.href = a.href + '&format=pdf';
+    }
+  });
+});
+</script>
 {% endblock %}

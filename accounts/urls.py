@@ -35,5 +35,13 @@ urlpatterns = [
     path("companias/", views.companias, name="companias"),
     path("pelotones/", views.pelotones, name="pelotones"),
     path("export/peloton-csv/", views.export_peloton_csv, name="export_peloton_csv"),
+    path("calificacion-soldados/", views.calificacion_soldados, name="calificacion_soldados"),
+    path("boletines/download/", views.boletines_download, name="boletines_download"),
+    # API endpoints for asistencia (AJAX)
+    path("api/asistencia/", views.api_get_asistencia, name="api_get_asistencia"),
+    path("api/asistencia/save/", views.api_save_asistencia, name="api_save_asistencia"),
     path("formularios/", views.formularios, name="formularios"),
+    # Grupos de usuarios (lista + descarga CSV)
+    path("grupos-usuarios/", views.grupos_usuarios, name="grupos_usuarios"),
+    path("grupos-download/<str:role>/", views.grupos_download, name="grupos_download"),
 ]

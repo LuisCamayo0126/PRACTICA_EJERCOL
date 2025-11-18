@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calificación a Soldados{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/calificacion_soldados/calificacion_soldados.css' %}">
+{% endblock %}
+
+{% block content %}
+<main>
+  {% include 'includes/back_button.html' with label='Volver Atrás' onclick="cambiarVista('principal'); return false;" %}
+  <h1 class="titulo" id="titulo-principal">CALIFICACIÓN Y ASISTENCIA SOLDADOS</h1>
+
+  <!-- Controles para Vista Principal -->
+  <div class="controles" id="controles-principal">
+    <div class="grupo-controles">
+      <div class="filtros">
+        <select id="select-materia" class="select-materia">
+          <option value="">Seleccionar Materia</option>
+          <option value="materia1">TAREAS OFENSIVAS</option>
+          <option value="materia2">CONTROL DE AMENAZA HIBRIDA</option>
+          <option value="materia3">DRILES DE COMBATE PROACTIVOS</option>
+          <option value="materia4">PISTA DE CONDUCCION DE OPERACIONES</option>
+          <option value="materia5">FORMACIONES DE EQUIPOS Y PELOTON</option>
+        </select>
+      </div>
+      
+      <div class="grupo-botones">
+        <button id="btn-calificacion" class="btn btn-activo">CALIFICACIÓN</button>
+        <button id="btn-asistencia" class="btn">ASISTENCIA</button>
+      </div>
+    </div>
+    
+  <!-- En controles principal -->
+  <div class="buscador">
+    <input type="text" placeholder="Buscar por nombre o cédula..." id="buscador-principal">
+    <span class="lupa">🔍</span>
+  </div>
+
+    <div class="pdf-icono">
+      <a href="{% url 'accounts:boletines_download' %}?format=pdf" title="Descargar boletines" class="download-boletines-link pdf-button" role="button" aria-label="Descargar todos los boletines" tabindex="0" rel="noopener">
+        <img src="{% static 'images/tercedivi/descargar_pdf.jpg' %}" alt="PDF" class="pdf-imagen">
+      </a>
+    </div>
+  </div>
+
+  <!-- Vista Principal (con FALTAS) -->
+  <div class="tabla-container" id="vista-principal">
+    <table id="tabla-principal">
+      <tr class="encabezado">
+        <th>N°</th>
+        <th>NOMBRE</th>
+        <th>CÉDULA</th>
+        <th>MATERIA 1</th>
+        <th>MATERIA 2</th>
+        <th>MATERIA 3</th>
+        <th>MATERIA 4</th>
+        <th>PROMEDIO</th>
+        <th>FALTAS</th>
+        <th>OBSERVACIONES</th>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Vista Calificaciones (sin FALTAS) -->
+  <div class="vista-oculta" id="vista-calificaciones">
+    <!-- Controles específicos para vista calificaciones -->
+    <div class="controles">
+      <div class="grupo-botones">
+        {% include 'includes/back_button.html' with label='Volver Atrás' onclick="cambiarVista('principal'); return false;" %}
+        <button class="btn btn-guardar-tabla" onclick="guardarCambiosTabla()">GUARDAR</button>
+      </div>
+      
+  <!-- En vista calificaciones -->
+  <!-- Using principal search input; internal buscadores removed to avoid duplication -->
+
+      <!-- PDF icon moved to top controls; removed here to avoid duplication -->
+    </div>
+
+    <div class="tabla-container">
+      <table id="tabla-calificaciones">
+        <tr class="encabezado">
+          <th>N°</th>
+          <th>NOMBRE</th>
+          <th>CÉDULA</th>
+          <th>MATERIA 1</th>
+          <th>MATERIA 2</th>
+          <th>MATERIA 3</th>
+          <th>MATERIA 4</th>
+          <th>PROMEDIO</th>
+          <th>OBSERVACIONES</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vista Asistencia (solo FALTAS) -->
+  <div class="vista-oculta" id="vista-asistencia">
+    <!-- Controles específicos para vista asistencia -->
+    <div class="controles">
+        <div class="grupo-botones">
+          {% include 'includes/back_button.html' with label='Volver Atrás' onclick="cambiarVista('principal'); return false;" %}
+          <button class="btn btn-guardar-tabla" onclick="guardarCambiosAsistencia()">GUARDAR</button>
+        </div>
+      <!-- En vista asistencia: usamos el buscador principal de la cabecera; input duplicado eliminado -->
+  </div>
+
+    <div class="tabla-container">
+      <table id="tabla-asistencia">
+        <tr class="encabezado">
+          <th>N°</th>
+          <th>NOMBRE</th>
+          <th>CÉDULA</th>
+          <th>FALTAS</th>
+          <th>OBSERVACIONES</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="vista-edicion" class="vista-oculta">
+    <h2>Editar Calificaciones</h2>
+
+    <div class="formulario">
+      <label>N°</label>
+      <input id="edit-num" disabled>
+
+      <label>Nombre</label>
+      <input id="edit-nombre" disabled>
+
+      <label>Cédula</label>
+      <input id="edit-cedula" disabled>
+
+      <label>Materia 1</label>
+      <input id="edit-m1" type="number">
+
+      <label>Materia 2</label>
+      <input id="edit-m2" type="number">
+
+      <label>Materia 3</label>
+      <input id="edit-m3" type="number">
+
+      <label>Materia 4</label>
+      <input id="edit-m4" type="number">
+
+      <label>Promedio</label>
+      <input id="edit-prom" type="number" step="0.1" disabled>
+
+      <label>Observaciones</label>
+      <input id="edit-obs" type="text">
+
+      <button onclick="guardarCambios()" class="btn-guardar">GUARDAR</button>
+      <button onclick="cerrarEdicion()" class="btn-cancelar">CANCELAR</button>
+    </div>
+  </div>
+
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/calificacion_soldados/calificacion_soldado.js' %}"></script>
+{% endblock %}
