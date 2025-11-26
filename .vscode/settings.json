@@ -1,4 +1,10 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.djangoSettings": "miapp.settings",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true
+    },
     "cSpell.words": [
         "Administrador",
         "Bienvenido",
@@ -10,6 +16,8 @@
         "Recordar",
         "sesión",
         "Soldado",
-        "Usuario"
+        "Usuario",
+        "miapp",
+        "django"
     ]
 }
